@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import { env } from '../config';
-
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 
+// Simple env access
+const NODE_ENV = process.env.NODE_ENV ?? 'development';
 const APP_VERSION = process.env.npm_package_version ?? '0.0.2';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: env.NODE_ENV,
+    environment: NODE_ENV,
     uptime: process.uptime(),
     service: 'Express TypeScript API',
   });

@@ -1,10 +1,9 @@
 import express from 'express';
 import request from 'supertest';
 
-import { configureRequestLogging } from '../middleware/request-logging.middleware';
-import { configureSecurity } from '../middleware/security.middleware';
+import { configureRequestLogging, configureSecurity } from '../middleware';
 
-import { TestHelper } from './helpers/test.helper';
+import { TestHelper } from './helpers';
 
 // Mock the database connection to avoid actual MongoDB connection
 jest.mock('../config/database', () => ({

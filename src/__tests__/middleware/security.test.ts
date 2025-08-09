@@ -1,8 +1,8 @@
 import express from 'express';
 import request from 'supertest';
 
-import { configureSecurity } from '../../middleware/security.middleware';
-import { TestHelper } from '../helpers/test.helper';
+import { configureSecurity } from '../../middleware';
+import { TestHelper } from '../helpers';
 
 describe('Security Middleware', () => {
   let app: express.Application;

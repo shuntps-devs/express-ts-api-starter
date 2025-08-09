@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { UserController } from '../controllers/user.controller';
-import { UserRole } from '../interfaces/user.interface';
+import { UserController } from '../controllers';
+import { UserRole } from '../interfaces';
 import { authenticate, requireRole, validateRequest } from '../middleware';
 import {
   getUsersQuerySchema,

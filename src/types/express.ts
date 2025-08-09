@@ -9,8 +9,8 @@
 
 import { Logger } from 'winston';
 
-import { IUser } from '../interfaces/user.interface';
-import { ISession } from '../models/session.model';
+import { IUser } from '../interfaces';
+import { ISession } from '../models';
 
 // Extend Express Request interface
 declare global {

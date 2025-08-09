@@ -2,12 +2,10 @@ import { Request, Response } from 'express';
 
 import { logger } from '../config';
 import { t } from '../i18n';
-import { IPaginatedResponse, IUserResponse } from '../interfaces';
-import { UserRole } from '../interfaces/user.interface';
+import { IPaginatedResponse, IUserResponse, UserRole } from '../interfaces';
 import { asyncHandler } from '../middleware';
 import { UserService } from '../services';
-import { ResponseHelper } from '../utils';
-import { UserHelper } from '../utils/user.helper';
+import { ResponseHelper, UserHelper } from '../utils';
 
 /**
  * Controller for user management operations

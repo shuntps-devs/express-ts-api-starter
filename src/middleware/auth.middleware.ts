@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { UserRole } from '../interfaces/user.interface';
-import { SessionService } from '../services/session.service';
-import { TokenService } from '../services/token.service';
-import { ResponseHelper } from '../utils/response.helper';
+import { UserRole } from '../interfaces';
+import { SessionService, TokenService } from '../services';
+import { ResponseHelper } from '../utils';
 
 /**
  * Middleware to authenticate user using cookies

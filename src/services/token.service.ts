@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { env } from '../config';
-import { IUser } from '../interfaces/user.interface';
+import { IUser } from '../interfaces';
 
 export interface ITokenPayload {
   userId: string;

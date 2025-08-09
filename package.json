@@ -1,6 +1,6 @@
 {
   "name": "express-typescript-starter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "🚀 Production-ready Express.js API boilerplate built with TypeScript, MongoDB, Jest testing, GitHub Actions CI/CD, and Docker. Enterprise-grade security and architecture.",
   "main": "dist/server.js",
   "repository": {

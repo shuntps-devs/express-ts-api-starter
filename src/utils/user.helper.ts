@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-import { UserRole } from '../interfaces/user.interface';
+import { UserRole } from '../interfaces';
 
 /**
  * User helper utilities that work with Express Request

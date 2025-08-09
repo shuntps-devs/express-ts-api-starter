@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 
-import { IUser } from '../interfaces/user.interface';
-import Session, { ISession } from '../models/session.model';
-
-import { ITokenPair, TokenService } from './token.service';
+import { env } from '../config';
+import { IUser } from '../interfaces';
+import { ISession, Session } from '../models';
+import { ITokenPair, TokenService } from '../services';
 
 export interface ISessionData {
   userId: string;
@@ -186,7 +186,7 @@ export class SessionService {
   private static getCookieOptions(): ICookieOptions {
     return {
       httpOnly: true, // Prevent XSS attacks
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      secure: env.NODE_ENV === 'production', // HTTPS only in production
       sameSite: 'strict', // CSRF protection
       maxAge: 0, // Will be overridden when setting cookies
     };

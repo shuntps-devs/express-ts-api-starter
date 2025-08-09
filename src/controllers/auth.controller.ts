@@ -4,7 +4,7 @@ import { logger } from '../config';
 import { t } from '../i18n';
 import { ICreateUserDto, ILoginDto, IUserResponse } from '../interfaces';
 import { asyncHandler } from '../middleware';
-import { ISession } from '../models/session.model';
+import { ISession } from '../models';
 import { SessionService, UserService } from '../services';
 import { ResponseHelper } from '../utils';
 

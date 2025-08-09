@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { t } from '../../i18n';
-import { UserRole } from '../../models/user.model';
+import { UserRole } from '../../models';
 import { emailSchema, passwordSchema } from '../common';
 
 export const registerSchema = z.object({

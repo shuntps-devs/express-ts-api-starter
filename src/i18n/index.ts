@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import middleware from 'i18next-http-middleware';
 
-import { env } from '../config/env';
+import { env } from '../config';
 
 import { en } from './locales/en';
 import { fr } from './locales/fr';
