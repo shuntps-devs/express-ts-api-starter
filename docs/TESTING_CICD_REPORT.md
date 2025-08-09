@@ -96,7 +96,6 @@
 
 #### 4. **Security Scanning**
 
-- **Snyk**: Dependency vulnerability scanning
 - **CodeQL**: Static code analysis
 - **Audit**: npm security audit
 
@@ -170,7 +169,6 @@
 
 ### Security Pipeline
 
-- **Dependency Scanning**: Snyk integration
 - **Static Analysis**: CodeQL security scanning
 - **Audit Checks**: npm audit for vulnerabilities
 - **Container Security**: Multi-stage builds with non-root users
@@ -231,7 +229,7 @@ npm run docker:down     # Stop all services
 
 ### Immediate Actions
 
-1. **Set up Repository Secrets** for CI/CD (MongoDB URI, JWT Secret, Snyk Token)
+1. **Set up Repository Secrets** for CI/CD (MongoDB URI, JWT Secret)
 2. **Configure Environment Protection** rules for staging/production
 3. **Enable Branch Protection** rules on main/develop branches
 4. **Set up Monitoring** (Sentry, DataDog, etc.)

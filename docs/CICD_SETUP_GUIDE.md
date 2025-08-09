@@ -40,9 +40,6 @@ Create environments:
 ```bash
 # Navigate to: Settings → Secrets and variables → Actions
 
-# For Snyk security scanning (optional):
-SNYK_TOKEN=your_snyk_token_here
-
 # For production deployment (add as needed):
 PROD_SERVER_HOST=your-server.com
 PROD_SSH_KEY=your_private_ssh_key
