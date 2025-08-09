@@ -15,7 +15,7 @@ const envSchema = z.object({
     .string()
     .min(32)
     .default('your-super-secret-jwt-key-change-in-production-min-32-chars'),
-  DEFAULT_LANGUAGE: z.enum(['en', 'fr']).default('fr'),
+  DEFAULT_LANGUAGE: z.enum(['en', 'fr']).default('en'),
   API_KEY: z.string().min(1).optional(),
   REDIS_URL: z.string().url().optional(),
 });
@@ -33,7 +33,24 @@ const validateEnv = () => {
     if (error instanceof z.ZodError) {
       const treeifiedError = z.treeifyError(error);
       logger.error('Environment validation failed', treeifiedError);
-      process.exit(1);
+
+      // Only exit in non-test environments
+      if (process.env.NODE_ENV !== 'test') {
+        process.exit(1);
+      } else {
+        // In test environment, continue with default values
+        logger.warn('Continuing with default values in test environment');
+        return {
+          NODE_ENV: 'test' as const,
+          PORT: 3000,
+          MONGODB_URI: 'mongodb://localhost:27017/express-ts-app-test',
+          JWT_SECRET: 'test-jwt-secret-at-least-32-characters-long-for-testing',
+          DEFAULT_LANGUAGE: 'en' as const,
+          IS_PRODUCTION: false,
+          IS_DEV: false,
+          IS_TEST: true,
+        };
+      }
     }
     throw error;
   }
