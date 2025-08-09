@@ -1,21 +1,27 @@
 # Security Policy
 
-## Code Scanning
+## Security Scanning
 
-This repository uses GitHub CodeQL for automated code analysis and security scanning.
+This repository uses automated security scanning to detect vulnerabilities and maintain code quality.
 
 ### Enabled Features:
 
 - ✅ Dependency vulnerability scanning (npm audit)
-- ✅ Static code analysis (CodeQL)
-- ✅ Security-focused queries
-- ✅ Automated SARIF upload
+- ✅ Automated testing with security checks
+- ✅ Docker security best practices
+- ✅ Input validation and sanitization
 
-### Configuration:
+### Reporting Security Issues:
 
-- Languages: JavaScript/TypeScript
-- Query suites: security-and-quality
-- Paths: src/, _.js, _.ts
-- Excluded: node_modules, coverage, dist
+If you discover a security vulnerability, please report it by:
 
-For security issues, please check the Security tab in this repository.
+1. Creating a private security advisory on GitHub
+2. Or emailing the maintainers directly
+
+### Security Best Practices:
+
+- Dependencies are regularly audited
+- All inputs are validated using Zod schemas
+- Secure HTTP headers are implemented
+- Rate limiting is configured
+- Non-root Docker containers are used

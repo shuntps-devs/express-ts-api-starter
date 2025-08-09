@@ -96,8 +96,9 @@
 
 #### 4. **Security Scanning**
 
-- **CodeQL**: Static code analysis
-- **Audit**: npm security audit
+- **npm audit**: Dependency vulnerability scanning
+- **Security headers**: Helmet.js implementation
+- **Input validation**: Zod schema validation
 
 #### 5. **Notifications**
 
@@ -169,8 +170,8 @@
 
 ### Security Pipeline
 
-- **Static Analysis**: CodeQL security scanning
-- **Audit Checks**: npm audit for vulnerabilities
+- **Dependency Scanning**: npm audit for known vulnerabilities
+- **Security Implementation**: Helmet.js, rate limiting, input validation
 - **Container Security**: Multi-stage builds with non-root users
 
 ---
