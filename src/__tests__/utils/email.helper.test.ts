@@ -68,11 +68,21 @@ describe('EmailHelper', () => {
   });
 
   describe('formatExpirationTime', () => {
+    beforeAll(() => {
+      // Mock Date constructor to return a fixed time
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-01-01T12:00:00Z'));
+    });
+
+    afterAll(() => {
+      jest.useRealTimers();
+    });
+
     it('should format expiration time correctly in English', () => {
-      const now = new Date();
-      const in30Minutes = new Date(now.getTime() + 30 * 60 * 1000);
-      const in2Hours = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-      const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const baseTime = new Date('2024-01-01T12:00:00Z');
+      const in30Minutes = new Date(baseTime.getTime() + 30 * 60 * 1000);
+      const in2Hours = new Date(baseTime.getTime() + 2 * 60 * 60 * 1000);
+      const in3Days = new Date(baseTime.getTime() + 3 * 24 * 60 * 60 * 1000);
 
       expect(EmailHelper.formatExpirationTime(in30Minutes, 'en')).toBe(
         '30 minutes'
@@ -82,10 +92,10 @@ describe('EmailHelper', () => {
     });
 
     it('should format expiration time correctly in French', () => {
-      const now = new Date();
-      const in1Minute = new Date(now.getTime() + 1 * 60 * 1000);
-      const in1Hour = new Date(now.getTime() + 1 * 60 * 60 * 1000);
-      const in1Day = new Date(now.getTime() + 25 * 60 * 60 * 1000); // 25 hours to ensure > 24h
+      const baseTime = new Date('2024-01-01T12:00:00Z');
+      const in1Minute = new Date(baseTime.getTime() + 1 * 60 * 1000);
+      const in1Hour = new Date(baseTime.getTime() + 1 * 60 * 60 * 1000);
+      const in1Day = new Date(baseTime.getTime() + 25 * 60 * 60 * 1000); // 25 hours to ensure > 24h
 
       expect(EmailHelper.formatExpirationTime(in1Minute, 'fr')).toBe(
         '1 minute'
