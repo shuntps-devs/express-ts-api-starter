@@ -1,5 +1,7 @@
 import { Router } from 'express';
 
+import { t } from '../i18n';
+
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 
@@ -12,7 +14,7 @@ router.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV ?? 'development',
     uptime: process.uptime(),
-    service: 'Express TypeScript API', // TODO: Use t('api.service.name') when types are updated
+    service: t('api.service.name'),
   });
 });
 
@@ -20,9 +22,9 @@ router.get('/health', (_req, res) => {
 router.get('/', (_req, res) => {
   res.json({
     success: true,
-    message: 'Welcome to Express TypeScript API', // TODO: Use t('api.welcome.message') when types are updated
+    message: t('api.welcome.message'),
     data: {
-      service: 'Express TypeScript API', // TODO: Use t('api.service.name') when types are updated
+      service: t('api.service.name'),
       version: '1.0.0',
       endpoints: {
         auth: '/api/auth',

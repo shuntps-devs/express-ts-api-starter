@@ -17,6 +17,8 @@ export const resources = {
 } as const;
 
 export type TranslationKeys =
+  | 'api.service.name'
+  | 'api.welcome.message'
   | 'server.startup.success'
   | 'server.startup.failure'
   | 'server.shutdown.start'
