@@ -15,6 +15,48 @@ jest.mock('../../services/user.service', () => ({
   })),
 }));
 
+// Mock the SessionService
+jest.mock('../../services/session.service', () => ({
+  SessionService: {
+    createSession: jest.fn(),
+    destroySession: jest.fn(),
+    refreshSession: jest.fn(),
+    getUserActiveSessions: jest.fn(),
+    validateAccessToken: jest.fn(),
+    extractTokensFromCookies: jest.fn(),
+  },
+}));
+
+// Mock the TokenService
+jest.mock('../../services/token.service', () => ({
+  TokenService: {
+    generateTokenPair: jest.fn(),
+    generateSessionId: jest.fn(),
+    verifyAccessToken: jest.fn(),
+    verifyRefreshToken: jest.fn(),
+  },
+}));
+
+// Mock the Session model
+jest.mock('../../models/session.model', () => ({
+  __esModule: true,
+  default: {
+    create: jest.fn(),
+    deactivateAllForUser: jest.fn(),
+    findById: jest.fn(),
+    findOne: jest.fn(),
+  },
+}));
+
+// Mock env config
+jest.mock('../../config/env', () => ({
+  env: {
+    JWT_SECRET: 'test-secret',
+    JWT_REFRESH_SECRET: 'test-refresh-secret',
+    NODE_ENV: 'test',
+  },
+}));
+
 // Mock i18n
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
@@ -46,15 +88,43 @@ jest.mock('../../config/logger', () => ({
   },
 }));
 
+// Mock authentication middleware
+jest.mock('../../middleware/auth.middleware', () => ({
+  authenticate: jest.fn((req, _res, next) => {
+    // Mock authenticated user for profile tests
+    if (req.path === '/profile/123' && req.method === 'GET') {
+      req.user = {
+        _id: '123',
+        email: 'test@example.com',
+        username: 'testuser',
+        role: 'user',
+        isActive: true,
+        isEmailVerified: true,
+        lastLogin: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+    next();
+  }),
+}));
+
 describe('AuthController', () => {
   let app: express.Application;
   let authController: AuthController;
   let mockUserService: any;
+  let mockSessionService: any;
 
   beforeEach(() => {
     // Create new instances for each test
     authController = new AuthController();
     mockUserService = (authController as any).userService;
+
+    // Get the mocked SessionService
+    const { SessionService } = jest.requireMock(
+      '../../services/session.service'
+    );
+    mockSessionService = SessionService;
 
     app = express();
     configureSecurity(app);
@@ -63,10 +133,15 @@ describe('AuthController', () => {
     // Setup JSON parsing
     app.use(express.json());
 
+    // Import mocked middleware
+    const { authenticate } = jest.requireMock(
+      '../../middleware/auth.middleware'
+    );
+
     // Setup auth routes
     app.post('/register', authController.register);
     app.post('/login', authController.login);
-    app.get('/profile/:userId', authController.getProfile);
+    app.get('/profile/:userId', authenticate, authController.getProfile);
 
     // Clear all mocks
     jest.clearAllMocks();
@@ -132,27 +207,36 @@ describe('AuthController', () => {
         isLocked: false,
         loginAttempts: 0,
         lastLogin: new Date(),
+        // Add save method mock
+        save: jest.fn().mockResolvedValue(true),
         // TestHelper already includes comparePassword and resetLoginAttempts mocks
       });
+
+      // Mock session creation
+      const mockSession = { _id: 'session123' };
+      mockSessionService.createSession.mockResolvedValue(mockSession);
 
       mockUserService.findUserByIdentifier.mockResolvedValue(mockUser);
 
       const response = await request(app).post('/login').send({
-        email: 'test@example.com',
+        identifier: 'test@example.com',
         password: 'password123',
       });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.email).toBe('test@example.com');
+      expect(response.body.data.user.email).toBe('test@example.com');
+      expect(response.body.data.sessionId).toBe('session123');
       expect(mockUser.comparePassword).toHaveBeenCalledWith('password123');
+      expect((mockUser as any).save).toHaveBeenCalled();
+      expect(mockSessionService.createSession).toHaveBeenCalled();
     });
 
     it('should handle user not found', async () => {
       mockUserService.findUserByIdentifier.mockResolvedValue(null);
 
       const response = await request(app).post('/login').send({
-        email: 'nonexistent@example.com',
+        identifier: 'nonexistent@example.com',
         password: 'password123',
       });
 
@@ -174,7 +258,7 @@ describe('AuthController', () => {
       mockUserService.findUserByIdentifier.mockResolvedValue(mockUser);
 
       const response = await request(app).post('/login').send({
-        email: 'test@example.com',
+        identifier: 'test@example.com',
         password: 'wrongpassword',
       });
 
@@ -186,31 +270,21 @@ describe('AuthController', () => {
 
   describe('GET /profile/:userId', () => {
     it('should get user profile successfully', async () => {
-      // ✅ Using TestHelper for profile test
-      const mockUser = TestHelper.generateMockUser({
-        _id: '123',
-        email: 'test@example.com',
-        username: 'testuser',
-      });
-
-      mockUserService.findUserById.mockResolvedValue(mockUser);
-
+      // This test will use the mocked authenticate middleware
       const response = await request(app).get('/profile/123');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.email).toBe('test@example.com');
-      expect(mockUserService.findUserById).toHaveBeenCalledWith('123');
     });
 
     it('should handle user not found', async () => {
-      mockUserService.findUserById.mockResolvedValue(null);
-
+      // Test with a different user ID that won't match our mock
       const response = await request(app).get('/profile/999');
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
+      expect(response.body.error.code).toBe('UNAUTHORIZED');
     });
   });
 });

@@ -127,6 +127,7 @@ module.exports = tseslint.config(
       'node_modules/**',
       'coverage/**',
       'logs/**',
+      'scripts/**',
       '*.js',
       '*.d.ts',
       '.env',

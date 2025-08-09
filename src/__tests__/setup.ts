@@ -25,8 +25,7 @@ jest.mock('../config/logger', () => ({
 // Global test setup
 beforeAll(() => {
   // Any global setup can go here
-  // eslint-disable-next-line no-console
-  console.log('🧪 Starting test suite...');
+  process.stdout.write('🧪 Starting test suite...\n');
 });
 
 afterAll(async () => {
@@ -34,8 +33,7 @@ afterAll(async () => {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.close();
   }
-  // eslint-disable-next-line no-console
-  console.log('✅ Test suite completed');
+  process.stdout.write('✅ Test suite completed\n');
 });
 
 // Reset all mocks between tests

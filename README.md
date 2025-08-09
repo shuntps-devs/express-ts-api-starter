@@ -1,186 +1,356 @@
-# Express TypeScript Starter 🚀
+# 🚀 Express TypeScript Starter
 
-> **Production-ready Express.js API boilerplate** built with TypeScript, featuring comprehensive testing, automated CI/CD pipeline, and enterprise-grade security.
+> **Production-ready Express.js API** with TypeScript, MongoDB, JWT authentication, comprehensive testing, and automated CI/CD pipeline.
 
-**Perfect for:** REST APIs, Microservices, SaaS backends, Enterprise applications
-
-**Tech Stack:** Express.js • TypeScript • MongoDB • Jest • Docker • GitHub Actions
-
-🚀 A modern, secure, and scalable Express.js API built with TypeScript, featuring comprehensive testing, CI/CD pipeline, and production-ready Docker configuration.
+[![CI/CD Pipeline](https://github.com/shuntps/express-typescript-starter/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/shuntps/express-typescript-starter/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## ⚡ Quick Start
 
 ```bash
-# Clone and install
+# Clone and setup
 git clone https://github.com/shuntps/express-typescript-starter.git
 cd express-typescript-starter
 npm install
 
-# Environment setup
+# Environment configuration
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your MongoDB URI and JWT secrets
 
-# Development
+# Start development server
 npm run dev
-
-# Production
-npm run build
-npm start
 ```
 
-## 🏗️ Architecture
+🎯 **Ready in 2 minutes!** The API will be running at `http://localhost:3000`
 
-- **Express.js** - Fast, unopinionated web framework
-- **TypeScript** - Type-safe JavaScript development
-- **MongoDB** - Document database with Mongoose ODM
-- **Security** - Helmet, CORS, rate limiting, input validation
-- **Logging** - Winston with structured logging
-- **i18n** - Multi-language support (EN/FR)
+## 🏗️ What's Included
+
+### 🔐 **Complete Authentication System**
+
+- **User Registration & Login** - Full user management with validation
+- **JWT Cookie-based Auth** - Secure access & refresh tokens in HTTP-only cookies
+- **Session Management** - Track user sessions across devices
+- **Account Security** - Login attempts limiting, account locking
+- **Password Hashing** - bcryptjs with secure salting
+
+### 🛡️ **Enterprise Security**
+
+- **Helmet.js** - Security headers and CSP
+- **CORS Configuration** - Environment-specific origins
+- **Rate Limiting** - 100 requests per 15 minutes per IP
+- **Input Validation** - Zod schema validation for all endpoints
+- **Security Audits** - Automated dependency scanning in CI/CD
+
+### 🗄️ **Database & Models**
+
+- **MongoDB Integration** - Mongoose ODM with TypeScript
+- **User Model** - Complete user schema with methods
+- **Session Model** - JWT session tracking and management
+- **Profile Model** - Extended user profile data
+- **Database Indexing** - Optimized queries with proper indexes
+
+### 🧪 **Testing Infrastructure**
+
+- **Jest Test Suite** - 33+ comprehensive tests
+- **80%+ Code Coverage** - Thorough test coverage reporting
+- **Test Helpers** - Utilities for mocking and test data generation
+- **Integration Tests** - Full API endpoint testing with supertest
+- **CI/CD Testing** - Automated testing in GitHub Actions
+
+### 🚀 **Production Ready**
+
+- **Docker Support** - Multi-stage builds for development and production
+- **GitHub Actions CI/CD** - Automated testing, building, and deployment
+- **TypeScript** - Full type safety with strict configuration
+- **ESLint & Prettier** - Code quality and formatting
+- **Winston Logging** - Structured logging with different levels
+- **Environment Management** - Separate configs for dev/staging/production
+
+### 🌍 **Additional Features**
+
+- **i18n Support** - Multi-language support (EN/FR ready)
+- **Performance Monitoring** - Request timing and metrics
+- **Audit Logging** - Track user actions and system events
+- **Health Checks** - System status and uptime monitoring
+- **API Versioning** - Built-in API version management
 
 ## 📁 Project Structure
 
 ```
-├── src/
-│   ├── controllers/     # Route handlers
-│   ├── services/        # Business logic
-│   ├── models/         # Database models
-│   ├── middleware/     # Express middleware
-│   ├── routes/         # Route definitions
-│   ├── utils/          # Utility functions
-│   ├── config/         # App configuration
-│   └── __tests__/      # Test suites
-├── docs/               # Documentation
-├── .github/            # GitHub Actions workflows
-└── docker-compose.yml  # Development environment
+express-typescript-starter/
+├── 📁 src/
+│   ├── 📁 controllers/          # Route handlers & business logic
+│   │   ├── auth.controller.ts   # Authentication endpoints
+│   │   └── user.controller.ts   # User management endpoints
+│   ├── 📁 services/             # Business logic layer
+│   │   ├── user.service.ts      # User operations
+│   │   ├── session.service.ts   # Session & JWT management
+│   │   └── token.service.ts     # Token generation & validation
+│   ├── 📁 models/              # Database schemas
+│   │   ├── user.model.ts       # User schema & methods
+│   │   ├── session.model.ts    # Session tracking
+│   │   └── profile.model.ts    # Extended user profiles
+│   ├── 📁 middleware/          # Express middleware
+│   │   ├── auth.middleware.ts  # JWT authentication
+│   │   ├── security.middleware.ts # Security headers & CORS
+│   │   ├── audit.middleware.ts # Action logging
+│   │   └── error-handler.ts    # Global error handling
+│   ├── 📁 routes/              # API route definitions
+│   ├── 📁 schemas/             # Validation schemas (Zod)
+│   ├── 📁 utils/               # Helper functions
+│   ├── 📁 config/              # App configuration
+│   ├── 📁 i18n/                # Internationalization
+│   └── 📁 __tests__/           # Test suites
+├── 📁 docs/                    # Documentation
+├── 📁 scripts/                 # Build & deployment scripts
+├── 📁 .github/                 # CI/CD workflows
+├── 🐳 docker-compose.yml       # Development environment
+├── 🐳 Dockerfile              # Production container
+└── 📄 package.json            # Dependencies & scripts
+```
+
+## 🔌 API Endpoints
+
+### 🔐 Authentication (`/api/auth`)
+
+```http
+POST   /api/auth/register      # Create new user account
+POST   /api/auth/login         # User login with credentials
+POST   /api/auth/logout        # Logout current session
+POST   /api/auth/logout-all    # Logout from all devices
+POST   /api/auth/refresh       # Refresh access token
+GET    /api/auth/profile       # Get current user profile
+GET    /api/auth/sessions      # Get active sessions
+```
+
+### 👥 Users (`/api/users`)
+
+```http
+GET    /api/users/:id          # Get user by ID
+PUT    /api/users/:id          # Update user profile
+DELETE /api/users/:id          # Delete user account
+```
+
+### 🏥 System
+
+```http
+GET    /health                 # Health check & system status
+GET    /                       # API information & endpoints
+```
+
+## 🚀 Development
+
+### Prerequisites
+
+- **Node.js** 18+ and npm
+- **MongoDB** 4.4+ (local or Atlas)
+- **Git** for version control
+
+### Environment Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Copy environment template
+cp .env.example .env
+```
+
+**Configure your `.env` file:**
+
+```env
+# Server
+NODE_ENV=development
+PORT=3000
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/express-ts-app
+
+# JWT Secrets (generate strong secrets)
+JWT_SECRET=your-super-secret-jwt-key
+JWT_REFRESH_SECRET=your-refresh-secret-key
+
+# Optional
+DEFAULT_LANGUAGE=en
+LOG_LEVEL=info
+```
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev              # Start with hot reload
+npm run dev:en           # Force English language
+npm run dev:fr           # Force French language
+
+# Building
+npm run build            # Compile TypeScript
+npm run start            # Run production build
+
+# Testing
+npm test                 # Run all tests
+npm run test:watch       # Watch mode
+npm run test:coverage    # Generate coverage report
+npm run test:ci          # CI mode (no watch)
+
+# Code Quality
+npm run lint             # ESLint checking
+npm run lint:fix         # Auto-fix ESLint issues
+npm run format           # Prettier formatting
+npm run type-check       # TypeScript validation
+
+# Docker
+npm run docker:build     # Build production image
+npm run docker:run       # Run container
+npm run docker:dev       # Development with Docker Compose
+
+# Full Pipeline
+npm run ci               # Complete CI pipeline
 ```
 
 ## 🧪 Testing
 
+Comprehensive testing with **Jest** and **Supertest**:
+
 ```bash
-# Run tests
+# Run all tests
 npm test
 
-# Watch mode
+# Watch for changes
 npm run test:watch
 
-# Coverage report
+# Generate coverage report
 npm run test:coverage
-
-# CI mode
-npm run test:ci
 ```
 
-## 🚀 Deployment
+**Test Coverage Areas:**
+
+- ✅ Authentication controllers (register, login, logout)
+- ✅ User management operations
+- ✅ Session management and JWT validation
+- ✅ Middleware functionality (auth, security, validation)
+- ✅ Database models and methods
+- ✅ API endpoints integration testing
+
+## � Docker Deployment
 
 ### Development Environment
 
 ```bash
-# Using Docker Compose
+# Start MongoDB + API with hot reload
 npm run docker:dev
 
-# Direct development
-npm run dev
+# Or manually
+docker-compose up --build
 ```
 
-### Production
+### Production Deployment
 
 ```bash
-# Build Docker image
+# Build optimized image
 npm run docker:build
 
 # Run production container
 npm run docker:run
-```
 
-## 📊 Features
-
-✅ **Security First** - Helmet, CORS, rate limiting, input validation  
-✅ **Type Safety** - Full TypeScript with strict configuration  
-✅ **Database** - MongoDB with Mongoose ODM and validation  
-✅ **Authentication** - User registration, login, profile management  
-✅ **Logging** - Structured logging with Winston  
-✅ **i18n** - Multi-language support  
-✅ **Testing** - Jest with 33 tests and 80%+ coverage  
-✅ **CI/CD** - GitHub Actions pipeline  
-✅ **Docker** - Multi-stage production builds  
-✅ **Code Quality** - ESLint, Prettier, Husky git hooks
-
-## 📚 Documentation
-
-- [📋 CI/CD Setup Guide](./docs/CICD_SETUP_GUIDE.md)
-- [🧪 Testing & CI/CD Report](./docs/TESTING_CICD_REPORT.md)
-- [⚙️ Personal Instructions](./.github/instructions/personal.instructions.md)
-
-## 🛡️ Security
-
-- **Headers Protection** - Helmet with CSP
-- **Rate Limiting** - 100 req/15min per IP
-- **CORS** - Configured for specific origins
-- **Input Validation** - Zod schema validation
-- **Security Audits** - Automated dependency scanning
-
-## 🌐 API Endpoints
-
-```bash
-GET    /health          # Health check
-GET    /               # Welcome message
-POST   /api/auth/login  # User authentication
-POST   /api/auth/register # User registration
-GET    /api/auth/profile/:id # Get user profile
+# Or with docker-compose
+docker-compose -f docker-compose.prod.yml up
 ```
 
 ## 🔧 Configuration
 
-### Environment Variables
+### Security Configuration
+
+- **CORS**: Environment-specific allowed origins
+- **Rate Limiting**: Configurable per environment
+- **Helmet**: CSP and security headers
+- **JWT**: Separate secrets for access and refresh tokens
+
+### Database Configuration
+
+- **Connection**: MongoDB with Mongoose ODM
+- **Validation**: Zod schemas for request validation
+- **Indexing**: Optimized database queries
+- **Sessions**: JWT-based session management
+
+### Logging Configuration
+
+- **Winston**: Structured logging with levels
+- **Audit Trail**: User action tracking
+- **Performance**: Request timing monitoring
+- **Error Tracking**: Comprehensive error logging
+
+## � Deployment
+
+### GitHub Actions CI/CD
+
+Automated pipeline with:
+
+- ✅ **Code Quality** - ESLint, Prettier, TypeScript
+- ✅ **Testing** - Full test suite with coverage
+- ✅ **Security** - Dependency auditing
+- ✅ **Building** - TypeScript compilation & Docker
+- ✅ **Deployment** - Staging and production environments
+
+### Manual Deployment
 
 ```bash
-NODE_ENV=development|production|test
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/express-ts-app
-JWT_SECRET=your-super-secret-jwt-key
+# Build for production
+npm run build
+
+# Run validation pipeline
+npm run ci
+
+# Deploy to staging
+npm run deploy:staging
+
+# Deploy to production
+npm run deploy:prod
 ```
 
-### Scripts
+## � Documentation
 
-```json
-{
-  "dev": "Development with hot reload",
-  "build": "TypeScript compilation",
-  "test": "Jest test runner",
-  "lint": "ESLint code checking",
-  "docker:dev": "Full Docker development environment"
-}
-```
-
-## 📈 Performance
-
-- **Compression** - Gzip compression enabled
-- **Caching** - Appropriate HTTP headers
-- **Database** - Indexed queries
-- **Monitoring** - Health check endpoint with metrics
+- **[Setup Guide](./docs/SETUP.md)** - Detailed installation and configuration
+- **[API Documentation](./docs/API.md)** - Complete endpoint reference
+- **[Development Guide](./docs/DEVELOPMENT.md)** - Development workflow and conventions
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Architecture Guide](./docs/ARCHITECTURE.md)** - System design and patterns
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Standards
+
+- **TypeScript** strict mode enabled
+- **ESLint** with zero warnings policy
+- **Prettier** for consistent formatting
+- **Tests required** for new features
+- **Conventional Commits** for clear history
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-## 🎯 Next Steps
+## 🎯 Roadmap
 
-- [ ] Add JWT authentication middleware
-- [ ] Implement email verification
-- [ ] Add API rate limiting per user
-- [ ] Implement caching with Redis
-- [ ] Add API documentation with Swagger
-- [ ] Set up monitoring with Prometheus
+- [ ] **Email Verification** - Complete user registration flow
+- [ ] **Password Reset** - Forgot password functionality
+- [ ] **OAuth Integration** - Google, GitHub, Discord login
+- [ ] **API Rate Limiting per User** - User-specific rate limits
+- [ ] **Redis Caching** - Performance optimization
+- [ ] **Swagger Documentation** - Auto-generated API docs
+- [ ] **Monitoring & Metrics** - Prometheus integration
+- [ ] **File Upload** - Profile images and attachments
 
 ---
 
-**Author:** [shuntps](https://github.com/shuntps)  
-Built with ❤️ using modern Node.js best practices
+**Built with ❤️ by [shuntps](https://github.com/shuntps)**
+
+_Ready to build your next great API? Start with this production-ready foundation!_

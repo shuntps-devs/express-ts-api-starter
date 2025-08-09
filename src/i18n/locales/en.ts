@@ -1,4 +1,12 @@
 export const en = {
+  api: {
+    service: {
+      name: 'Express TypeScript API',
+    },
+    welcome: {
+      message: 'Welcome to Express TypeScript API',
+    },
+  },
   server: {
     startup: {
       success: 'Server running in {{env}} mode on http://localhost:{{port}}',
@@ -24,6 +32,8 @@ export const en = {
   auth: {
     invalidToken: 'Invalid authentication token',
     userNotFound: 'User not found',
+    refreshTokenRequired: 'Refresh token required',
+    invalidRefreshToken: 'Invalid or expired refresh token',
     email: {
       alreadyExists: 'Email already exists',
       alreadyVerified: 'Email is already verified',
@@ -59,6 +69,10 @@ export const en = {
     userCreated:
       'User created successfully. Please check your email to verify your account.',
     loginSuccessful: 'Login successful',
+    logoutSuccessful: 'Logout successful',
+    logoutAllSuccessful: 'Logged out from all devices successfully',
+    tokenRefreshed: 'Token refreshed successfully',
+    sessionsRetrieved: 'Sessions retrieved successfully',
     profileRetrieved: 'Profile retrieved successfully',
     resourceCreated: 'Resource created successfully',
     resourceUpdated: 'Resource updated successfully',

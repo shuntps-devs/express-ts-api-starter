@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { AuthController } from '../controllers/auth.controller';
-import { validateRequest } from '../middleware';
+import { auditLogger, authenticate, validateRequest } from '../middleware';
 import { loginSchema, registerSchema } from '../schemas/auth';
 
 const router = Router();
@@ -11,6 +11,7 @@ const authController = new AuthController();
 router.post(
   '/register',
   validateRequest({ body: registerSchema }),
+  auditLogger, // Track registration attempts
   authController.register
 );
 
@@ -18,10 +19,37 @@ router.post(
 router.post(
   '/login',
   validateRequest({ body: loginSchema }),
+  auditLogger, // Track login attempts
   authController.login
 );
 
-// Get profile route (temporary - will need auth middleware later)
-router.get('/profile/:userId', authController.getProfile);
+// Logout route (requires authentication)
+router.post(
+  '/logout',
+  authenticate,
+  auditLogger, // Track logout actions
+  authController.logout
+);
+
+// Logout from all devices (requires authentication)
+router.post(
+  '/logout-all',
+  authenticate,
+  auditLogger, // Track logout all actions
+  authController.logoutAll
+);
+
+// Refresh token route
+router.post(
+  '/refresh',
+  auditLogger, // Track token refresh attempts
+  authController.refreshToken
+);
+
+// Get profile route (requires authentication)
+router.get('/profile', authenticate, authController.getProfile);
+
+// Get active sessions (requires authentication)
+router.get('/sessions', authenticate, authController.getSessions);
 
 export default router;

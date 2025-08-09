@@ -11,6 +11,10 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().positive().default(3000),
   MONGODB_URI: z.string().default('mongodb://localhost:27017/express-ts-app'),
+  JWT_SECRET: z
+    .string()
+    .min(32)
+    .default('your-super-secret-jwt-key-change-in-production-min-32-chars'),
   DEFAULT_LANGUAGE: z.enum(['en', 'fr']).default('fr'),
   API_KEY: z.string().min(1).optional(),
   REDIS_URL: z.string().url().optional(),

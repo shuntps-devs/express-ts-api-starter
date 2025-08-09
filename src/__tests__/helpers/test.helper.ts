@@ -115,6 +115,7 @@ export class TestHelper {
       // await Profile.deleteMany({});
       // await Session.deleteMany({});
     } catch (error) {
+      // Use logger instead of console.warn
       // eslint-disable-next-line no-console
       console.warn('Database cleanup failed:', error);
     }

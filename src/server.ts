@@ -1,15 +1,24 @@
 import { Server } from 'http';
 
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import i18next from 'i18next';
 import middleware from 'i18next-http-middleware';
 
+// Import types to ensure declaration merging is loaded
+import './types/express';
+
 import { connectDB, env, logger } from './config';
 import { initI18n, t } from './i18n';
 import {
+  apiVersioning,
+  auditLogger,
   configureRequestLogging,
   configureSecurity,
   errorHandler,
+  performanceMonitor,
+  requestSizeLimiter,
+  userContext,
 } from './middleware';
 import router from './routes';
 
@@ -21,8 +30,26 @@ configureSecurity(app);
 // Configure request logging
 configureRequestLogging(app);
 
+// Performance monitoring
+app.use(performanceMonitor);
+
+// API versioning
+app.use(apiVersioning);
+
+// Request size limiting
+app.use(requestSizeLimiter(10)); // 10MB limit
+
+// Cookie parsing middleware
+app.use(cookieParser());
+
 // i18n middleware
 app.use(middleware.handle(i18next));
+
+// User context middleware (after i18n to have access to t())
+app.use(userContext);
+
+// Audit middleware for tracking user actions
+app.use(auditLogger);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

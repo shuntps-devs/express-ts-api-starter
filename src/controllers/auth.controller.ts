@@ -4,7 +4,8 @@ import { logger } from '../config';
 import { t } from '../i18n';
 import { ICreateUserDto, ILoginDto, IUserResponse } from '../interfaces';
 import { asyncHandler } from '../middleware';
-import { UserService } from '../services';
+import { ISession } from '../models/session.model';
+import { SessionService, UserService } from '../services';
 import { ResponseHelper } from '../utils';
 
 export class AuthController {
@@ -150,6 +151,17 @@ export class AuthController {
         await user.resetLoginAttempts();
       }
 
+      // Update last login
+      user.lastLogin = new Date();
+      await user.save();
+
+      // Create session with secure cookies
+      const session = await SessionService.createSession(
+        user as unknown as import('../interfaces/user.interface').IUser,
+        req,
+        res
+      );
+
       // Return user info (without password)
       const userResponse: IUserResponse = {
         id: String(user._id),
@@ -165,12 +177,13 @@ export class AuthController {
 
       logger.info('User logged in successfully', {
         userId: user._id,
+        sessionId: String(session._id),
         requestId,
       });
 
-      ResponseHelper.sendSuccess<IUserResponse>(
+      ResponseHelper.sendSuccess<{ user: IUserResponse; sessionId: string }>(
         res,
-        userResponse,
+        { user: userResponse, sessionId: String(session._id) },
         200,
         t('success.loginSuccessful'),
         requestId
@@ -178,40 +191,177 @@ export class AuthController {
     }
   );
 
-  public getProfile = asyncHandler(
+  public getProfile = asyncHandler((req: Request, res: Response): void => {
+    const requestId = ResponseHelper.extractRequestId(req);
+
+    // User is already populated by authenticate middleware
+    if (!req.user) {
+      ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
+      return;
+    }
+
+    const userResponse: IUserResponse = {
+      id: String(req.user._id),
+      username: req.user.username,
+      email: req.user.email,
+      role: req.user.role,
+      isActive: req.user.isActive,
+      isEmailVerified: req.user.isEmailVerified,
+      lastLogin: req.user.lastLogin,
+      createdAt: req.user.createdAt,
+      updatedAt: req.user.updatedAt,
+    };
+
+    ResponseHelper.sendSuccess<IUserResponse>(
+      res,
+      userResponse,
+      200,
+      t('success.profileRetrieved'),
+      requestId
+    );
+  });
+
+  public logout = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
-      // This would typically use the authenticated user ID from middleware
-      // For now, we'll get it from params
-      const { userId } = req.params;
       const requestId = ResponseHelper.extractRequestId(req);
 
-      const user = await this.userService.findUserById(userId);
+      if (req.session) {
+        await SessionService.destroySession(String(req.session._id), res);
 
-      if (!user) {
-        return ResponseHelper.sendNotFound(
+        logger.info('User logged out successfully', {
+          userId: req.user?._id,
+          sessionId: req.session._id,
+          requestId,
+        });
+      } else {
+        // Clear cookies even if no session found
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+      }
+
+      ResponseHelper.sendSuccess(
+        res,
+        null,
+        200,
+        t('success.logoutSuccessful'),
+        requestId
+      );
+    }
+  );
+
+  public logoutAll = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const requestId = ResponseHelper.extractRequestId(req);
+
+      if (!req.user) {
+        return ResponseHelper.sendUnauthorized(
           res,
           t('auth.userNotFound'),
           requestId
         );
       }
 
+      await SessionService.destroyAllUserSessions(req.user._id, res);
+
+      logger.info('User logged out from all devices', {
+        userId: req.user._id,
+        requestId,
+      });
+
+      ResponseHelper.sendSuccess(
+        res,
+        null,
+        200,
+        t('success.logoutAllSuccessful'),
+        requestId
+      );
+    }
+  );
+
+  public refreshToken = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const requestId = ResponseHelper.extractRequestId(req);
+      const { refreshToken } = SessionService.extractTokensFromCookies(req);
+
+      if (!refreshToken) {
+        return ResponseHelper.sendUnauthorized(
+          res,
+          t('auth.refreshTokenRequired'),
+          requestId
+        );
+      }
+
+      const result = await SessionService.refreshSession(
+        refreshToken,
+        req,
+        res
+      );
+
+      if (!result) {
+        return ResponseHelper.sendUnauthorized(
+          res,
+          t('auth.invalidRefreshToken'),
+          requestId
+        );
+      }
+
       const userResponse: IUserResponse = {
-        id: String(user._id),
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isActive: user.isActive,
-        isEmailVerified: user.isEmailVerified,
-        lastLogin: user.lastLogin,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        id: String(result.user._id),
+        username: result.user.username,
+        email: result.user.email,
+        role: result.user.role,
+        isActive: result.user.isActive,
+        isEmailVerified: result.user.isEmailVerified,
+        lastLogin: result.user.lastLogin,
+        createdAt: result.user.createdAt,
+        updatedAt: result.user.updatedAt,
       };
 
-      ResponseHelper.sendSuccess<IUserResponse>(
+      logger.info('Token refreshed successfully', {
+        userId: result.user._id,
+        sessionId: result.session._id,
+        requestId,
+      });
+
+      ResponseHelper.sendSuccess(
         res,
-        userResponse,
+        { user: userResponse },
         200,
-        t('success.profileRetrieved'),
+        t('success.tokenRefreshed'),
+        requestId
+      );
+    }
+  );
+
+  public getSessions = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const requestId = ResponseHelper.extractRequestId(req);
+
+      if (!req.user) {
+        return ResponseHelper.sendUnauthorized(
+          res,
+          t('auth.userNotFound'),
+          requestId
+        );
+      }
+
+      const sessions = await SessionService.getUserActiveSessions(req.user._id);
+
+      const sessionData = sessions.map((session: ISession) => ({
+        id: String(session._id),
+        deviceInfo: session.deviceInfo,
+        location: session.location,
+        ipAddress: session.ipAddress,
+        lastActivity: session.lastActivity,
+        createdAt: session.createdAt,
+        isCurrent: String(session._id) === String(req.session?._id),
+      }));
+
+      ResponseHelper.sendSuccess(
+        res,
+        sessionData,
+        200,
+        t('success.sessionsRetrieved'),
         requestId
       );
     }
