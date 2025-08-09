@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (skip scripts like husky prepare)
+RUN npm ci --only=production --ignore-scripts && npm cache clean --force
 
 # Development stage
 FROM node:20-alpine AS development
@@ -60,8 +60,8 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && \
+# Install only production dependencies (skip scripts like husky prepare)
+RUN npm ci --only=production --ignore-scripts && \
     npm cache clean --force && \
     chown -R nodejs:nodejs /app
 
