@@ -3,18 +3,23 @@ import path from 'path';
 
 import winston from 'winston';
 
-// Get NODE_ENV directly from process.env to avoid circular dependency
-const NODE_ENV = process.env.NODE_ENV ?? 'development';
+import { env } from './env';
 
-// Define log directory
+/**
+ * Log directory path for storing log files
+ */
 const logDir = 'logs';
 
-// Create logs directory if it doesn't exist
+/**
+ * Create logs directory if it doesn't exist
+ */
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-// Define log format
+/**
+ * Winston log format configuration with timestamp, errors, and JSON formatting
+ */
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
@@ -22,15 +27,19 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
-// Clean logs in development mode
-if (NODE_ENV === 'development') {
+/**
+ * Clean existing logs in development mode for fresh start
+ */
+if (env.NODE_ENV === 'development') {
   const files = fs.readdirSync(logDir);
   files.forEach((file) => {
     fs.unlinkSync(path.join(logDir, file));
   });
 }
 
-// Define log levels
+/**
+ * Winston log levels configuration
+ */
 const levels = {
   error: 0,
   warn: 1,
@@ -39,31 +48,38 @@ const levels = {
   debug: 4,
 };
 
-// Define level based on environment
+/**
+ * Determine log level based on environment
+ * @returns Log level string - 'debug' for development, 'warn' for production
+ */
 const level = () => {
-  return NODE_ENV === 'development' ? 'debug' : 'warn';
+  return env.NODE_ENV === 'development' ? 'debug' : 'warn';
 };
 
-// Define transports
+/**
+ * File transports configuration for error and combined logs
+ */
 const fileTransports = [
-  // Write all errors to error.log
   new winston.transports.File({
     filename: 'logs/error.log',
     level: 'error',
     format: logFormat,
   }),
-  // Write all logs to combined.log
   new winston.transports.File({
     filename: 'logs/combined.log',
     format: logFormat,
   }),
 ];
 
-// Create transport array with type union
+/**
+ * All transports array with proper typing
+ */
 const allTransports: winston.transport[] = [...fileTransports];
 
-// Add Console transport in development
-if (NODE_ENV !== 'production') {
+/**
+ * Add console transport for non-production environments
+ */
+if (env.NODE_ENV !== 'production') {
   allTransports.push(
     new winston.transports.Console({
       format: winston.format.combine(
@@ -74,7 +90,9 @@ if (NODE_ENV !== 'production') {
   );
 }
 
-// Create and export logger
+/**
+ * Main Winston logger instance with configured levels, format, and transports
+ */
 export const logger = winston.createLogger({
   level: level(),
   levels,
@@ -82,9 +100,37 @@ export const logger = winston.createLogger({
   transports: allTransports,
 });
 
-// Export default logger functions for easier usage
+/**
+ * Convenience error logging function
+ * @param message - Error message or object to log
+ * @param meta - Optional metadata to include
+ */
 export const error = logger.error.bind(logger);
+
+/**
+ * Convenience warning logging function
+ * @param message - Warning message or object to log
+ * @param meta - Optional metadata to include
+ */
 export const warn = logger.warn.bind(logger);
+
+/**
+ * Convenience info logging function
+ * @param message - Info message or object to log
+ * @param meta - Optional metadata to include
+ */
 export const info = logger.info.bind(logger);
+
+/**
+ * Convenience HTTP logging function
+ * @param message - HTTP message or object to log
+ * @param meta - Optional metadata to include
+ */
 export const http = logger.http.bind(logger);
+
+/**
+ * Convenience debug logging function
+ * @param message - Debug message or object to log
+ * @param meta - Optional metadata to include
+ */
 export const debug = logger.debug.bind(logger);

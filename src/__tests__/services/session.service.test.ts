@@ -43,6 +43,7 @@ describe('SessionService', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockTokenPair: ITokenPair;
+  let mockContextLogger: any;
 
   beforeAll(() => {
     console.log('🧪 Starting SessionService test suite...');
@@ -96,6 +97,13 @@ describe('SessionService', () => {
       clearCookie: jest.fn(),
     };
 
+    mockContextLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    };
+
     jest.clearAllMocks();
   });
 
@@ -112,13 +120,15 @@ describe('SessionService', () => {
       const result = await SessionService.createSession(
         mockUser,
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(TokenService.generateSessionId).toHaveBeenCalled();
       expect(TokenService.generateTokenPair).toHaveBeenCalledWith(
         mockUser,
-        'mock-session-id'
+        'mock-session-id',
+        mockContextLogger
       );
       expect(Session.deactivateAllForUser).toHaveBeenCalledWith(mockUser._id);
       expect(Session.create).toHaveBeenCalledWith(
@@ -136,7 +146,8 @@ describe('SessionService', () => {
       await SessionService.createSession(
         mockUser,
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -168,7 +179,8 @@ describe('SessionService', () => {
       await SessionService.createSession(
         mockUser,
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.create).toHaveBeenCalledWith(
@@ -182,7 +194,8 @@ describe('SessionService', () => {
       await SessionService.createSession(
         mockUser,
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.create).toHaveBeenCalledWith(
@@ -208,7 +221,8 @@ describe('SessionService', () => {
       const result = await SessionService.refreshSession(
         'valid-refresh-token',
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.findByRefreshToken).toHaveBeenCalledWith(
@@ -234,7 +248,8 @@ describe('SessionService', () => {
       const result = await SessionService.refreshSession(
         'invalid-token',
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(result).toBeNull();
@@ -246,7 +261,8 @@ describe('SessionService', () => {
       const result = await SessionService.refreshSession(
         'expired-token',
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(result).toBeNull();
@@ -264,11 +280,14 @@ describe('SessionService', () => {
     });
 
     it('should validate access token successfully', async () => {
-      const result =
-        await SessionService.validateAccessToken('valid-access-token');
+      const result = await SessionService.validateAccessToken(
+        'valid-access-token',
+        mockContextLogger
+      );
 
       expect(TokenService.verifyToken).toHaveBeenCalledWith(
-        'valid-access-token'
+        'valid-access-token',
+        mockContextLogger
       );
       expect(Session.findByAccessToken).toHaveBeenCalledWith(
         'valid-access-token'
@@ -283,7 +302,10 @@ describe('SessionService', () => {
     it('should return null for invalid token', async () => {
       (TokenService.verifyToken as jest.Mock).mockReturnValue(null);
 
-      const result = await SessionService.validateAccessToken('invalid-token');
+      const result = await SessionService.validateAccessToken(
+        'invalid-token',
+        mockContextLogger
+      );
 
       expect(result).toBeNull();
     });
@@ -293,7 +315,10 @@ describe('SessionService', () => {
         type: 'refresh',
       });
 
-      const result = await SessionService.validateAccessToken('refresh-token');
+      const result = await SessionService.validateAccessToken(
+        'refresh-token',
+        mockContextLogger
+      );
 
       expect(result).toBeNull();
     });
@@ -301,7 +326,10 @@ describe('SessionService', () => {
     it('should return null for inactive session', async () => {
       (mockSession.isActive as any) = false;
 
-      const result = await SessionService.validateAccessToken('valid-token');
+      const result = await SessionService.validateAccessToken(
+        'valid-token',
+        mockContextLogger
+      );
 
       expect(result).toBeNull();
     });
@@ -309,7 +337,10 @@ describe('SessionService', () => {
     it('should return null for expired access token', async () => {
       (mockSession.isAccessTokenExpired as jest.Mock).mockReturnValue(true);
 
-      const result = await SessionService.validateAccessToken('expired-token');
+      const result = await SessionService.validateAccessToken(
+        'expired-token',
+        mockContextLogger
+      );
 
       expect(result).toBeNull();
     });
@@ -365,7 +396,8 @@ describe('SessionService', () => {
 
       await SessionService.destroySession(
         'session123',
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.findByIdAndUpdate).toHaveBeenCalledWith('session123', {
@@ -386,7 +418,8 @@ describe('SessionService', () => {
     it('should destroy all user sessions with string userId', async () => {
       await SessionService.destroyAllUserSessions(
         'user123',
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.deactivateAllForUser).toHaveBeenCalledWith('user123');
@@ -398,7 +431,8 @@ describe('SessionService', () => {
 
       await SessionService.destroyAllUserSessions(
         userId,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.deactivateAllForUser).toHaveBeenCalledWith(userId);
@@ -436,7 +470,8 @@ describe('SessionService', () => {
       await SessionService.createSession(
         mockUser,
         mockRequest as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.create).toHaveBeenCalledWith(
@@ -467,7 +502,8 @@ describe('SessionService', () => {
       await SessionService.createSession(
         mockUser,
         cleanMockRequest as unknown as Request,
-        mockResponse as Response
+        mockResponse as Response,
+        mockContextLogger
       );
 
       expect(Session.create).toHaveBeenCalledWith(

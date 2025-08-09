@@ -2,12 +2,20 @@ import { z } from 'zod';
 
 import { t } from '../../i18n';
 
-// Password reset request
+/**
+ * Schema for password reset request
+ * Validates email address for password reset functionality
+ */
 export const passwordResetRequestSchema = z.object({
-  email: z.string().email(t('validation.email.invalid')),
+  email: z.email().refine((email) => email.length > 0, {
+    message: t('validation.email.invalid'),
+  }),
 });
 
-// Password reset confirmation
+/**
+ * Schema for password reset confirmation
+ * Validates token and new password for password reset completion
+ */
 export const passwordResetConfirmSchema = z.object({
   token: z.string().min(1, t('validation.token.resetRequired')),
   newPassword: z
@@ -18,12 +26,10 @@ export const passwordResetConfirmSchema = z.object({
     }),
 });
 
-// Email verification
-export const emailVerificationSchema = z.object({
-  token: z.string().min(1, t('validation.token.verificationRequired')),
-});
-
-// Change password
+/**
+ * Schema for password change
+ * Validates current and new password for password update
+ */
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, t('validation.password.current')),
   newPassword: z
@@ -34,23 +40,13 @@ export const changePasswordSchema = z.object({
     }),
 });
 
-// Update profile
-export const updateProfileSchema = z.object({
-  username: z
-    .string()
-    .min(3, t('validation.username.minLength', { min: 3 }))
-    .max(30, t('validation.username.maxLength', { max: 30 }))
-    .trim()
-    .optional(),
-  email: z.string().email(t('validation.email.invalid')).optional(),
-});
-
+/**
+ * Type definitions for schema inputs
+ */
 export type PasswordResetRequestInput = z.infer<
   typeof passwordResetRequestSchema
 >;
 export type PasswordResetConfirmInput = z.infer<
   typeof passwordResetConfirmSchema
 >;
-export type EmailVerificationInput = z.infer<typeof emailVerificationSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

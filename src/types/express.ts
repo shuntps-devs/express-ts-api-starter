@@ -1,8 +1,8 @@
 /**
- * Express Request Interface Extensions
- *
- * This file extends the Express Request interface to include additional properties
+ * @fileoverview Express Request Interface Extensions
+ * @description Extends the Express Request interface to include additional properties
  * that are added by our middleware (authentication, session management, etc.)
+ * @version 1.0.0
  */
 
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -12,7 +12,6 @@ import { Logger } from 'winston';
 import { IUser } from '../interfaces';
 import { ISession } from '../models';
 
-// Extend Express Request interface
 declare global {
   namespace Express {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -24,5 +23,4 @@ declare global {
   }
 }
 
-// This export makes this a module, enabling declaration merging
 export {};

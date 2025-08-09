@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
+import { Logger } from 'winston';
 
-import { env } from '../config';
+import { env, logger } from '../config';
 import { IUser } from '../interfaces';
 import { ISession, Session } from '../models';
 import { ITokenPair, TokenService } from '../services';
@@ -25,19 +26,38 @@ export class SessionService {
 
   /**
    * Create a new session with tokens and set cookies
+   * @param user - User object
+   * @param req - Express request object
+   * @param res - Express response object
+   * @param contextLogger - Optional context logger for request tracing
+   * @returns Promise resolving to created session
    */
   static async createSession(
     user: IUser,
     req: Request,
-    res: Response
+    res: Response,
+    contextLogger?: Logger
   ): Promise<ISession> {
+    const requestLogger = contextLogger ?? logger;
     const sessionId = TokenService.generateSessionId();
-    const tokenPair = TokenService.generateTokenPair(user, sessionId);
+    const tokenPair = TokenService.generateTokenPair(
+      user,
+      sessionId,
+      contextLogger
+    );
 
-    // Deactivate all existing sessions for the user (single session approach)
+    requestLogger.info('Creating new session', {
+      userId: user._id,
+      sessionId,
+      userAgent: req.get('User-Agent'),
+      ipAddress: this.getClientIP(req),
+    });
+
     await Session.deactivateAllForUser(user._id);
 
-    // Create new session
+    /**
+     * Create new session document with token pair and device information
+     */
     const session = await Session.create({
       userId: user._id,
       accessToken: tokenPair.accessToken,
@@ -47,39 +67,56 @@ export class SessionService {
       ipAddress: this.getClientIP(req),
       userAgent: req.get('User-Agent') ?? 'Unknown',
       deviceInfo: this.parseUserAgent(req.get('User-Agent') ?? ''),
-      location: {}, // Could integrate with IP geolocation service
+      location: {},
       isActive: true,
       lastActivity: new Date(),
       expiresAt: tokenPair.refreshTokenExpiresAt,
     });
 
-    // Set secure cookies
     this.setTokenCookies(res, tokenPair);
+
+    requestLogger.info('Session created successfully', {
+      userId: user._id,
+      sessionId: (session._id as Types.ObjectId).toString(),
+    });
 
     return session;
   }
 
   /**
    * Refresh session tokens and update cookies
+   * @param refreshToken - Current refresh token
+   * @param req - Express request object
+   * @param res - Express response object
+   * @param contextLogger - Optional context logger for request tracing
+   * @returns Session and user data or null if invalid
    */
   static async refreshSession(
     refreshToken: string,
     _req: Request,
-    res: Response
+    res: Response,
+    contextLogger?: Logger
   ): Promise<{ session: ISession; user: IUser } | null> {
+    const requestLogger = contextLogger ?? logger;
     const session = await Session.findByRefreshToken(refreshToken);
 
     if (!session?.isValidForRefresh()) {
+      requestLogger.warn('Invalid refresh token provided', { refreshToken });
       return null;
     }
+
+    requestLogger.info('Refreshing session tokens', {
+      sessionId: (session._id as Types.ObjectId).toString(),
+      userId: session.userId,
+    });
 
     const user = session.userId as unknown as IUser;
     const newTokenPair = TokenService.generateTokenPair(
       user,
-      (session._id as Types.ObjectId).toString()
+      (session._id as Types.ObjectId).toString(),
+      contextLogger
     );
 
-    // Update session with new tokens
     await session.refreshTokens(
       newTokenPair.accessToken,
       newTokenPair.refreshToken,
@@ -87,20 +124,30 @@ export class SessionService {
       newTokenPair.refreshTokenExpiresAt
     );
 
-    // Update cookies
     this.setTokenCookies(res, newTokenPair);
+
+    requestLogger.info('Session tokens refreshed successfully', {
+      sessionId: (session._id as Types.ObjectId).toString(),
+      userId: session.userId,
+    });
 
     return { session, user };
   }
 
   /**
    * Validate access token and return session data
+   * @param accessToken - JWT access token to validate
+   * @param contextLogger - Optional context logger for request tracing
+   * @returns Session and user data or null if invalid
    */
-  static async validateAccessToken(accessToken: string): Promise<{
+  static async validateAccessToken(
+    accessToken: string,
+    contextLogger?: Logger
+  ): Promise<{
     session: ISession;
     user: IUser;
   } | null> {
-    const tokenPayload = TokenService.verifyToken(accessToken);
+    const tokenPayload = TokenService.verifyToken(accessToken, contextLogger);
     if (!tokenPayload || tokenPayload.type !== 'access') {
       return null;
     }
@@ -110,7 +157,6 @@ export class SessionService {
       return null;
     }
 
-    // Update last activity
     await session.updateActivity();
 
     return {
@@ -134,21 +180,46 @@ export class SessionService {
 
   /**
    * Destroy session and clear cookies
+   * @param sessionId - Session identifier
+   * @param res - Express response object
+   * @param contextLogger - Optional context logger for request tracing
+   * @returns Promise<void>
    */
-  static async destroySession(sessionId: string, res: Response): Promise<void> {
+  static async destroySession(
+    sessionId: string,
+    res: Response,
+    contextLogger?: Logger
+  ): Promise<void> {
+    const requestLogger = contextLogger ?? logger;
+
+    requestLogger.info('Destroying session', { sessionId });
+
     await Session.findByIdAndUpdate(sessionId, { isActive: false });
     this.clearTokenCookies(res);
+
+    requestLogger.info('Session destroyed successfully', { sessionId });
   }
 
   /**
    * Destroy all sessions for a user and clear cookies
+   * @param userId - User identifier
+   * @param res - Express response object
+   * @param contextLogger - Optional context logger for request tracing
+   * @returns Promise<void>
    */
   static async destroyAllUserSessions(
     userId: string | Types.ObjectId,
-    res: Response
+    res: Response,
+    contextLogger?: Logger
   ): Promise<void> {
+    const requestLogger = contextLogger ?? logger;
+
+    requestLogger.info('Destroying all user sessions', { userId });
+
     await Session.deactivateAllForUser(userId);
     this.clearTokenCookies(res);
+
+    requestLogger.info('All user sessions destroyed successfully', { userId });
   }
 
   /**
@@ -157,13 +228,11 @@ export class SessionService {
   private static setTokenCookies(res: Response, tokenPair: ITokenPair): void {
     const cookieOptions = this.getCookieOptions();
 
-    // Set access token cookie (shorter expiry)
     res.cookie(this.ACCESS_COOKIE_NAME, tokenPair.accessToken, {
       ...cookieOptions,
       maxAge: TokenService.getAccessTokenMaxAge(),
     });
 
-    // Set refresh token cookie (longer expiry)
     res.cookie(this.REFRESH_COOKIE_NAME, tokenPair.refreshToken, {
       ...cookieOptions,
       maxAge: TokenService.getRefreshTokenMaxAge(),
@@ -181,19 +250,22 @@ export class SessionService {
   }
 
   /**
-   * Get secure cookie options
+   * Get secure cookie options for token storage
+   * @returns Cookie configuration object with security settings
    */
   private static getCookieOptions(): ICookieOptions {
     return {
-      httpOnly: true, // Prevent XSS attacks
-      secure: env.NODE_ENV === 'production', // HTTPS only in production
-      sameSite: 'strict', // CSRF protection
-      maxAge: 0, // Will be overridden when setting cookies
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 0,
     };
   }
 
   /**
-   * Extract client IP address
+   * Extract client IP address from request headers
+   * @param req - Express request object
+   * @returns Client IP address string
    */
   private static getClientIP(req: Request): string {
     return (
@@ -214,10 +286,11 @@ export class SessionService {
   }
 
   /**
-   * Parse User-Agent string for device info
+   * Parse User-Agent string for device information
+   * @param userAgent - Raw User-Agent string
+   * @returns Parsed device information object
    */
   private static parseUserAgent(userAgent: string) {
-    // Simple parsing - could use a library like 'ua-parser-js' for better parsing
     const browserMatch = userAgent.match(
       /(Chrome|Firefox|Safari|Edge|Opera)\/[\d.]+/
     );

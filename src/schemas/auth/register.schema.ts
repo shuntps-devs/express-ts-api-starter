@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
 import { t } from '../../i18n';
-import { UserRole } from '../../models';
+import { UserRole } from '../../interfaces';
 import { emailSchema, passwordSchema } from '../common';
 
+/**
+ * User registration schema
+ * Validates username, email, password, and optional role
+ */
 export const registerSchema = z.object({
   username: z
     .string()
@@ -17,4 +21,7 @@ export const registerSchema = z.object({
     .default(UserRole.USER),
 });
 
+/**
+ * Type definition for registration input
+ */
 export type RegisterInput = z.infer<typeof registerSchema>;

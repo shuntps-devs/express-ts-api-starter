@@ -1,3 +1,8 @@
+/**
+ * Security middleware configuration for Express application
+ * Implements comprehensive security measures including Helmet, CORS, rate limiting, and compression
+ */
+
 import compression from 'compression';
 import cors from 'cors';
 import { Application } from 'express';
@@ -5,12 +10,15 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
 import { env, logger } from '../config';
+import { t } from '../i18n';
+import { ResponseHelper } from '../utils';
 
 /**
- * Configure security middleware for the application
+ * Configure comprehensive security middleware for the Express application
+ * Sets up Helmet security headers, CORS policies, rate limiting, and compression
+ * @param app - Express application instance to secure
  */
 export const configureSecurity = (app: Application): void => {
-  // Helmet for security headers
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -29,11 +37,10 @@ export const configureSecurity = (app: Application): void => {
     })
   );
 
-  // CORS configuration
   const corsOptions: cors.CorsOptions = {
     origin:
       env.NODE_ENV === 'production'
-        ? ['https://yourdomain.com'] // Replace with your actual domain
+        ? ['https://yourdomain.com']
         : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -51,12 +58,11 @@ export const configureSecurity = (app: Application): void => {
 
   app.use(cors(corsOptions));
 
-  // Rate limiting
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: env.NODE_ENV === 'production' ? 100 : 1000, // More restrictive in production
+    windowMs: 15 * 60 * 1000,
+    max: env.NODE_ENV === 'production' ? 100 : 1000,
     message: {
-      error: 'Too many requests from this IP, please try again later.',
+      error: t('middleware.rateLimitExceeded'),
       retryAfter: '15 minutes',
     },
     standardHeaders: true,
@@ -67,28 +73,27 @@ export const configureSecurity = (app: Application): void => {
         userAgent: req.get('User-Agent'),
         path: req.path,
       });
-      res.status(429).json({
-        success: false,
-        error: {
-          message: 'Too many requests from this IP, please try again later.',
-          code: 'RATE_LIMIT_EXCEEDED',
-        },
-        timestamp: new Date().toISOString(),
-      });
+
+      ResponseHelper.sendError(
+        res,
+        t('middleware.rateLimitExceeded'),
+        429,
+        'RATE_LIMIT_EXCEEDED',
+        { retryAfter: '15 minutes' }
+      );
     },
   });
 
   app.use(limiter);
 
-  // Compression for better performance
   app.use(
     compression({
       level: 6,
-      threshold: 1024, // Only compress responses > 1KB
+      threshold: 1024,
     })
   );
 
-  logger.info('Security middleware configured', {
+  logger.info(t('middleware.securityConfigured'), {
     helmet: true,
     cors: true,
     rateLimit: true,

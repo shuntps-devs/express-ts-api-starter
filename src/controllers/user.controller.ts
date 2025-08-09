@@ -8,17 +8,30 @@ import { UserService } from '../services';
 import { ResponseHelper, UserHelper } from '../utils';
 
 /**
- * Controller for user management operations
+ * User management controller
+ * @description Handles all user-related operations including profile management, user administration, and dashboard functionality
+ * @class UserController
  */
 export class UserController {
   private userService: UserService;
 
+  /**
+   * Initialize user controller
+   * @description Creates new instance of UserService for user management operations
+   */
   constructor() {
     this.userService = new UserService();
   }
 
   /**
    * Get current user's profile
+   * @route GET /api/user/profile
+   * @description Retrieves the authenticated user's profile information
+   * @param req - Express request object with authenticated user
+   * @param res - Express response object
+   * @returns User profile data sanitized for client consumption
+   * @throws 401 - User not authenticated
+   * @security Bearer token required (HTTP-only cookie)
    */
   public getProfile = asyncHandler((req: Request, res: Response): void => {
     const requestId = ResponseHelper.extractRequestId(req);
@@ -56,6 +69,14 @@ export class UserController {
 
   /**
    * Update current user's profile
+   * @route PATCH /api/user/profile
+   * @description Updates the authenticated user's profile information
+   * @param req - Express request object with authenticated user and update data
+   * @param res - Express response object
+   * @returns Updated user profile data
+   * @throws 401 - User not authenticated
+   * @throws 404 - User not found during update
+   * @security Bearer token required (HTTP-only cookie)
    */
   public updateProfile = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
@@ -63,75 +84,114 @@ export class UserController {
       const contextLogger = req.logger ?? logger;
 
       if (!req.user) {
+        contextLogger.warn('Update profile failed - user not authenticated', {
+          requestId,
+        });
         ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
         return;
       }
 
-      // Update user with provided data
-      const updatedUser = await this.userService.updateUser(
-        String(req.user._id),
-        req.body
-      );
+      try {
+        const updatedUser = await this.userService.updateUser(
+          String(req.user._id),
+          req.body
+        );
 
-      if (!updatedUser) {
-        ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-        return;
+        if (!updatedUser) {
+          contextLogger.warn('Profile update failed - user not found', {
+            userId: req.user._id,
+            requestId,
+          });
+          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
+          return;
+        }
+
+        const userResponse: IUserResponse = {
+          id: String(updatedUser._id),
+          username: updatedUser.username,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          isActive: updatedUser.isActive,
+          isEmailVerified: updatedUser.isEmailVerified,
+          lastLogin: updatedUser.lastLogin,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        };
+
+        contextLogger.info('Profile updated', {
+          userId: req.user._id,
+        });
+
+        ResponseHelper.sendSuccess<IUserResponse>(
+          res,
+          userResponse,
+          200,
+          t('success.resourceUpdated'),
+          requestId
+        );
+      } catch (error) {
+        contextLogger.error('Profile update failed', {
+          userId: req.user._id,
+          error,
+          requestId,
+        });
+        throw error;
       }
-
-      const userResponse: IUserResponse = {
-        id: String(updatedUser._id),
-        username: updatedUser.username,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        isActive: updatedUser.isActive,
-        isEmailVerified: updatedUser.isEmailVerified,
-        lastLogin: updatedUser.lastLogin,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
-      };
-
-      contextLogger.info('Profile updated', {
-        userId: req.user._id,
-      });
-
-      ResponseHelper.sendSuccess<IUserResponse>(
-        res,
-        userResponse,
-        200,
-        t('success.resourceUpdated'),
-        requestId
-      );
     }
-  );
-
-  /**
+  ); /**
    * Get all users (admin only)
+   * @route GET /api/user/all
+   * @description Retrieves paginated list of all users (admin access required)
+   * @param req - Express request object with query parameters for pagination
+   * @param res - Express response object
+   * @returns Paginated list of users with metadata
+   * @throws 401 - User not authenticated
+   * @throws 403 - User not authorized (admin role required)
+   * @security Bearer token required (HTTP-only cookie) + Admin role
    */
   public getAllUsers = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const requestId = ResponseHelper.extractRequestId(req);
       const contextLogger = req.logger ?? logger;
 
-      const paginatedUsers = await this.userService.getAllUsers(req.query);
+      try {
+        const paginatedUsers = await this.userService.getAllUsers(req.query);
 
-      contextLogger.info('All users retrieved', {
-        adminId: req.user?._id,
-        count: paginatedUsers.data.length,
-        total: paginatedUsers.pagination.total,
-      });
+        contextLogger.info('All users retrieved', {
+          adminId: req.user?._id,
+          count: paginatedUsers.data.length,
+          total: paginatedUsers.pagination.total,
+        });
 
-      ResponseHelper.sendSuccess<IPaginatedResponse<IUserResponse>>(
-        res,
-        paginatedUsers,
-        200,
-        t('success.resourceCreated'),
-        requestId
-      );
+        ResponseHelper.sendSuccess<IPaginatedResponse<IUserResponse>>(
+          res,
+          paginatedUsers,
+          200,
+          t('success.resourceCreated'),
+          requestId
+        );
+      } catch (error) {
+        contextLogger.error('Failed to retrieve all users', {
+          adminId: req.user?._id,
+          error,
+          requestId,
+        });
+        throw error;
+      }
     }
   );
 
   /**
    * Get user by ID (admin only)
+   * @route GET /api/user/:userId
+   * @description Retrieves specific user by ID (admin access required)
+   * @param req - Express request object with userId parameter
+   * @param res - Express response object
+   * @returns User data for specified ID
+   * @throws 401 - User not authenticated
+   * @throws 403 - User not authorized (admin role required)
+   * @throws 404 - User not found
+   * @security Bearer token required (HTTP-only cookie) + Admin role
    */
   public getUserById = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
@@ -139,42 +199,66 @@ export class UserController {
       const requestId = ResponseHelper.extractRequestId(req);
       const contextLogger = req.logger ?? logger;
 
-      const user = await this.userService.findUserById(userId);
+      try {
+        const user = await this.userService.findUserById(userId);
 
-      if (!user) {
-        ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-        return;
+        if (!user) {
+          contextLogger.warn('User not found by ID', {
+            adminId: req.user?._id,
+            targetUserId: userId,
+            requestId,
+          });
+          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
+          return;
+        }
+
+        const userResponse: IUserResponse = {
+          id: String(user._id),
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive,
+          isEmailVerified: user.isEmailVerified,
+          lastLogin: user.lastLogin,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        };
+
+        contextLogger.info('User retrieved by ID', {
+          adminId: req.user?._id,
+          targetUserId: userId,
+        });
+
+        ResponseHelper.sendSuccess<IUserResponse>(
+          res,
+          userResponse,
+          200,
+          t('success.profileRetrieved'),
+          requestId
+        );
+      } catch (error) {
+        contextLogger.error('Failed to retrieve user by ID', {
+          adminId: req.user?._id,
+          targetUserId: userId,
+          error,
+          requestId,
+        });
+        throw error;
       }
-
-      const userResponse: IUserResponse = {
-        id: String(user._id),
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isActive: user.isActive,
-        isEmailVerified: user.isEmailVerified,
-        lastLogin: user.lastLogin,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      };
-
-      contextLogger.info('User retrieved by ID', {
-        adminId: req.user?._id,
-        targetUserId: userId,
-      });
-
-      ResponseHelper.sendSuccess<IUserResponse>(
-        res,
-        userResponse,
-        200,
-        t('success.profileRetrieved'),
-        requestId
-      );
     }
   );
 
   /**
    * Update user by ID (admin only)
+   * @route PATCH /api/user/:userId
+   * @description Updates specific user by ID (admin access required)
+   * @param req - Express request object with userId parameter and update data
+   * @param res - Express response object
+   * @returns Updated user data
+   * @throws 401 - User not authenticated
+   * @throws 403 - User not authorized (admin role required)
+   * @throws 404 - User not found
+   * @security Bearer token required (HTTP-only cookie) + Admin role
    */
   public updateUserById = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
@@ -182,42 +266,66 @@ export class UserController {
       const requestId = ResponseHelper.extractRequestId(req);
       const contextLogger = req.logger ?? logger;
 
-      const updatedUser = await this.userService.updateUser(userId, req.body);
+      try {
+        const updatedUser = await this.userService.updateUser(userId, req.body);
 
-      if (!updatedUser) {
-        ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-        return;
+        if (!updatedUser) {
+          contextLogger.warn('User update failed - user not found', {
+            adminId: req.user?._id,
+            targetUserId: userId,
+            requestId,
+          });
+          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
+          return;
+        }
+
+        const userResponse: IUserResponse = {
+          id: String(updatedUser._id),
+          username: updatedUser.username,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          isActive: updatedUser.isActive,
+          isEmailVerified: updatedUser.isEmailVerified,
+          lastLogin: updatedUser.lastLogin,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        };
+
+        contextLogger.info('User updated by admin', {
+          adminId: req.user?._id,
+          targetUserId: userId,
+        });
+
+        ResponseHelper.sendSuccess<IUserResponse>(
+          res,
+          userResponse,
+          200,
+          t('success.resourceUpdated'),
+          requestId
+        );
+      } catch (error) {
+        contextLogger.error('Failed to update user by admin', {
+          adminId: req.user?._id,
+          targetUserId: userId,
+          error,
+          requestId,
+        });
+        throw error;
       }
-
-      const userResponse: IUserResponse = {
-        id: String(updatedUser._id),
-        username: updatedUser.username,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        isActive: updatedUser.isActive,
-        isEmailVerified: updatedUser.isEmailVerified,
-        lastLogin: updatedUser.lastLogin,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
-      };
-
-      contextLogger.info('User updated by admin', {
-        adminId: req.user?._id,
-        targetUserId: userId,
-      });
-
-      ResponseHelper.sendSuccess<IUserResponse>(
-        res,
-        userResponse,
-        200,
-        t('success.resourceUpdated'),
-        requestId
-      );
     }
   );
 
   /**
    * Delete user by ID (admin only)
+   * @route DELETE /api/user/:userId
+   * @description Permanently deletes specific user by ID (admin access required)
+   * @param req - Express request object with userId parameter
+   * @param res - Express response object
+   * @returns Success confirmation message
+   * @throws 401 - User not authenticated
+   * @throws 403 - User not authorized (admin role required)
+   * @throws 404 - User not found
+   * @security Bearer token required (HTTP-only cookie) + Admin role
    */
   public deleteUserById = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
@@ -225,38 +333,58 @@ export class UserController {
       const requestId = ResponseHelper.extractRequestId(req);
       const contextLogger = req.logger ?? logger;
 
-      const deleted = await this.userService.deleteUser(userId);
+      try {
+        const deleted = await this.userService.deleteUser(userId);
 
-      if (!deleted) {
-        ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-        return;
+        if (!deleted) {
+          contextLogger.warn('User deletion failed - user not found', {
+            adminId: req.user?._id,
+            targetUserId: userId,
+            requestId,
+          });
+          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
+          return;
+        }
+
+        contextLogger.info('User deleted by admin', {
+          adminId: req.user?._id,
+          deletedUserId: userId,
+        });
+
+        ResponseHelper.sendSuccess(
+          res,
+          null,
+          200,
+          t('success.resourceDeleted'),
+          requestId
+        );
+      } catch (error) {
+        contextLogger.error('Failed to delete user', {
+          adminId: req.user?._id,
+          targetUserId: userId,
+          error,
+          requestId,
+        });
+        throw error;
       }
-
-      contextLogger.info('User deleted by admin', {
-        adminId: req.user?._id,
-        deletedUserId: userId,
-      });
-
-      ResponseHelper.sendSuccess(
-        res,
-        null,
-        200,
-        t('success.resourceDeleted'),
-        requestId
-      );
     }
   );
 
   /**
    * Get current user's dashboard with personalized content
+   * @route GET /api/user/dashboard
+   * @description Retrieves dashboard data with user permissions and session information
+   * @param req - Express request object with authenticated user
+   * @param res - Express response object
+   * @returns Dashboard data with user info, permissions, and client details
+   * @throws 401 - User not authenticated
+   * @security Bearer token required (HTTP-only cookie)
    */
   public getDashboard = asyncHandler((req: Request, res: Response): void => {
     const requestId = ResponseHelper.extractRequestId(req);
 
-    // Use our helper to get session info
     const sessionInfo = UserHelper.getSessionInfo(req);
 
-    // Use contextual logger if available
     const contextLogger = req.logger ?? logger;
 
     contextLogger.info('Dashboard accessed', {
@@ -293,13 +421,20 @@ export class UserController {
 
   /**
    * Get user profile by ID (with access control)
+   * @route GET /api/user/profile/:userId
+   * @description Retrieves user profile with proper access control (own profile or admin)
+   * @param req - Express request object with userId parameter
+   * @param res - Express response object
+   * @returns User profile data if access is authorized
+   * @throws 401 - User not authenticated
+   * @throws 403 - Access denied (can only access own profile unless admin)
+   * @security Bearer token required (HTTP-only cookie)
    */
   public getUserProfile = asyncHandler((req: Request, res: Response): void => {
     const { userId } = req.params;
     const requestId = ResponseHelper.extractRequestId(req);
     const contextLogger = req.logger ?? logger;
 
-    // Check if user can access this profile
     if (!UserHelper.canAccessUser(req, userId)) {
       contextLogger.warn('Unauthorized profile access attempt', {
         requestorId: req.user?._id,
@@ -314,8 +449,6 @@ export class UserController {
       return;
     }
 
-    // For now, return the requesting user's profile
-    // In a real app, you'd fetch the target user's profile
     const profileData = UserHelper.getSessionInfo(req);
 
     contextLogger.info('Profile accessed', {
@@ -334,6 +467,14 @@ export class UserController {
 
   /**
    * Get user statistics (admin only)
+   * @route GET /api/user/stats
+   * @description Retrieves comprehensive user statistics and analytics (admin access required)
+   * @param req - Express request object with authenticated admin user
+   * @param res - Express response object
+   * @returns Statistical data about user base including counts and role distribution
+   * @throws 401 - User not authenticated
+   * @throws 403 - Access denied (admin role required)
+   * @security Bearer token required (HTTP-only cookie) + Admin role
    */
   public getUserStats = asyncHandler((req: Request, res: Response): void => {
     const requestId = ResponseHelper.extractRequestId(req);
@@ -344,7 +485,6 @@ export class UserController {
       return;
     }
 
-    // Mock statistics data
     const stats = {
       totalUsers: 150,
       activeUsers: 120,

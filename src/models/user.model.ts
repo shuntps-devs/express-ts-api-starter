@@ -3,12 +3,18 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Document, Schema, model } from 'mongoose';
 
+/**
+ * Enumeration of user roles in the system
+ */
 export enum UserRole {
   USER = 'user',
   ADMIN = 'admin',
   MODERATOR = 'moderator',
 }
 
+/**
+ * User document interface extending Mongoose Document
+ */
 export interface IUser extends Document {
   username: string;
   email: string;
@@ -26,15 +32,44 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
 
-  // Virtual properties
   isLocked: boolean;
 
-  // Methods
+  /**
+   * Compare provided password with stored hash
+   * @param candidatePassword - Password to compare
+   * @returns Promise resolving to comparison result
+   */
   comparePassword(candidatePassword: string): Promise<boolean>;
+
+  /**
+   * Increment failed login attempts and lock account if threshold reached
+   * @returns Promise resolving to update result
+   */
   incLoginAttempts(): Promise<unknown>;
+
+  /**
+   * Reset login attempts counter and update last login timestamp
+   * @returns Promise resolving to update result
+   */
   resetLoginAttempts(): Promise<unknown>;
+
+  /**
+   * Generate password reset token and expiration date
+   * @returns Object containing token and expiration date
+   */
   generatePasswordReset(): { token: string; expires: Date };
+
+  /**
+   * Generate email verification token and expiration date
+   * @returns Object containing token and expiration date
+   */
   generateEmailVerification(): { token: string; expires: Date };
+
+  /**
+   * Check if user has specific role
+   * @param role - Role to check
+   * @returns True if user has the role
+   */
   hasRole(role: UserRole): boolean;
 }
 
@@ -110,16 +145,22 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Composite indexes for better query performance
+/**
+ * Composite indexes for better query performance
+ */
 userSchema.index({ isActive: 1, isEmailVerified: 1 });
 userSchema.index({ email: 1, isActive: 1 });
 
-// Virtual for account lock status
+/**
+ * Virtual property for account lock status
+ */
 userSchema.virtual('isLocked').get(function (this: IUser) {
   return !!(this.lockUntil && this.lockUntil > new Date());
 });
 
-// Hash password before saving
+/**
+ * Pre-save middleware to hash password before storing
+ */
 userSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -132,7 +173,9 @@ userSchema.pre<IUser>('save', async function (next) {
   }
 });
 
-// Compare password method
+/**
+ * Instance method to compare provided password with stored hash
+ */
 userSchema.methods.comparePassword = async function (
   this: IUser,
   candidatePassword: string
@@ -140,9 +183,10 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Increment login attempts method
+/**
+ * Instance method to increment login attempts with account locking logic
+ */
 userSchema.methods.incLoginAttempts = function (this: IUser) {
-  // If we have a previous lock that has expired, restart at 1
   if (this.lockUntil && this.lockUntil < new Date()) {
     return this.updateOne({
       $unset: { lockUntil: 1 },
@@ -152,7 +196,6 @@ userSchema.methods.incLoginAttempts = function (this: IUser) {
 
   const updates: Record<string, unknown> = { $inc: { loginAttempts: 1 } };
 
-  // Lock account after 5 failed attempts for 2 hours
   if (this.loginAttempts + 1 >= 5 && !this.isLocked) {
     updates.$set = { lockUntil: new Date(Date.now() + 2 * 60 * 60 * 1000) };
   }
@@ -160,7 +203,9 @@ userSchema.methods.incLoginAttempts = function (this: IUser) {
   return this.updateOne(updates);
 };
 
-// Reset login attempts method
+/**
+ * Instance method to reset login attempts and update last login
+ */
 userSchema.methods.resetLoginAttempts = function (this: IUser) {
   return this.updateOne({
     $unset: { loginAttempts: 1, lockUntil: 1 },
@@ -168,13 +213,15 @@ userSchema.methods.resetLoginAttempts = function (this: IUser) {
   });
 };
 
-// Generate password reset token method
+/**
+ * Instance method to generate password reset token
+ */
 userSchema.methods.generatePasswordReset = function (this: IUser): {
   token: string;
   expires: Date;
 } {
   const token = crypto.randomBytes(32).toString('hex');
-  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expires = new Date(Date.now() + 10 * 60 * 1000);
 
   this.passwordResetToken = token;
   this.passwordResetExpires = expires;
@@ -182,13 +229,15 @@ userSchema.methods.generatePasswordReset = function (this: IUser): {
   return { token, expires };
 };
 
-// Generate email verification token method
+/**
+ * Instance method to generate email verification token
+ */
 userSchema.methods.generateEmailVerification = function (this: IUser): {
   token: string;
   expires: Date;
 } {
   const token = crypto.randomBytes(32).toString('hex');
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   this.emailVerificationToken = token;
   this.emailVerificationExpires = expires;
@@ -196,12 +245,16 @@ userSchema.methods.generateEmailVerification = function (this: IUser): {
   return { token, expires };
 };
 
-// Check user role method
+/**
+ * Instance method to check if user has specific role
+ */
 userSchema.methods.hasRole = function (this: IUser, role: UserRole): boolean {
   return this.role === role;
 };
 
-// Create and export the model
+/**
+ * User model with comprehensive authentication and security features
+ */
 const User = model<IUser>('User', userSchema);
 
 export default User;

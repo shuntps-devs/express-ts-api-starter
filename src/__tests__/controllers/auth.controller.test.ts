@@ -38,8 +38,17 @@ const mockUserService = {
   resetLoginAttempts: jest.fn(),
 };
 
+const mockVerificationService = {
+  sendVerificationEmail: jest.fn(),
+  verifyEmailToken: jest.fn(),
+  resendVerificationEmail: jest.fn(),
+};
+
 jest.mock('../../services', () => ({
   UserService: jest.fn().mockImplementation(() => mockUserService),
+  VerificationService: jest
+    .fn()
+    .mockImplementation(() => mockVerificationService),
   SessionService: {
     createSession: jest.fn(),
     refreshSession: jest.fn(),

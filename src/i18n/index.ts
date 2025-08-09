@@ -7,6 +7,10 @@ import { env } from '../config';
 import { en } from './locales/en';
 import { fr } from './locales/fr';
 
+/**
+ * Translation resources configuration
+ * Contains all available language translations for the application
+ */
 export const resources = {
   en: {
     translation: en,
@@ -16,6 +20,10 @@ export const resources = {
   },
 } as const;
 
+/**
+ * Type-safe translation keys for the application
+ * Ensures only valid translation keys can be used with the t() function
+ */
 export type TranslationKeys =
   | 'api.service.name'
   | 'api.welcome.message'
@@ -33,16 +41,28 @@ export type TranslationKeys =
   | 'database.disconnected'
   | 'database.connectionFailed'
   | 'database.continuingWithoutDb'
+  | 'middleware.requestLoggingConfigured'
+  | 'middleware.securityConfigured'
+  | 'middleware.rateLimitExceeded'
   | 'auth.invalidToken'
   | 'auth.userNotFound'
   | 'auth.refreshTokenRequired'
   | 'auth.invalidRefreshToken'
+  | 'auth.authenticationRequired'
+  | 'auth.sessionExpired'
+  | 'auth.authenticationError'
+  | 'auth.accessTokenRequired'
+  | 'auth.invalidOrExpiredToken'
+  | 'auth.insufficientPermissions'
   | 'auth.email.alreadyExists'
   | 'auth.email.alreadyVerified'
   | 'auth.username.alreadyExists'
   | 'auth.account.locked'
+  | 'auth.account.inactive'
   | 'auth.credentials.invalid'
   | 'auth.verification.tokenInvalid'
+  | 'auth.verification.required'
+  | 'auth.verification.requiredWithDays'
   | 'auth.password.resetSent'
   | 'auth.password.resetTokenInvalid'
   | 'success.userCreated'
@@ -64,6 +84,7 @@ export type TranslationKeys =
   | 'errors.tooManyRequests'
   | 'errors.internalServerError'
   | 'error.internalServer'
+  | 'error.payloadTooLarge'
   | 'error.validation.invalidInput'
   | 'env.validationError'
   | 'validation.email.invalid'
@@ -78,8 +99,43 @@ export type TranslationKeys =
   | 'validation.token.required'
   | 'validation.token.resetRequired'
   | 'validation.token.verificationRequired'
-  | 'validation.identifier.required';
+  | 'validation.identifier.required'
+  | 'email.verification.subject'
+  | 'email.verification.title'
+  | 'email.verification.greeting'
+  | 'email.verification.intro'
+  | 'email.verification.instruction'
+  | 'email.verification.button'
+  | 'email.verification.expiration'
+  | 'email.verification.ignore'
+  | 'email.verification.buttonFallback'
+  | 'email.verification.support'
+  | 'email.welcome.subject'
+  | 'email.welcome.title'
+  | 'email.welcome.greeting'
+  | 'email.welcome.intro'
+  | 'email.welcome.instruction'
+  | 'email.welcome.button'
+  | 'email.welcome.support'
+  | 'email.passwordReset.subject'
+  | 'email.passwordReset.title'
+  | 'email.passwordReset.greeting'
+  | 'email.passwordReset.intro'
+  | 'email.passwordReset.button'
+  | 'email.passwordReset.expiration'
+  | 'email.passwordReset.ignore'
+  | 'email.passwordReset.support'
+  | 'email.service.sendSuccess'
+  | 'email.service.sendFailure'
+  | 'email.service.serviceError'
+  | 'email.service.sending'
+  | 'email.service.sendingFailed';
 
+/**
+ * Initialize internationalization with i18next configuration
+ * Sets up language detection, fallbacks, and resource loading
+ * @returns Promise that resolves when i18n is fully initialized
+ */
 export const initI18n = async () => {
   await i18next
     .use(Backend)
@@ -106,8 +162,19 @@ export const initI18n = async () => {
     });
 };
 
+/**
+ * Translation parameter types for interpolation
+ * Supports string, number, and boolean values for template variables
+ */
 export type TranslationParams = Record<string, string | number | boolean>;
 
+/**
+ * Type-safe translation function
+ * Provides translations with optional parameter interpolation
+ * @param key - Translation key from the available TranslationKeys
+ * @param params - Optional parameters for string interpolation
+ * @returns Translated string in the current language
+ */
 export const t = (key: TranslationKeys, params?: TranslationParams): string => {
   return i18next.t(key, params);
 };

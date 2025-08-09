@@ -1,10 +1,20 @@
+/**
+ * Performance monitoring and optimization middleware collection
+ * Provides request timing, API versioning, and request size limiting functionality
+ */
+
 import { NextFunction, Request, Response } from 'express';
 
 import { logger } from '../config';
+import { t } from '../i18n';
+import { ResponseHelper } from '../utils';
 
 /**
- * Performance monitoring middleware
- * Tracks response time and logs slow requests
+ * Performance monitoring middleware for tracking response times
+ * Logs slow requests and adds performance headers to responses
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
  */
 export const performanceMonitor = (
   req: Request,
@@ -14,12 +24,10 @@ export const performanceMonitor = (
   const startTime = Date.now();
   const originalSend = res.send;
 
-  // Override res.send to capture response time
   res.send = function (data: unknown) {
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 
-    // Log slow requests (over 1 second)
     if (responseTime > 1000) {
       const contextLogger = req.logger ?? logger;
       contextLogger.warn('Slow request detected', {
@@ -33,10 +41,7 @@ export const performanceMonitor = (
       });
     }
 
-    // Add performance headers
     res.set('X-Response-Time', `${responseTime}ms`);
-
-    // Call the original send method
     return originalSend.call(this, data);
   };
 
@@ -44,18 +49,19 @@ export const performanceMonitor = (
 };
 
 /**
- * API versioning middleware
- * Ensures API version compatibility
+ * API versioning middleware for ensuring compatibility
+ * Sets API version headers and logs version mismatches
+ * @param req - Express request object with optional X-Client-Version header
+ * @param res - Express response object
+ * @param next - Express next function
  */
 export const apiVersioning = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  // Set API version header
   res.set('X-API-Version', '1.0.0');
 
-  // Check client version compatibility
   const clientVersion = req.get('X-Client-Version');
   if (clientVersion && clientVersion !== '1.0.0') {
     const contextLogger = req.logger ?? logger;
@@ -70,8 +76,11 @@ export const apiVersioning = (
 };
 
 /**
- * Request size limiter middleware
- * Prevents abuse from large payloads
+ * Request size limiting middleware factory
+ * Prevents abuse from oversized request payloads
+ * @param maxSizeMB - Maximum allowed request size in megabytes (default: 10MB)
+ * @returns Express middleware function that enforces size limits
+ * @throws 413 if request exceeds size limit
  */
 export const requestSizeLimiter = (maxSizeMB = 10) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -89,15 +98,16 @@ export const requestSizeLimiter = (maxSizeMB = 10) => {
           userId: req.user?._id,
         });
 
-        res.status(413).json({
-          success: false,
-          message: 'Request entity too large',
-          error: {
-            code: 'PAYLOAD_TOO_LARGE',
+        ResponseHelper.sendError(
+          res,
+          t('error.payloadTooLarge'),
+          413,
+          'PAYLOAD_TOO_LARGE',
+          {
             maxSize: `${maxSizeMB}MB`,
-          },
-          timestamp: new Date().toISOString(),
-        });
+            requestedSize: `${sizeInMB.toFixed(2)}MB`,
+          }
+        );
         return;
       }
     }

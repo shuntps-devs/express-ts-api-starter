@@ -1,45 +1,56 @@
 import { Router } from 'express';
 
 import { env } from '../config';
+import { t } from '../i18n';
+import { ResponseHelper } from '../utils';
 
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 
-const APP_VERSION = process.env.npm_package_version ?? '0.0.2';
-
+/**
+ * Main application router with health check and API routes
+ */
 const router = Router();
 
-// Health check route
+/**
+ * Health check endpoint for monitoring service status
+ */
 router.get('/health', (_req, res) => {
-  res.status(200).json({
+  const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
     uptime: process.uptime(),
-    service: 'Express TypeScript API',
-  });
+    service: t('api.service.name'),
+  };
+
+  res.status(200).json(healthData);
 });
 
-// Base routes
+/**
+ * Base welcome endpoint with API information
+ */
 router.get('/', (_req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to Express TypeScript API',
-    data: {
-      service: 'Express TypeScript API',
-      version: APP_VERSION,
-      endpoints: {
-        auth: '/api/auth',
-        users: '/api/users',
-        health: '/health',
-      },
+  const welcomeData = {
+    service: t('api.service.name'),
+    version: process.env.npm_package_version ?? '0.0.2',
+    endpoints: {
+      auth: '/api/auth',
+      users: '/api/users',
+      health: '/health',
     },
-  });
+  };
+
+  ResponseHelper.sendSuccess(res, welcomeData, 200, t('api.welcome.message'));
 });
 
-// API routes
+/**
+ * Mount API route modules
+ */
 router.use('/api/auth', authRoutes);
 router.use('/api/users', userRoutes);
 
-// Export the router
+/**
+ * Main router export for Express application
+ */
 export default router;

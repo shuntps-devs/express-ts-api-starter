@@ -1,3 +1,8 @@
+/**
+ * English language translations
+ * Contains all text content for the English locale
+ * @description Provides structured translations for API responses, errors, validation messages, and system notifications
+ */
 export const en = {
   api: {
     service: {
@@ -29,11 +34,23 @@ export const en = {
     connectionFailed: 'Failed to connect to MongoDB',
     continuingWithoutDb: 'Continuing without database in development mode',
   },
+  middleware: {
+    requestLoggingConfigured: 'Request logging configured',
+    securityConfigured: 'Security middleware configured',
+    rateLimitExceeded:
+      'Too many requests from this IP, please try again later.',
+  },
   auth: {
     invalidToken: 'Invalid authentication token',
     userNotFound: 'User not found',
     refreshTokenRequired: 'Refresh token required',
     invalidRefreshToken: 'Invalid or expired refresh token',
+    authenticationRequired: 'Authentication required',
+    sessionExpired: 'Session expired. Please login again.',
+    authenticationError: 'Authentication error',
+    accessTokenRequired: 'Access token required',
+    invalidOrExpiredToken: 'Invalid or expired token',
+    insufficientPermissions: 'Insufficient permissions',
     email: {
       alreadyExists: 'Email already exists',
       alreadyVerified: 'Email is already verified',
@@ -44,12 +61,17 @@ export const en = {
     account: {
       locked:
         'Account is temporarily locked due to too many failed login attempts',
+      inactive: 'Account is inactive. Cannot perform email operations.',
     },
     credentials: {
       invalid: 'Invalid credentials',
     },
     verification: {
       tokenInvalid: 'Invalid or expired email verification token',
+      required:
+        'Email verification required. Please verify your email before accessing this resource.',
+      requiredWithDays:
+        'Email verification required. Your account has been active for {{days}} days.',
     },
     password: {
       resetSent: 'If this email exists, a password reset link has been sent',
@@ -58,6 +80,7 @@ export const en = {
   },
   error: {
     internalServer: 'Something went wrong',
+    payloadTooLarge: 'Request entity too large',
     validation: {
       invalidInput: 'Invalid input data',
     },
@@ -112,6 +135,49 @@ export const en = {
     },
     identifier: {
       required: 'Email or username is required',
+    },
+  },
+  email: {
+    verification: {
+      subject: 'Verify your email for {{appName}}',
+      title: 'Email Verification',
+      greeting: 'Hello {{username}}',
+      intro: 'Thank you for signing up for <strong>{{appName}}</strong>',
+      instruction: 'To activate your account, please click the button below',
+      button: 'Verify Email',
+      expiration: 'This link expires in {{time}}',
+      ignore:
+        "If you didn't create an account, you can safely ignore this email",
+      buttonFallback: "If the button doesn't work, copy this link",
+      support: 'Need help? Contact us',
+    },
+    welcome: {
+      subject: 'Welcome to {{appName}}!',
+      title: 'Welcome',
+      greeting: 'Welcome {{username}}!',
+      intro:
+        'Your email has been verified successfully. Your account is now active',
+      instruction:
+        'You can now enjoy all the features of <strong>{{appName}}</strong>',
+      button: 'Login Now',
+      support: 'Need help? Our support team is here for you',
+    },
+    passwordReset: {
+      subject: 'Password Reset - {{appName}}',
+      title: 'Password Reset',
+      greeting: 'Hello {{username}}',
+      intro: 'You requested a password reset for your {{appName}} account',
+      button: 'Reset Password',
+      expiration: 'This link expires in {{time}}',
+      ignore: "If you didn't request this reset, please ignore this email",
+      support: 'Support',
+    },
+    service: {
+      sendSuccess: 'Email sent successfully',
+      sendFailure: 'Failed to send email',
+      serviceError: 'Email service error',
+      sending: 'Sending email',
+      sendingFailed: 'Email sending failed',
     },
   },
 };

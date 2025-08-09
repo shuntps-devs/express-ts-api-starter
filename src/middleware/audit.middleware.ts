@@ -1,19 +1,27 @@
+/**
+ * Audit logging middleware for tracking user actions
+ * Creates comprehensive audit trail for security and compliance monitoring
+ */
+
 import { NextFunction, Request, Response } from 'express';
 
 import { logger } from '../config';
 
 /**
- * Middleware to log user actions for audit trail
+ * Middleware to log user actions for comprehensive audit trail
+ * Captures request details, user context, and response information for security monitoring
+ * @param req - Express request object with user context
+ * @param res - Express response object
+ * @param next - Express next function
  */
 export const auditLogger = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  // Auto-generate action from method and path
+  const contextLogger = req.logger ?? logger;
   const action = `${req.method} ${req.route?.path ?? req.path}`;
 
-  // Log before processing
   const auditInfo = {
     action,
     method: req.method,
@@ -27,11 +35,10 @@ export const auditLogger = (
     query: Object.keys(req.query).length > 0 ? req.query : undefined,
   };
 
-  logger.info('User action audit', auditInfo);
+  contextLogger.info('User action audit', auditInfo);
 
-  // Log response on finish
   res.on('finish', () => {
-    logger.info('User action completed', {
+    contextLogger.info('User action completed', {
       ...auditInfo,
       statusCode: res.statusCode,
       duration: Date.now() - new Date(auditInfo.timestamp).getTime(),

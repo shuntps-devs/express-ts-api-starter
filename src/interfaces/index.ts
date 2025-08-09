@@ -4,6 +4,7 @@
  */
 
 // User interfaces
+export * from './email.interface';
 export * from './user.interface';
 
 // Authentication interfaces
