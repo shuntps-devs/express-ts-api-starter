@@ -64,7 +64,7 @@ describe('Validate Request Middleware', () => {
         }),
         body: z.object({
           name: z.string().min(2),
-          email: z.string().email(),
+          email: z.email(),
         }),
       };
 
@@ -374,7 +374,7 @@ describe('Validate Request Middleware', () => {
           active: z.string(),
         }),
         body: z.object({
-          email: z.string().email().toLowerCase(),
+          email: z.email().toLowerCase(),
         }),
       };
 

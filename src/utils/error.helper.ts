@@ -381,7 +381,7 @@ export class ErrorHelper {
 
     logger.error('Environment validation failed - application cannot start', {
       validationErrors,
-      environment: process.env.NODE_ENV,
+      environment: env.NODE_ENV,
     });
 
     process.exit(1);

@@ -32,8 +32,6 @@ let mockUserService: any;
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
-      'success.profileRetrieved': 'Profile retrieved successfully',
-      'success.profileUpdated': 'Profile updated successfully',
       'success.userDeleted': 'User deleted successfully',
       'success.usersRetrieved': 'Users retrieved successfully',
       'success.userRetrieved': 'User retrieved successfully',
@@ -133,10 +131,6 @@ describe('UserController', () => {
     // Setup routes according to real API routes
     const { authenticate, requireRole } = jest.requireMock('../../middleware');
 
-    // Normal user routes
-    app.get('/profile', authenticate, userController.getProfile);
-    app.patch('/profile', authenticate, userController.updateProfile);
-
     // Admin only routes
     app.get(
       '/',
@@ -170,53 +164,6 @@ describe('UserController', () => {
     // Reset mocks and default user
     jest.clearAllMocks();
     mockAuth.setUser(mockAuthenticatedUser);
-  });
-
-  describe('GET /profile', () => {
-    it("should return authenticated user's profile", async () => {
-      const response = await request(app).get('/profile');
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.username).toBe('testuser');
-      expect(response.body.data.id).toBe('user123');
-    });
-
-    it('should handle case when user is not found', async () => {
-      // Simulate unauthenticated user
-      mockAuth.setUser(null as any);
-
-      const response = await request(app).get('/profile');
-
-      expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toBeDefined();
-      expect(response.body.error.message).toBeDefined();
-
-      // Reset to default user
-      mockAuth.setUser(mockAuthenticatedUser);
-    });
-  });
-
-  describe('PATCH /profile', () => {
-    it("should update authenticated user's profile", async () => {
-      const updatedUser = {
-        ...mockAuthenticatedUser,
-        username: 'newUser',
-      };
-      mockUserService.updateUser.mockResolvedValue(updatedUser);
-
-      const response = await request(app)
-        .patch('/profile')
-        .send({ username: 'newUser' });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.username).toBe('newUser');
-      expect(mockUserService.updateUser).toHaveBeenCalledWith('user123', {
-        username: 'newUser',
-      });
-    });
   });
 
   describe('GET / (Admin: Get all users)', () => {
@@ -339,20 +286,6 @@ describe('UserController', () => {
 
       // Reset to normal user
       mockAuth.setUser(mockAuthenticatedUser);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle service errors gracefully', async () => {
-      // For this test, the service must actually fail, not just return null
-      mockUserService.updateUser.mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .patch('/profile')
-        .send({ username: 'newuser' });
-
-      // The system can handle errors in different ways
-      expect(response.status).toBeGreaterThanOrEqual(400);
     });
   });
 });

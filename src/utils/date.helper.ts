@@ -1,4 +1,20 @@
 export class DateHelper {
+  /**
+   * Get current date
+   * @returns Current Date instance
+   */
+  static now(): Date {
+    return new Date();
+  }
+
+  /**
+   * Get current timestamp in milliseconds
+   * @returns Current timestamp
+   */
+  static timestamp(): number {
+    return Date.now();
+  }
+
   static formatDate(date: Date, format: string = 'YYYY-MM-DD'): string {
     // Date formatting logic
     const year = date.getFullYear();

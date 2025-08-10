@@ -1,4 +1,4 @@
-import { EmailHelper } from '../../utils/email.helper';
+import { EmailHelper } from '../../utils';
 
 describe('EmailHelper', () => {
   describe('isValidEmail', () => {

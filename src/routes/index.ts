@@ -6,6 +6,7 @@ import { ResponseHelper } from '../utils';
 
 import adminRoutes from './admin.routes';
 import authRoutes from './auth.routes';
+import profileRoutes from './profile.routes';
 import userRoutes from './user.routes';
 
 /**
@@ -38,6 +39,7 @@ router.get('/api', (_req, res) => {
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
+      profile: '/api/profile',
       admin: '/api/admin',
       health: '/api/health',
     },
@@ -51,6 +53,7 @@ router.get('/api', (_req, res) => {
  */
 router.use('/api/admin', adminRoutes);
 router.use('/api/auth', authRoutes);
+router.use('/api/profile', profileRoutes);
 router.use('/api/users', userRoutes);
 
 /**

@@ -195,4 +195,17 @@ export const fr = {
       sendingFailed: "Échec de l'envoi de l'email",
     },
   },
+  avatar: {
+    directoryCreationFailed: 'Échec de la création du répertoire avatar',
+    invalidFormat:
+      'Format de fichier invalide. Formats autorisés : JPG, JPEG, PNG, WEBP',
+    fileTooLarge: 'La taille du fichier dépasse la limite de 5 Mo',
+    uploadFailed: "Échec de l'upload de l'avatar",
+    profileUpdateFailed: "Échec de la mise à jour du profil avec l'avatar",
+    removalFailed: "Échec de la suppression de l'avatar",
+    uploaded: 'Avatar téléchargé avec succès',
+    removed: 'Avatar supprimé avec succès',
+    retrieved: 'Avatar récupéré avec succès',
+    uploadLimits: "Limites d'upload d'avatar récupérées avec succès",
+  },
 };

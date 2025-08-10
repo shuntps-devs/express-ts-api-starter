@@ -3,11 +3,7 @@ import { Router } from 'express';
 import { UserController } from '../controllers';
 import { UserRole } from '../interfaces';
 import { authenticate, requireRole, validateRequest } from '../middleware';
-import {
-  getUsersQuerySchema,
-  updateProfileSchema,
-  updateUserSchema,
-} from '../schemas/user';
+import { getUsersQuerySchema, updateUserSchema } from '../schemas/user';
 
 /**
  * User management routes router
@@ -21,22 +17,6 @@ const userController = new UserController();
  * All endpoints require valid authentication
  */
 router.use(authenticate);
-
-/**
- * Get current user profile endpoint
- * Returns authenticated user's profile information
- */
-router.get('/profile', userController.getProfile);
-
-/**
- * Update current user profile endpoint
- * Allows authenticated users to update their own profile
- */
-router.patch(
-  '/profile',
-  validateRequest({ body: updateProfileSchema }),
-  userController.updateProfile
-);
 
 /**
  * Apply admin role requirement to remaining routes

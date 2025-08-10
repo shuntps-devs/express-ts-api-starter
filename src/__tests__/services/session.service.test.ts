@@ -3,8 +3,7 @@ import { Types } from 'mongoose';
 
 import { IUser } from '../../interfaces';
 import { ISession, Session } from '../../models';
-import { SessionService } from '../../services';
-import { ITokenPair, TokenService } from '../../services/token.service';
+import { ITokenPair, SessionService, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
 // Mock the Session model

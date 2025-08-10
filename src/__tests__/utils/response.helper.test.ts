@@ -1,7 +1,9 @@
 import { ResponseHelper } from '../../utils';
 import { TestHelper } from '../helpers';
 
-// Mock i18n
+/**
+ * Mock i18n module for testing
+ */
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string, options?: any) => {
     const translations: Record<string, string> = {

@@ -135,7 +135,17 @@ export type TranslationKeys =
   | 'email.service.sendFailed'
   | 'email.service.serviceError'
   | 'email.service.sending'
-  | 'email.service.sendingFailed';
+  | 'email.service.sendingFailed'
+  | 'avatar.directoryCreationFailed'
+  | 'avatar.invalidFormat'
+  | 'avatar.fileTooLarge'
+  | 'avatar.uploadFailed'
+  | 'avatar.profileUpdateFailed'
+  | 'avatar.removalFailed'
+  | 'avatar.uploaded'
+  | 'avatar.removed'
+  | 'avatar.retrieved'
+  | 'avatar.uploadLimits';
 
 /**
  * Initialize internationalization with i18next configuration

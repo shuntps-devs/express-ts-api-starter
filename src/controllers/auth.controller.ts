@@ -255,47 +255,6 @@ export class AuthController {
   );
 
   /**
-   * Get authenticated user profile
-   * @route GET /api/auth/profile
-   * @description Retrieves current authenticated user's profile information
-   * @param req - Express request object (user populated by auth middleware)
-   * @param res - Express response object
-   * @returns User profile data (sanitized, no sensitive information)
-   * @throws 401 - User not authenticated
-   * @security Bearer token required (HTTP-only cookie)
-   * @example
-   * GET /api/auth/profile
-   * Authorization: Bearer <access_token> (via HTTP-only cookie)
-   */
-  public getProfile = asyncHandler((req: Request, res: Response): void => {
-    const requestId = ResponseHelper.extractRequestId(req);
-
-    if (!req.user) {
-      // ✅ Use ErrorHelper for consistent auth errors
-      throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
-    }
-    const userResponse: IUserResponse = {
-      id: String(req.user._id),
-      username: req.user.username,
-      email: req.user.email,
-      role: req.user.role,
-      isActive: req.user.isActive,
-      isEmailVerified: req.user.isEmailVerified,
-      lastLogin: req.user.lastLogin,
-      createdAt: req.user.createdAt,
-      updatedAt: req.user.updatedAt,
-    };
-
-    ResponseHelper.sendSuccess<IUserResponse>(
-      res,
-      userResponse,
-      200,
-      t('success.profileRetrieved'),
-      requestId
-    );
-  });
-
-  /**
    * Logout current user session
    * @route POST /api/auth/logout
    * @description Destroys current user session and clears authentication cookies

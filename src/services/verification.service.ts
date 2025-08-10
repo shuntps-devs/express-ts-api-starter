@@ -2,9 +2,8 @@ import { Logger } from 'winston';
 
 import { logger } from '../config';
 import { IUser, User } from '../models';
+import { EmailService } from '../services';
 import { DateHelper } from '../utils';
-
-import { EmailService } from './email.service';
 
 /**
  * Email Verification Service

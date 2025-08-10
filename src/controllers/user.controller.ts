@@ -9,7 +9,7 @@ import { ErrorHelper, ResponseHelper, UserHelper } from '../utils';
 
 /**
  * User management controller
- * @description Handles all user-related operations including profile management, user administration, and dashboard functionality
+ * @description Handles user administration and dashboard functionality (profile management moved to ProfileController)
  * @class UserController
  */
 export class UserController {
@@ -24,126 +24,6 @@ export class UserController {
   }
 
   /**
-   * Get current user's profile
-   * @route GET /api/user/profile
-   * @description Retrieves the authenticated user's profile information
-   * @param req - Express request object with authenticated user
-   * @param res - Express response object
-   * @returns User profile data sanitized for client consumption
-   * @throws 401 - User not authenticated
-   * @security Bearer token required (HTTP-only cookie)
-   */
-  public getProfile = asyncHandler((req: Request, res: Response): void => {
-    const requestId = ResponseHelper.extractRequestId(req);
-    const contextLogger = req.logger ?? logger;
-
-    if (!req.user) {
-      // ✅ Use ErrorHelper for consistent auth errors
-      throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
-    }
-
-    const userResponse: IUserResponse = {
-      id: String(req.user._id),
-      username: req.user.username,
-      email: req.user.email,
-      role: req.user.role,
-      isActive: req.user.isActive,
-      isEmailVerified: req.user.isEmailVerified,
-      lastLogin: req.user.lastLogin,
-      createdAt: req.user.createdAt,
-      updatedAt: req.user.updatedAt,
-    };
-
-    contextLogger.info('Profile accessed', {
-      userId: req.user._id,
-    });
-
-    ResponseHelper.sendSuccess<IUserResponse>(
-      res,
-      userResponse,
-      200,
-      t('success.profileRetrieved'),
-      requestId
-    );
-  });
-
-  /**
-   * Update current user's profile
-   * @route PATCH /api/user/profile
-   * @description Updates the authenticated user's profile information
-   * @param req - Express request object with authenticated user and update data
-   * @param res - Express response object
-   * @returns Updated user profile data
-   * @throws 401 - User not authenticated
-   * @throws 404 - User not found during update
-   * @security Bearer token required (HTTP-only cookie)
-   */
-  public updateProfile = asyncHandler(
-    async (req: Request, res: Response): Promise<void> => {
-      const requestId = ResponseHelper.extractRequestId(req);
-      const contextLogger = req.logger ?? logger;
-
-      if (!req.user) {
-        contextLogger.warn('Update profile failed - user not authenticated', {
-          requestId,
-        });
-        // ✅ Use ErrorHelper for consistent auth errors
-        throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
-      }
-
-      try {
-        const updatedUser = await this.userService.updateUser(
-          String(req.user._id),
-          req.body
-        );
-
-        if (!updatedUser) {
-          contextLogger.warn('Profile update failed - user not found', {
-            userId: req.user._id,
-            requestId,
-          });
-          // ✅ Use ErrorHelper for consistent not found errors
-          throw ErrorHelper.createNotFoundError('User', requestId);
-        }
-
-        const userResponse: IUserResponse = {
-          id: String(updatedUser._id),
-          username: updatedUser.username,
-          email: updatedUser.email,
-          role: updatedUser.role,
-          isActive: updatedUser.isActive,
-          isEmailVerified: updatedUser.isEmailVerified,
-          lastLogin: updatedUser.lastLogin,
-          createdAt: updatedUser.createdAt,
-          updatedAt: updatedUser.updatedAt,
-        };
-
-        contextLogger.info('Profile updated', {
-          userId: req.user._id,
-        });
-
-        ResponseHelper.sendSuccess<IUserResponse>(
-          res,
-          userResponse,
-          200,
-          t('success.resourceUpdated'),
-          requestId
-        );
-      } catch (error) {
-        // ✅ Use ErrorHelper for consistent error logging
-        ErrorHelper.logError(
-          error,
-          {
-            operation: 'profile-update',
-            userId: req.user._id,
-          },
-          requestId,
-          req
-        );
-        throw error;
-      }
-    }
-  ); /**
    * Get all users (admin only)
    * @route GET /api/user/all
    * @description Retrieves paginated list of all users (admin access required)

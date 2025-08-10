@@ -71,15 +71,6 @@ router.post('/logout-all', authenticate, auditLogger, authController.logoutAll);
 router.post('/refresh', auditLogger, authController.refreshToken);
 
 /**
- * User profile endpoint
- * @description Retrieves authenticated user's profile information with security filtering
- * @route GET /api/auth/profile
- * @access Private
- * @middleware authenticate, auditLogger
- */
-router.get('/profile', authenticate, auditLogger, authController.getProfile);
-
-/**
  * Get active sessions endpoint
  * @description Requires authentication to retrieve user's active sessions
  * @route GET /api/auth/sessions

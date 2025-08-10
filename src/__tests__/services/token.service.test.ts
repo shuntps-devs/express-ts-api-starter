@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { IUser } from '../../interfaces';
-import { ITokenPayload, TokenService } from '../../services/token.service';
+import { ITokenPayload, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
 // Mock jwt

@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 
 import { AuthController } from '../../controllers';
-import { IUser, UserRole } from '../../interfaces';
+import { UserRole } from '../../interfaces';
 import {
   configureRequestLogging,
   configureSecurity,
@@ -27,44 +27,61 @@ jest.mock('../../i18n', () => ({
 }));
 
 // Mock services first
-const mockUserService = {
-  createUser: jest.fn(),
-  findUserByEmail: jest.fn(),
-  findUserByUsername: jest.fn(),
-  findUserByIdentifier: jest.fn(),
-  validatePassword: jest.fn(),
-  updateUser: jest.fn(),
-  incrementLoginAttempts: jest.fn(),
-  resetLoginAttempts: jest.fn(),
-};
+jest.mock('../../services', () => {
+  const mockUserService = {
+    getUserByEmail: jest.fn(),
+    getUserById: jest.fn(),
+    updateUser: jest.fn(),
+    createUser: jest.fn(),
+    deleteUser: jest.fn(),
+    getAllUsers: jest.fn(),
+    updateUserProfileById: jest.fn(),
+    updateUserLastLogin: jest.fn(),
+    findUserByIdentifier: jest.fn(),
+  };
 
-const mockVerificationService = {
-  sendVerificationEmail: jest.fn(),
-  verifyEmailToken: jest.fn(),
-  resendVerificationEmail: jest.fn(),
-};
+  const mockVerificationService = {
+    generateEmailVerificationCode: jest.fn(),
+    verifyEmailVerificationCode: jest.fn(),
+    sendEmailVerificationCode: jest.fn(),
+    generatePasswordResetCode: jest.fn(),
+    verifyPasswordResetCode: jest.fn(),
+    sendPasswordResetCode: jest.fn(),
+    deleteVerificationCode: jest.fn(),
+    cleanupExpiredCodes: jest.fn(),
+  };
 
-jest.mock('../../services', () => ({
-  UserService: jest.fn().mockImplementation(() => mockUserService),
-  VerificationService: jest
-    .fn()
-    .mockImplementation(() => mockVerificationService),
-  SessionService: {
-    createSession: jest.fn(),
-    refreshSession: jest.fn(),
-    destroySession: jest.fn(),
-    destroyAllUserSessions: jest.fn(),
-    validateAccessToken: jest.fn(),
-    extractTokensFromCookies: jest.fn(),
-    getUserActiveSessions: jest.fn(),
-  },
-}));
+  const mockAvatarService = {
+    saveAvatar: jest.fn(),
+    removeAvatar: jest.fn(),
+    updateProfileAvatar: jest.fn(),
+    getUploadConfig: jest.fn(),
+  };
+
+  return {
+    UserService: jest.fn().mockImplementation(() => mockUserService),
+    VerificationService: jest
+      .fn()
+      .mockImplementation(() => mockVerificationService),
+    AvatarService: jest.fn().mockImplementation(() => mockAvatarService),
+    SessionService: {
+      createSession: jest.fn(),
+      refreshSession: jest.fn(),
+      destroySession: jest.fn(),
+      destroyAllUserSessions: jest.fn(),
+      validateAccessToken: jest.fn(),
+      extractTokensFromCookies: jest.fn(),
+      getUserActiveSessions: jest.fn(),
+    },
+  };
+});
 
 describe('AuthController', () => {
   let app: express.Application;
   let authController: AuthController;
+  let mockUserService: any;
 
-  const mockUser: IUser = {
+  const mockUser = {
     _id: 'user123',
     username: 'testuser',
     email: 'test@example.com',
@@ -96,6 +113,9 @@ describe('AuthController', () => {
 
     authController = new AuthController();
 
+    // Get the mocks from the mocked services
+    mockUserService = (authController as any).userService;
+
     // Setup routes with validation
     app.post(
       '/register',
@@ -107,7 +127,6 @@ describe('AuthController', () => {
       validateRequest({ body: loginSchema }),
       authController.login
     );
-    app.get('/profile', authController.getProfile);
     app.post('/logout', authController.logout);
     app.post('/logout-all', authController.logoutAll);
     app.post('/refresh', authController.refreshToken);

@@ -189,4 +189,16 @@ export const en = {
       sendingFailed: 'Email sending failed',
     },
   },
+  avatar: {
+    directoryCreationFailed: 'Failed to create avatar directory',
+    invalidFormat: 'Invalid file format. Allowed formats: JPG, JPEG, PNG, WEBP',
+    fileTooLarge: 'File size exceeds maximum limit of 5MB',
+    uploadFailed: 'Failed to upload avatar',
+    profileUpdateFailed: 'Failed to update profile with avatar',
+    removalFailed: 'Failed to remove avatar',
+    uploaded: 'Avatar uploaded successfully',
+    removed: 'Avatar removed successfully',
+    retrieved: 'Avatar retrieved successfully',
+    uploadLimits: 'Avatar upload limits retrieved successfully',
+  },
 };

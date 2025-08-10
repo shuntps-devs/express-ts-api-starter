@@ -1,16 +1,28 @@
-# 🔌 API Documentation
+# � API Documentation
 
-Complete reference for all API endpoints in the **Express TypeScript Starter**.
+Complete reference for all API endpoints in the **Express TypeScript Starter** project with comprehensive examples and detailed responses.
 
 ## 📖 Overview
 
 **Base URL**: `http://localhost:3000/api` (development)
 
-**API Version**: `v1` (automatically applied)
+**API Version**: `v0.2.0`
 
 **Content Type**: `application/json`
 
 **Authentication**: JWT tokens via HTTP-only cookies
+
+**Total Endpoints**: 25+ documented endpoints across 4 modules
+
+## 🏗️ API Architecture
+
+The API follows REST principles with the following structure:
+
+- **`/api/auth/*`** - Authentication endpoints (register, login, logout)
+- **`/api/profile/*`** - Profile management endpoints (profile, avatar)
+- **`/api/users/*`** - User management endpoints (admin operations)
+- **`/api/admin/*`** - Administrative endpoints (session management)
+- **`/api/health`** - System health check endpoint
 
 ## 🔐 Authentication
 
@@ -20,6 +32,14 @@ The API uses **JWT-based authentication** with two types of tokens:
 - **Refresh Token** - Long-lived (7 days) for token renewal
 
 Tokens are stored in **HTTP-only cookies** for security.
+
+### Authentication Security Features
+
+- ✅ **Cookie-based JWT** - HTTP-only cookies prevent XSS attacks
+- ✅ **Automatic Token Refresh** - Seamless token renewal
+- ✅ **Session Management** - Track user sessions across devices
+- ✅ **Rate Limiting** - Protection against brute force attacks
+- ✅ **Account Security** - Login attempt limiting and account locking
 
 ### Authentication Flow
 

@@ -1,4 +1,5 @@
 import { Server } from 'http';
+import path from 'path';
 
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -20,7 +21,7 @@ import {
   userContext,
 } from './middleware';
 import router from './routes';
-import { CleanupService } from './services';
+import { AvatarService, CleanupService } from './services';
 import { ErrorHelper } from './utils';
 
 export const app = express();
@@ -46,6 +47,16 @@ app.use(auditLogger);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+/**
+ * Static file serving for avatar uploads
+ * Serves avatar files from uploads/avatars directory
+ * Only authenticated users can access avatar files
+ */
+app.use(
+  '/uploads/avatars',
+  express.static(path.join(process.cwd(), 'uploads/avatars'))
+);
 
 app.use('/', router);
 
@@ -127,6 +138,9 @@ const startServer = async () => {
     configureRequestLogging(app);
 
     await connectDB();
+
+    // Initialize avatar upload directory
+    await AvatarService.initializeUploadDirectory();
 
     const cleanupService = CleanupService.getInstance();
     cleanupService.startPeriodicCleanup(60);

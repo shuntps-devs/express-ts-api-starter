@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Express TypeScript API",
-    "description": "Complete API collection for Express TypeScript Starter",
-    "version": "1.0.0",
+    "name": "Express TypeScript API - Updated",
+    "description": "Updated API collection for Express TypeScript Starter with ProfileController",
+    "version": "1.1.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -49,8 +49,18 @@
                   "    pm.expect(jsonData.data.user).to.have.property('_id');",
                   "    pm.expect(jsonData.data.user).to.have.property('email');",
                   "    ",
-                  "    // Store user ID for later use",
+                  "    // Store user ID for other requests",
                   "    pm.collectionVariables.set('userId', jsonData.data.user._id);",
+                  "});",
+                  "",
+                  "pm.test('Access token is set', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('tokens');",
+                  "    pm.expect(jsonData.data.tokens).to.have.property('accessToken');",
+                  "    ",
+                  "    // Store tokens for other requests",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.tokens.refreshToken);",
                   "});",
                   "",
                   "pm.test('Response time is less than 2000ms', () => {",
@@ -70,7 +80,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"SecurePassword123!\"\n}"
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\",\n  \"username\": \"testuser\",\n  \"profile\": {\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"bio\": \"Test user bio\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -90,24 +100,15 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has tokens and user data', () => {",
+                  "pm.test('Login successful', () => {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
                   "    pm.expect(jsonData.data).to.have.property('user');",
+                  "    pm.expect(jsonData.data).to.have.property('tokens');",
                   "    ",
-                  "    // Check if tokens are in cookies",
-                  "    const cookies = pm.cookies.toObject();",
-                  "    if (cookies.access_token) {",
-                  "        pm.collectionVariables.set('accessToken', cookies.access_token);",
-                  "    }",
-                  "    if (cookies.refresh_token) {",
-                  "        pm.collectionVariables.set('refreshToken', cookies.refresh_token);",
-                  "    }",
-                  "});",
-                  "",
-                  "pm.test('User is authenticated', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.data.user).to.have.property('_id');",
+                  "    // Store tokens and user ID for other requests",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.tokens.refreshToken);",
                   "    pm.collectionVariables.set('userId', jsonData.data.user._id);",
                   "});",
                   "",
@@ -128,7 +129,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"test@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -148,18 +149,14 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Tokens refreshed successfully', () => {",
-                  "    const cookies = pm.cookies.toObject();",
-                  "    if (cookies.access_token) {",
-                  "        pm.collectionVariables.set('accessToken', cookies.access_token);",
-                  "    }",
-                  "    if (cookies.refresh_token) {",
-                  "        pm.collectionVariables.set('refreshToken', cookies.refresh_token);",
-                  "    }",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 1000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "pm.test('New tokens received', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('tokens');",
+                  "    ",
+                  "    // Update stored tokens",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.tokens.refreshToken);",
                   "});"
                 ]
               }
@@ -167,87 +164,20 @@
           ],
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/refresh",
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "refresh"]
-            }
-          }
-        },
-        {
-          "name": "Verify Email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Email verified successfully', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('message');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/verify-email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "verify-email"]
-            }
-          }
-        },
-        {
-          "name": "Resend Verification Email",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Verification email sent', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('message');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"test@example.com\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/resend-verification",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "resend-verification"]
             }
           }
         },
@@ -262,13 +192,13 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('User logged out successfully', () => {",
+                  "pm.test('Logout successful', () => {",
                   "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
                   "    ",
-                  "    // Clear tokens",
-                  "    pm.collectionVariables.unset('accessToken');",
-                  "    pm.collectionVariables.unset('refreshToken');",
+                  "    // Clear stored tokens",
+                  "    pm.collectionVariables.set('accessToken', '');",
+                  "    pm.collectionVariables.set('refreshToken', '');",
                   "});"
                 ]
               }
@@ -289,53 +219,14 @@
               "path": ["api", "auth", "logout"]
             }
           }
-        },
-        {
-          "name": "Logout All Devices",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Logged out from all devices', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('message');",
-                  "    ",
-                  "    // Clear tokens",
-                  "    pm.collectionVariables.unset('accessToken');",
-                  "    pm.collectionVariables.unset('refreshToken');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/logout-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout-all"]
-            }
-          }
         }
       ]
     },
     {
-      "name": "User Management",
+      "name": "Profile Management",
       "item": [
         {
-          "name": "Get Current User Profile",
+          "name": "Get User Profile",
           "event": [
             {
               "listen": "test",
@@ -345,13 +236,12 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has user profile', () => {",
+                  "pm.test('Response has profile data', () => {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('user');",
-                  "    pm.expect(jsonData.data.user).to.have.property('_id');",
-                  "    pm.expect(jsonData.data.user).to.have.property('email');",
-                  "    pm.expect(jsonData.data.user).to.have.property('username');",
+                  "    pm.expect(jsonData.data).to.have.property('profile');",
+                  "    pm.expect(jsonData.data.profile).to.have.property('_id');",
+                  "    pm.expect(jsonData.data.profile).to.have.property('userId');",
                   "});",
                   "",
                   "pm.test('Response time is less than 1000ms', () => {",
@@ -371,14 +261,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/users/profile",
+              "raw": "{{baseUrl}}/api/profile",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "profile"]
+              "path": ["api", "profile"]
             }
           }
         },
         {
-          "name": "Update Current User Profile",
+          "name": "Update Profile",
           "event": [
             {
               "listen": "test",
@@ -391,7 +281,9 @@
                   "pm.test('Profile updated successfully', () => {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('user');",
+                  "    pm.expect(jsonData.data).to.have.property('profile');",
+                  "    pm.expect(jsonData.data.profile).to.have.property('firstName', 'Updated');",
+                  "    pm.expect(jsonData.data.profile).to.have.property('lastName', 'Name');",
                   "});",
                   "",
                   "pm.test('Response time is less than 2000ms', () => {",
@@ -416,17 +308,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"updateduser\",\n  \"profile\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"bio\": \"Updated bio\"\n  }\n}"
+              "raw": "{\n  \"firstName\": \"Updated\",\n  \"lastName\": \"Name\",\n  \"bio\": \"Updated bio information\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"location\": {\n    \"country\": \"France\",\n    \"city\": \"Paris\"\n  },\n  \"socialLinks\": {\n    \"website\": \"https://example.com\",\n    \"twitter\": \"@example\",\n    \"linkedin\": \"linkedin.com/in/example\"\n  }\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/users/profile",
+              "raw": "{{baseUrl}}/api/profile",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "users", "profile"]
+              "path": ["api", "profile"]
             }
           }
         },
         {
-          "name": "Get All Users (Admin)",
+          "name": "Upload Avatar",
           "event": [
             {
               "listen": "test",
@@ -436,18 +328,151 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has paginated users', () => {",
+                  "pm.test('Avatar uploaded successfully', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('avatar');",
+                  "    pm.expect(jsonData.data.avatar).to.have.property('url');",
+                  "    pm.expect(jsonData.data.avatar).to.have.property('filename');",
+                  "});",
+                  "",
+                  "pm.test('Profile updated with avatar', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('profile');",
+                  "    pm.expect(jsonData.data.profile).to.have.property('avatar');",
+                  "});",
+                  "",
+                  "pm.test('Response time is less than 5000ms', () => {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "description": "Avatar image file (JPG, PNG, WEBP - max 5MB)",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profile/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile", "avatar"]
+            }
+          }
+        },
+        {
+          "name": "Remove Avatar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Avatar removed successfully', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('profile');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/profile/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile", "avatar"]
+            }
+          }
+        },
+        {
+          "name": "Get Avatar Config",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Config data received', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('maxFileSize');",
+                  "    pm.expect(jsonData.data).to.have.property('allowedFormats');",
+                  "    pm.expect(jsonData.data).to.have.property('maxFileSizeMB');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/profile/avatar/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile", "avatar", "config"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management (Admin)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Users list received', () => {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
                   "    pm.expect(jsonData.data).to.have.property('users');",
-                  "    pm.expect(jsonData.data).to.have.property('pagination');",
-                  "    pm.expect(jsonData.data.pagination).to.have.property('total');",
-                  "    pm.expect(jsonData.data.pagination).to.have.property('page');",
-                  "    pm.expect(jsonData.data.pagination).to.have.property('limit');",
+                  "    pm.expect(jsonData.data.users).to.be.an('array');",
                   "});",
                   "",
-                  "pm.test('Response time is less than 2000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "pm.test('Pagination info present', () => {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('pagination');",
+                  "    pm.expect(jsonData.data.pagination).to.have.property('page');",
+                  "    pm.expect(jsonData.data.pagination).to.have.property('limit');",
+                  "    pm.expect(jsonData.data.pagination).to.have.property('total');",
                   "});"
                 ]
               }
@@ -480,7 +505,7 @@
           }
         },
         {
-          "name": "Get User By ID (Admin)",
+          "name": "Get User by ID",
           "event": [
             {
               "listen": "test",
@@ -490,7 +515,7 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has user data', () => {",
+                  "pm.test('User data received', () => {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('data');",
                   "    pm.expect(jsonData.data).to.have.property('user');",
@@ -517,7 +542,7 @@
           }
         },
         {
-          "name": "Update User (Admin)",
+          "name": "Update User by ID",
           "event": [
             {
               "listen": "test",
@@ -551,7 +576,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"role\": \"USER\",\n  \"isActive\": true\n}"
+              "raw": "{\n  \"username\": \"updateduser\",\n  \"email\": \"updated@example.com\",\n  \"role\": \"USER\",\n  \"isActive\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/{{userId}}",
@@ -561,7 +586,7 @@
           }
         },
         {
-          "name": "Delete User (Admin)",
+          "name": "Delete User by ID",
           "event": [
             {
               "listen": "test",
@@ -573,7 +598,7 @@
                   "",
                   "pm.test('User deleted successfully', () => {",
                   "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
                   "});"
                 ]
               }
@@ -598,309 +623,7 @@
       ]
     },
     {
-      "name": "Administration",
-      "item": [
-        {
-          "name": "Get Active Sessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has session data', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('sessions');",
-                  "    pm.expect(jsonData.data).to.have.property('pagination');",
-                  "});",
-                  "",
-                  "pm.test('Sessions have required fields', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    if (jsonData.data.sessions.length > 0) {",
-                  "        const session = jsonData.data.sessions[0];",
-                  "        pm.expect(session).to.have.property('_id');",
-                  "        pm.expect(session).to.have.property('userId');",
-                  "        pm.expect(session).to.have.property('isActive');",
-                  "        pm.expect(session.isActive).to.equal(true);",
-                  "    }",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 2000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/sessions/active?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "sessions", "active"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "10"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Inactive Sessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has session data', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('sessions');",
-                  "    pm.expect(jsonData.data).to.have.property('pagination');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 2000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/sessions/inactive?page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "sessions", "inactive"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "10"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Session Statistics",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has statistics', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('totalSessions');",
-                  "    pm.expect(jsonData.data).to.have.property('activeSessions');",
-                  "    pm.expect(jsonData.data).to.have.property('inactiveSessions');",
-                  "    pm.expect(jsonData.data).to.have.property('expiredSessions');",
-                  "});",
-                  "",
-                  "pm.test('Statistics are valid numbers', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.data.totalSessions).to.be.a('number');",
-                  "    pm.expect(jsonData.data.activeSessions).to.be.a('number');",
-                  "    pm.expect(jsonData.data.inactiveSessions).to.be.a('number');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 1000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/sessions/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "sessions", "stats"]
-            }
-          }
-        },
-        {
-          "name": "Force Cleanup Inactive Sessions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has cleanup results', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('deletedCount');",
-                  "    pm.expect(jsonData.data.deletedCount).to.be.a('number');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 5000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/sessions/inactive",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "sessions", "inactive"]
-            }
-          }
-        },
-        {
-          "name": "Run Full Cleanup",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has cleanup results', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('totalCleaned');",
-                  "    pm.expect(jsonData.data).to.have.property('expiredSessions');",
-                  "    pm.expect(jsonData.data).to.have.property('inactiveSessions');",
-                  "    pm.expect(jsonData.data).to.have.property('expiredTokens');",
-                  "});",
-                  "",
-                  "pm.test('Cleanup counts are valid', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.data.totalCleaned).to.be.a('number');",
-                  "    pm.expect(jsonData.data.expiredSessions).to.be.a('number');",
-                  "    pm.expect(jsonData.data.inactiveSessions).to.be.a('number');",
-                  "    pm.expect(jsonData.data.expiredTokens).to.be.a('number');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 10000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(10000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/cleanup",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "cleanup"]
-            }
-          }
-        },
-        {
-          "name": "Deactivate Specific Session",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', () => {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has session info', () => {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData.data).to.have.property('sessionId');",
-                  "    pm.expect(jsonData.data).to.have.property('userId');",
-                  "    pm.expect(jsonData.data).to.have.property('deactivatedAt');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 2000ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/admin/sessions/{{sessionId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "sessions", "{{sessionId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Health & Status",
+      "name": "Health & Info",
       "item": [
         {
           "name": "Health Check",
@@ -913,14 +636,12 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('API is healthy', () => {",
+                  "pm.test('Health status is OK', () => {",
                   "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('status');",
-                  "    pm.expect(jsonData.status).to.equal('OK');",
-                  "});",
-                  "",
-                  "pm.test('Response time is less than 500ms', () => {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('status', 'OK');",
+                  "    pm.expect(jsonData.data).to.have.property('environment');",
+                  "    pm.expect(jsonData.data).to.have.property('uptime');",
                   "});"
                 ]
               }
@@ -947,11 +668,12 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Response has API info', () => {",
+                  "pm.test('API info received', () => {",
                   "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('name');",
-                  "    pm.expect(jsonData).to.have.property('version');",
-                  "    pm.expect(jsonData).to.have.property('environment');",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('service');",
+                  "    pm.expect(jsonData.data).to.have.property('version');",
+                  "    pm.expect(jsonData.data).to.have.property('endpoints');",
                   "});"
                 ]
               }
@@ -969,15 +691,5 @@
         }
       ]
     }
-  ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{accessToken}}",
-        "type": "string"
-      }
-    ]
-  }
+  ]
 }
