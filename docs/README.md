@@ -76,7 +76,7 @@ Each documentation file follows this structure:
 
 1. Start with [API.md](./API.md) for general endpoints
 2. Check specific API documentation for detailed features
-3. Use Postman collection in `../postman/` for testing
+3. Use Postman collection in `./postman/` for testing
 
 ## 🔧 Technology Stack
 

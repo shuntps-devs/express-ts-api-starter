@@ -17,7 +17,7 @@ Résumé complet de l'implémentation du système d'avatar, incluant :
 
 Rapport d'audit complet de conformité aux instructions personnelles, incluant :
 
-- Audit complet de la codebase contre personal.instructions.md
+- Audit complet de la codebase contre les standards du projet
 - Violations identifiées et corrigées
 - Score de conformité détaillé
 - Recommandations d'amélioration

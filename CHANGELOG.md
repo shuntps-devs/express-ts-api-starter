@@ -101,8 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **📚 Enhanced Documentation**:
   - Complete Admin API documentation (`docs/ADMIN_API.md`)
-  - Postman collection documentation (`postman/README.md`)
-  - Admin endpoint testing scripts (`scripts/test-admin-endpoints.js`)
+  - Postman collection documentation (`docs/postman/README.md`)
+  - Admin endpoint testing scripts (moved to personal development tools)
   - Comprehensive API examples and usage guides
 
 - **🧪 Enhanced Testing Infrastructure**:
@@ -363,8 +363,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CI/CD setup guide (`docs/CICD_SETUP_GUIDE.md`) for GitHub Actions
 
 - **Development tooling**:
-  - VS Code cache cleaning script (`scripts/clean-vscode-cache.bat`)
-  - Automated VS Code setup script (`scripts/setup-vscode.js`)
+  - Automated VS Code setup script (moved to personal development tools)
   - Code quality validation script (`scripts/validate-code-quality.js`)
   - Deployment automation script (`scripts/deploy.js`)
   - Scripts documentation (`scripts/README.md`)

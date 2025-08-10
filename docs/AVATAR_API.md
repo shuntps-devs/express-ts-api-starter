@@ -259,7 +259,7 @@ The project includes Postman collection with pre-configured avatar upload reques
 2. **Remove Avatar**: Test avatar deletion
 3. **Get Upload Config**: Test configuration retrieval
 
-Import the collection from: `postman/Express-TypeScript-API.postman_collection.json`
+Import the collection from: `docs/postman/Express-TypeScript-API.postman_collection.json`
 
 ## Integration Notes
 

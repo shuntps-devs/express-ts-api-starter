@@ -1,5 +1,6 @@
 # Project-specific exclusions
-.github/instructions/
+# Personal development tools (kept private)
+.personal/
 
 # Dependencies
 node_modules/

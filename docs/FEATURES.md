@@ -4,7 +4,7 @@ Complete feature set of the Express TypeScript Starter project with current impl
 
 ## 📊 Project Status
 
-**Version**: v0.2.0  
+**Version**: v0.2.1  
 **Test Coverage**: 249 tests across 17 suites (100% success rate)  
 **Controllers**: 4 (Auth, User, Profile, Admin)  
 **Services**: 6 (User, Session, Token, Avatar, Email, Cleanup)  

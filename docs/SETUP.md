@@ -54,6 +54,18 @@ MONGODB_URI=mongodb://localhost:27017/express-ts-app
 JWT_SECRET=your-super-secret-jwt-key-at-least-32-characters-long
 JWT_REFRESH_SECRET=your-refresh-secret-key-at-least-32-characters-long
 
+# Email Configuration (Optional - for email features)
+RESEND_API_KEY=re_your_resend_api_key_here
+EMAIL_FROM=noreply@yourdomain.com
+EMAIL_FROM_NAME=Express TypeScript Starter
+FRONTEND_URL=http://localhost:3000
+APP_NAME=Express TypeScript Starter
+
+# Avatar Configuration (DiceBear Integration)
+DEFAULT_AVATAR_PROVIDER=dicebear
+DEFAULT_AVATAR_STYLE=avataaars
+DEFAULT_AVATAR_BASE_URL=https://api.dicebear.com/7.x
+
 # Optional Configuration
 DEFAULT_LANGUAGE=en
 LOG_LEVEL=info

@@ -32,7 +32,8 @@ The API provides the following endpoints:
 - **Base API Info**: `GET /api` - Service information and available endpoints
 - **Health Check**: `GET /api/health` - System status and monitoring
 - **Authentication**: `/api/auth/*` - Complete authentication system
-- **User Management**: `/api/users/*` - User profile and management
+- **Profile Management**: `/api/profile/*` - User profile and avatar management
+- **User Management**: `/api/users/*` - User administration and management
 - **Admin Panel**: `/api/admin/*` - Administrative operations
 
 ## 🏗️ What's Included

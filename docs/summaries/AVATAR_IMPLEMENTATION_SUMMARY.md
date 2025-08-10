@@ -113,7 +113,7 @@ Successfully implemented a complete avatar upload system for user profile manage
 - `src/i18n/locales/en.ts` - Avatar translations (English)
 - `src/i18n/locales/fr.ts` - Avatar translations (French)
 - `src/i18n/index.ts` - Translation types for avatar messages
-- `postman/Express-TypeScript-API.postman_collection.json` - Avatar endpoints
+- `docs/postman/Express-TypeScript-API.postman_collection.json` - Avatar endpoints
 
 ## 🚀 Deployment Ready
 

@@ -6,7 +6,7 @@ Complete reference for all API endpoints in the **Express TypeScript Starter** p
 
 **Base URL**: `http://localhost:3000/api` (development)
 
-**API Version**: `v0.2.0`
+**API Version**: `v0.2.1`
 
 **Content Type**: `application/json`
 
@@ -645,6 +645,173 @@ curl -H "Accept-Language: fr" http://localhost:3000/api/auth/profile
 ```
 
 **Supported Languages**: `en`, `fr`
+
+---
+
+## 👤 Profile Management Endpoints
+
+The profile management system provides endpoints for user profile operations and avatar management.
+
+### Get Current Profile
+
+Get the authenticated user's profile information.
+
+```http
+GET /api/profile
+```
+
+**Authentication**: Required (JWT via cookies)
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "user123",
+      "email": "user@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=user123",
+      "role": "user",
+      "isActive": true,
+      "emailVerified": true,
+      "createdAt": "2024-08-10T10:00:00.000Z",
+      "updatedAt": "2024-08-10T12:30:00.000Z"
+    }
+  },
+  "message": "Profile retrieved successfully"
+}
+```
+
+### Update Profile
+
+Update the authenticated user's profile information.
+
+```http
+PATCH /api/profile
+```
+
+**Authentication**: Required (JWT via cookies)
+
+**Request Body**:
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "email": "john.smith@example.com"
+}
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "user123",
+      "email": "john.smith@example.com",
+      "firstName": "John",
+      "lastName": "Smith",
+      "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=user123",
+      "role": "user",
+      "isActive": true,
+      "emailVerified": true,
+      "updatedAt": "2024-08-10T13:00:00.000Z"
+    }
+  },
+  "message": "Profile updated successfully"
+}
+```
+
+### Upload Avatar
+
+Upload a profile avatar image.
+
+```http
+POST /api/profile/avatar
+```
+
+**Authentication**: Required (JWT via cookies)  
+**Content-Type**: `multipart/form-data`
+
+**Request Body**:
+
+```
+avatar: [File] (JPEG, PNG, GIF, WebP - max 5MB)
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "user123",
+      "avatarUrl": "/uploads/avatars/user123_1691674800000.jpg"
+    }
+  },
+  "message": "Avatar uploaded successfully"
+}
+```
+
+### Remove Avatar
+
+Remove the user's current avatar (reverts to default generated avatar).
+
+```http
+DELETE /api/profile/avatar
+```
+
+**Authentication**: Required (JWT via cookies)
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "user123",
+      "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=user123"
+    }
+  },
+  "message": "Avatar removed successfully"
+}
+```
+
+### Get Avatar Configuration
+
+Get avatar upload configuration and limits (public endpoint).
+
+```http
+GET /api/profile/avatar/config
+```
+
+**Authentication**: Not required
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "maxFileSize": 5242880,
+    "allowedTypes": ["image/jpeg", "image/png", "image/gif", "image/webp"],
+    "allowedExtensions": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+    "defaultAvatarProvider": {
+      "provider": "dicebear",
+      "baseUrl": "https://api.dicebear.com/7.x",
+      "defaultStyle": "avataaars"
+    }
+  },
+  "message": "Avatar configuration retrieved successfully"
+}
+```
 
 ---
 
