@@ -109,14 +109,14 @@ docker-compose down
 
 ```bash
 # Build image
-docker build -t express-typescript-starter .
+docker build -t express-ts-api-starter .
 
 # Run container
 docker run -p 3000:3000 \
   -e NODE_ENV=production \
   -e DATABASE_URL=your-db-url \
   -e JWT_SECRET=your-secret \
-  express-typescript-starter
+  express-ts-api-starter
 ```
 
 ## 🏥 Health Checks

@@ -846,6 +846,6 @@ const response = await fetch('/api/auth/refresh', {
 
 ---
 
-**Need help?** Check our [Development Guide](./DEVELOPMENT.md) or [open an issue](https://github.com/shuntps/express-typescript-starter/issues).
+**Need help?** Check our [Development Guide](./DEVELOPMENT.md) or [open an issue](https://github.com/shuntps-devs/express-ts-api-starter/issues).
 
 Happy coding! 🚀

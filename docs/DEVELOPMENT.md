@@ -8,8 +8,8 @@ A comprehensive guide for developing, testing, and contributing to the **Express
 
 ```bash
 # Clone and setup
-git clone https://github.com/shuntps/express-typescript-starter.git
-cd express-typescript-starter
+git clone https://github.com/shuntps-devs/express-ts-api-starter.git
+cd express-ts-api-starter
 npm install
 
 # Setup environment
@@ -779,6 +779,6 @@ Ready to contribute? Here are some good first issues:
 - [ ] Add Swagger documentation
 - [ ] Implement OAuth providers
 
-**Need help?** [Open an issue](https://github.com/shuntps/express-typescript-starter/issues) or check our [API documentation](./API.md).
+**Need help?** [Open an issue](https://github.com/shuntps-devs/express-ts-api-starter/issues) or check our [API documentation](./API.md).
 
 Happy coding! 🎉

@@ -23,11 +23,10 @@ Before you begin, ensure you have the following installed on your system:
 ### 1. Clone the Repository
 
 ```bash
-# Clone the project
-git clone https://github.com/shuntps/express-typescript-starter.git
+git clone https://github.com/shuntps-devs/express-ts-api-starter.git
 
 # Navigate to project directory
-cd express-typescript-starter
+cd express-ts-api-starter
 
 # Install dependencies
 npm install
@@ -390,4 +389,4 @@ Once you have the project running:
 
 **Ready to build amazing APIs!** 🚀
 
-Need help? [Open an issue](https://github.com/shuntps/express-typescript-starter/issues) or check our [Development Guide](./DEVELOPMENT.md).
+Need help? [Open an issue](https://github.com/shuntps-devs/express-ts-api-starter/issues) or check our [Development Guide](./DEVELOPMENT.md).
