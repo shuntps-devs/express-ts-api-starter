@@ -133,7 +133,7 @@ The application includes built-in health check endpoints:
 
 ```bash
 # Check if server is running
-curl http://localhost:3000/health
+curl http://localhost:3000/api/health
 
 # Detailed health check
 npm run deploy:health

@@ -66,12 +66,14 @@ export const fr = {
         'Compte temporairement verrouillé suite à trop de tentatives de connexion',
       inactive: 'Compte inactif. Impossible de réaliser des opérations email.',
     },
+    token: {
+      invalidOrExpired: 'Token invalide ou expiré',
+    },
     verification: {
       tokenInvalid: 'Token de vérification email invalide ou expiré',
       required:
         "Vérification email requise. Veuillez vérifier votre email avant d'accéder à cette ressource.",
-      requiredWithDays:
-        'Vérification email requise. Votre compte est actif depuis {{days}} jours.',
+      requiredWithDays: 'Votre compte est actif depuis {{days}} jours.',
     },
     password: {
       resetSent:
@@ -101,6 +103,12 @@ export const fr = {
     resourceCreated: 'Ressource créée avec succès',
     resourceUpdated: 'Ressource mise à jour avec succès',
     resourceDeleted: 'Ressource supprimée avec succès',
+    statisticsRetrieved: 'Statistiques récupérées avec succès',
+    cleanupCompleted: 'Nettoyage terminé avec succès',
+    emailVerified: 'Email vérifié avec succès',
+    verificationEmailSent: 'Email de vérification envoyé avec succès',
+    verificationEmailSentIfExists:
+      'Si cet email existe, un email de vérification a été envoyé',
   },
   errors: {
     badRequest: 'Requête incorrecte',
@@ -181,6 +189,7 @@ export const fr = {
     service: {
       sendSuccess: 'Email envoyé avec succès',
       sendFailure: "Échec de l'envoi de l'email",
+      sendFailed: "Échec de l'envoi de l'email de vérification",
       serviceError: 'Erreur du service email',
       sending: "Envoi de l'email",
       sendingFailed: "Échec de l'envoi de l'email",

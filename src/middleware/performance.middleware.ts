@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import { logger } from '../config';
 import { t } from '../i18n';
-import { ResponseHelper } from '../utils';
+import { ErrorHelper } from '../utils';
 
 /**
  * Performance monitoring middleware for tracking response times
@@ -98,7 +98,7 @@ export const requestSizeLimiter = (maxSizeMB = 10) => {
           userId: req.user?._id,
         });
 
-        ResponseHelper.sendError(
+        ErrorHelper.sendError(
           res,
           t('error.payloadTooLarge'),
           413,

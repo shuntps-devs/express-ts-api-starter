@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { logger } from '../../config';
 import { t } from '../../i18n';
 import { validateRequest } from '../../middleware';
-import { ResponseHelper } from '../../utils';
+import { ErrorHelper } from '../../utils';
 import { TestHelper } from '../helpers';
 
 // Mock dependencies
@@ -19,7 +19,7 @@ jest.mock('../../i18n', () => ({
 }));
 
 jest.mock('../../utils', () => ({
-  ResponseHelper: {
+  ErrorHelper: {
     extractRequestId: jest.fn(),
     sendValidationError: jest.fn(),
   },
@@ -48,7 +48,7 @@ describe('Validate Request Middleware', () => {
 
     // Setup default mock returns
     (t as jest.Mock).mockReturnValue('Validation failed');
-    (ResponseHelper.extractRequestId as jest.Mock).mockReturnValue('req-123');
+    (ErrorHelper.extractRequestId as jest.Mock).mockReturnValue('req-123');
   });
 
   describe('validateRequest middleware', () => {
@@ -79,7 +79,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith(); // Called with no arguments (success)
-      expect(ResponseHelper.sendValidationError).not.toHaveBeenCalled();
+      expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only body when only body schema is provided', async () => {
@@ -100,7 +100,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith();
-      expect(ResponseHelper.sendValidationError).not.toHaveBeenCalled();
+      expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only params when only params schema is provided', async () => {
@@ -120,7 +120,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith();
-      expect(ResponseHelper.sendValidationError).not.toHaveBeenCalled();
+      expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only query when only query schema is provided', async () => {
@@ -141,7 +141,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith();
-      expect(ResponseHelper.sendValidationError).not.toHaveBeenCalled();
+      expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should handle params validation errors', async () => {
@@ -164,7 +164,7 @@ describe('Validate Request Middleware', () => {
         'Validation error:',
         expect.any(Array)
       );
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -195,7 +195,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(logger.warn).toHaveBeenCalled();
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -232,7 +232,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(logger.warn).toHaveBeenCalled();
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -274,7 +274,7 @@ describe('Validate Request Middleware', () => {
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
       // Assert - Should validate params first and fail there
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -314,7 +314,7 @@ describe('Validate Request Middleware', () => {
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -351,7 +351,7 @@ describe('Validate Request Middleware', () => {
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -419,7 +419,7 @@ describe('Validate Request Middleware', () => {
           message: 'Unexpected error',
         })
       );
-      expect(ResponseHelper.sendValidationError).not.toHaveBeenCalled();
+      expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should include error values in validation errors when available', async () => {
@@ -438,7 +438,7 @@ describe('Validate Request Middleware', () => {
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
       // Assert - The error may not include 'received' property for enum values
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
           expect.objectContaining({
@@ -470,7 +470,7 @@ describe('Validate Request Middleware', () => {
 
       // Assert
       expect(t).toHaveBeenCalledWith('errors.validationFailed');
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.any(Array),
         'La validation a échoué',
@@ -480,7 +480,7 @@ describe('Validate Request Middleware', () => {
 
     it('should extract and pass request ID correctly', async () => {
       // Arrange
-      (ResponseHelper.extractRequestId as jest.Mock).mockReturnValue(
+      (ErrorHelper.extractRequestId as jest.Mock).mockReturnValue(
         'custom-req-id'
       );
 
@@ -498,8 +498,8 @@ describe('Validate Request Middleware', () => {
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(ResponseHelper.extractRequestId).toHaveBeenCalledWith(mockReq);
-      expect(ResponseHelper.sendValidationError).toHaveBeenCalledWith(
+      expect(ErrorHelper.extractRequestId).toHaveBeenCalledWith(mockReq);
+      expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.any(Array),
         'Validation failed',

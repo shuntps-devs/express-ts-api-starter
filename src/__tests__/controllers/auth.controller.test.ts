@@ -284,8 +284,8 @@ describe('AuthController', () => {
       });
 
       expect(response.status).toBe(500);
-      expect(response.body.status).toBe('error');
-      expect(response.body.message).toBeDefined();
+      expect(response.body.error).toBeDefined();
+      expect(response.body.error.message).toBeDefined();
     });
   });
 });

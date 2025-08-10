@@ -4,7 +4,7 @@ Complete reference for all API endpoints in the **Express TypeScript Starter**.
 
 ## 📖 Overview
 
-**Base URL**: `http://localhost:3000` (development)
+**Base URL**: `http://localhost:3000/api` (development)
 
 **API Version**: `v1` (automatically applied)
 
@@ -381,7 +381,7 @@ Get user information by ID.
 
 Check API health and status.
 
-**`GET /health`**
+**`GET /api/health`**
 
 #### Success Response
 
@@ -399,7 +399,7 @@ Check API health and status.
 
 Get API information and available endpoints.
 
-**`GET /`**
+**`GET /api`**
 
 #### Success Response
 
@@ -413,7 +413,7 @@ Get API information and available endpoints.
     "endpoints": {
       "auth": "/api/auth",
       "users": "/api/users",
-      "health": "/health"
+      "health": "/api/health"
     }
   }
 }

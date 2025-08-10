@@ -11,6 +11,7 @@ import {
   IUserResponse,
 } from '../interfaces';
 import { IUser, User } from '../models';
+import { ErrorHelper } from '../utils';
 
 /**
  * User Service
@@ -41,18 +42,24 @@ export class UserService {
     });
 
     if (existingUser) {
-      const errorMessage =
-        existingUser.email === email.toLowerCase()
-          ? t('auth.email.alreadyExists')
-          : t('auth.username.alreadyExists');
+      const conflict =
+        existingUser.email === email.toLowerCase() ? 'email' : 'username';
 
       requestLogger.warn('User creation failed - user already exists', {
         email: email.toLowerCase(),
         username,
-        reason: errorMessage,
+        conflict,
       });
 
-      throw new Error(errorMessage);
+      // ✅ Use ErrorHelper for consistent operational errors
+      throw ErrorHelper.createOperationalError(
+        conflict === 'email'
+          ? t('auth.email.alreadyExists')
+          : t('auth.username.alreadyExists'),
+        409,
+        `USER_${conflict.toUpperCase()}_EXISTS`,
+        true
+      );
     }
 
     try {
@@ -70,13 +77,21 @@ export class UserService {
         username,
       });
 
-      return user.toObject() as IUser;
+      return user;
     } catch (error) {
-      requestLogger.error('Failed to create user', {
-        email: email.toLowerCase(),
-        username,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
+      // ✅ Use ErrorHelper for consistent error logging and handling
+      ErrorHelper.logError(
+        error,
+        {
+          operation: 'user-creation',
+          email: email.toLowerCase(),
+          username,
+        },
+        undefined,
+        undefined
+      );
+
+      // Re-throw for upstream handling
       throw error;
     }
   }

@@ -11,7 +11,7 @@ import helmet from 'helmet';
 
 import { env, logger } from '../config';
 import { t } from '../i18n';
-import { ResponseHelper } from '../utils';
+import { ErrorHelper } from '../utils';
 
 /**
  * Configure comprehensive security middleware for the Express application
@@ -74,7 +74,7 @@ export const configureSecurity = (app: Application): void => {
         path: req.path,
       });
 
-      ResponseHelper.sendError(
+      ErrorHelper.sendError(
         res,
         t('middleware.rateLimitExceeded'),
         429,

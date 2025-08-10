@@ -5,8 +5,9 @@
 
 import { NextFunction, Request, Response } from 'express';
 
-import { env, logger } from '../config';
+import { env } from '../config';
 import { t } from '../i18n';
+import { ErrorHelper } from '../utils';
 
 /**
  * Extended Error interface with additional properties
@@ -36,31 +37,46 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
-  const contextLogger = req.logger ?? logger;
+  const requestId = ErrorHelper.extractRequestId(req);
 
   err.statusCode = err.statusCode ?? 500;
   err.status = err.status ?? 'error';
 
-  contextLogger.error('Error:', {
-    statusCode: err.statusCode,
-    message: err.message,
-    stack: err.stack,
-    isOperational: err.isOperational,
-    userId: req.user?._id,
-    requestId: req.headers['x-request-id'],
-  });
+  ErrorHelper.logError(
+    err,
+    {
+      statusCode: err.statusCode,
+      isOperational: err.isOperational,
+      userId: req.user?._id,
+    },
+    requestId,
+    req // ✅ Pass request for contextual logging
+  );
 
   if (env.NODE_ENV === 'development') {
-    res.status(err.statusCode).json({
-      status: err.status,
-      error: err,
-      message: err.message,
-      stack: err.stack,
-    });
+    ErrorHelper.sendError(
+      res,
+      err.message,
+      err.statusCode,
+      err.status,
+      {
+        stack: err.stack,
+        error: err,
+      },
+      requestId
+    );
   } else {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.isOperational ? err.message : t('error.internalServer'),
-    });
+    const message = ErrorHelper.isOperational(err)
+      ? err.message
+      : t('error.internalServer');
+
+    ErrorHelper.sendError(
+      res,
+      message,
+      err.statusCode,
+      err.status,
+      undefined,
+      requestId
+    );
   }
 };

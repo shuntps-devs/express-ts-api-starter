@@ -7,14 +7,20 @@ import { resendVerificationSchema, verifyEmailSchema } from '../schemas/email';
 
 /**
  * Authentication routes router
- * Handles user registration, login, logout, and email verification
+ * @description Handles user registration, login, logout, and email verification endpoints
+ * @example
+ * import authRoutes from './auth.routes';
+ * app.use('/api/auth', authRoutes);
  */
 const router = Router();
 const authController = new AuthController();
 
 /**
  * User registration endpoint
- * Validates registration data and tracks registration attempts
+ * @description Validates registration data and tracks registration attempts
+ * @route POST /api/auth/register
+ * @access Public
+ * @middleware validateRequest, auditLogger
  */
 router.post(
   '/register',
@@ -25,7 +31,10 @@ router.post(
 
 /**
  * User login endpoint
- * Validates login credentials and tracks login attempts
+ * @description Validates login credentials and tracks login attempts
+ * @route POST /api/auth/login
+ * @access Public
+ * @middleware validateRequest, auditLogger
  */
 router.post(
   '/login',
@@ -36,37 +45,55 @@ router.post(
 
 /**
  * User logout endpoint
- * Requires authentication and tracks logout actions
+ * @description Requires authentication and tracks logout actions
+ * @route POST /api/auth/logout
+ * @access Private
+ * @middleware authenticate, auditLogger
  */
 router.post('/logout', authenticate, auditLogger, authController.logout);
 
 /**
  * Logout from all devices endpoint
- * Requires authentication and tracks logout all actions
+ * @description Requires authentication and tracks logout all actions
+ * @route POST /api/auth/logout-all
+ * @access Private
+ * @middleware authenticate, auditLogger
  */
 router.post('/logout-all', authenticate, auditLogger, authController.logoutAll);
 
 /**
  * Token refresh endpoint
- * Handles JWT token refresh and tracks refresh attempts
+ * @description Handles JWT token refresh and tracks refresh attempts
+ * @route POST /api/auth/refresh
+ * @access Public (requires refresh token cookie)
+ * @middleware auditLogger
  */
 router.post('/refresh', auditLogger, authController.refreshToken);
 
 /**
- * Get user profile endpoint
- * Requires authentication to retrieve current user profile
+ * User profile endpoint
+ * @description Retrieves authenticated user's profile information with security filtering
+ * @route GET /api/auth/profile
+ * @access Private
+ * @middleware authenticate, auditLogger
  */
-router.get('/profile', authenticate, authController.getProfile);
+router.get('/profile', authenticate, auditLogger, authController.getProfile);
 
 /**
  * Get active sessions endpoint
- * Requires authentication to retrieve user's active sessions
+ * @description Requires authentication to retrieve user's active sessions
+ * @route GET /api/auth/sessions
+ * @access Private
+ * @middleware authenticate
  */
 router.get('/sessions', authenticate, authController.getSessions);
 
 /**
  * Email verification endpoint
- * Validates verification token and tracks verification attempts
+ * @description Validates verification token and tracks verification attempts
+ * @route POST /api/auth/verify-email
+ * @access Public
+ * @middleware validateRequest, auditLogger
  */
 router.post(
   '/verify-email',
@@ -77,12 +104,10 @@ router.post(
 
 /**
  * Resend verification email endpoint
- * Validates email and tracks resend verification attempts
- */
-
-/**
- * Resend verification email endpoint
- * Validates email and tracks resend verification attempts
+ * @description Validates email and tracks resend verification attempts
+ * @route POST /api/auth/resend-verification
+ * @access Public
+ * @middleware validateRequest, auditLogger
  */
 router.post(
   '/resend-verification',
@@ -92,6 +117,7 @@ router.post(
 );
 
 /**
- * Authentication routes export
+ * Authentication routes router export
+ * @description Express router configured with all authentication endpoints
  */
 export default router;

@@ -54,16 +54,23 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
         message: 'Test error message',
         stack: expect.any(String),
         isOperational: undefined,
+        userId: undefined,
       });
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'Internal server error',
+        success: false,
+        error: {
+          message: 'Internal server error',
+          code: 'error',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -77,16 +84,23 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 400,
         message: 'Validation failed',
         stack: expect.any(String),
         isOperational: undefined,
+        userId: undefined,
       });
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'fail',
-        message: 'Internal server error',
+        success: false,
+        error: {
+          message: 'Internal server error',
+          code: 'fail',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -102,8 +116,14 @@ describe('Error Handler Middleware', () => {
 
       // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'User not found',
+        success: false,
+        error: {
+          message: 'User not found',
+          code: 'error',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -120,8 +140,14 @@ describe('Error Handler Middleware', () => {
       // Assert
       expect(t).toHaveBeenCalledWith('error.internalServer');
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'Internal server error',
+        success: false,
+        error: {
+          message: 'Internal server error',
+          code: 'error',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -137,10 +163,17 @@ describe('Error Handler Middleware', () => {
 
       // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'fail',
-        error: error,
-        message: 'Development error',
-        stack: expect.any(String),
+        success: false,
+        error: {
+          message: 'Development error',
+          code: 'fail',
+          details: {
+            stack: expect.any(String),
+            error: error,
+          },
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -157,11 +190,12 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 403,
         message: 'Logging test error',
         stack: expect.any(String),
         isOperational: true,
+        userId: undefined,
       });
     });
 
@@ -176,11 +210,12 @@ describe('Error Handler Middleware', () => {
 
       // Assert
       expect(mockRes.status).toHaveBeenCalledWith(500);
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
         message: 'Error without status',
         stack: expect.any(String),
         isOperational: undefined,
+        userId: undefined,
       });
     });
 
@@ -196,8 +231,14 @@ describe('Error Handler Middleware', () => {
 
       // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'Internal server error',
+        success: false,
+        error: {
+          message: 'Internal server error',
+          code: 'error',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -211,11 +252,12 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 400,
         message: '',
         stack: expect.any(String),
         isOperational: undefined,
+        userId: undefined,
       });
     });
 
@@ -231,10 +273,17 @@ describe('Error Handler Middleware', () => {
 
       // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        error: error,
-        message: 'Operational error in dev',
-        stack: expect.any(String),
+        success: false,
+        error: {
+          message: 'Operational error in dev',
+          code: 'error',
+          details: {
+            stack: expect.any(String),
+            error: error,
+          },
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -253,8 +302,14 @@ describe('Error Handler Middleware', () => {
       // Assert
       expect(t).toHaveBeenCalledWith('error.internalServer');
       expect(mockRes.json).toHaveBeenCalledWith({
-        status: 'error',
-        message: 'Erreur serveur interne',
+        success: false,
+        error: {
+          message: 'Erreur serveur interne',
+          code: 'error',
+          details: undefined,
+        },
+        timestamp: expect.any(String),
+        requestId: undefined,
       });
     });
 
@@ -279,11 +334,12 @@ describe('Error Handler Middleware', () => {
 
         // Assert
         expect(mockRes.status).toHaveBeenCalledWith(statusCode);
-        expect(logger.error).toHaveBeenCalledWith('Error:', {
+        expect(logger.error).toHaveBeenCalledWith('Error occurred', {
           statusCode,
           message: `Error ${statusCode}`,
           stack: expect.any(String),
           isOperational: undefined,
+          userId: undefined,
         });
       });
     });
@@ -297,11 +353,12 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
       // Assert
-      expect(logger.error).toHaveBeenCalledWith('Error:', {
+      expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
         message: 'Error with stack',
         stack: originalStack,
         isOperational: undefined,
+        userId: undefined,
       });
     });
   });

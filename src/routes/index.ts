@@ -4,6 +4,7 @@ import { env } from '../config';
 import { t } from '../i18n';
 import { ResponseHelper } from '../utils';
 
+import adminRoutes from './admin.routes';
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 
@@ -15,7 +16,7 @@ const router = Router();
 /**
  * Health check endpoint for monitoring service status
  */
-router.get('/health', (_req, res) => {
+router.get('/api/health', (_req, res) => {
   const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
@@ -24,20 +25,21 @@ router.get('/health', (_req, res) => {
     service: t('api.service.name'),
   };
 
-  res.status(200).json(healthData);
+  ResponseHelper.sendSuccess(res, healthData, 200, 'Health check successful');
 });
 
 /**
  * Base welcome endpoint with API information
  */
-router.get('/', (_req, res) => {
+router.get('/api', (_req, res) => {
   const welcomeData = {
     service: t('api.service.name'),
-    version: process.env.npm_package_version ?? '0.0.2',
+    version: env.APP_VERSION,
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
-      health: '/health',
+      admin: '/api/admin',
+      health: '/api/health',
     },
   };
 
@@ -47,6 +49,7 @@ router.get('/', (_req, res) => {
 /**
  * Mount API route modules
  */
+router.use('/api/admin', adminRoutes);
 router.use('/api/auth', authRoutes);
 router.use('/api/users', userRoutes);
 

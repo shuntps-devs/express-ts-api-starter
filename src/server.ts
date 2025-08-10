@@ -5,7 +5,6 @@ import express from 'express';
 import i18next from 'i18next';
 import middleware from 'i18next-http-middleware';
 
-// Import types to ensure declaration merging is loaded
 import './types/express';
 
 import { connectDB, env, logger } from './config';
@@ -21,56 +20,57 @@ import {
   userContext,
 } from './middleware';
 import router from './routes';
+import { CleanupService } from './services';
+import { ErrorHelper } from './utils';
 
 export const app = express();
 
-// Configure security middleware first
-configureSecurity(app);
+/**
+ * Middleware chain configuration
+ * Applied in specific order for optimal performance and security
+ */
 
-// Configure request logging
-configureRequestLogging(app);
-
-// Performance monitoring
 app.use(performanceMonitor);
 
-// API versioning
 app.use(apiVersioning);
 
-// Request size limiting
-app.use(requestSizeLimiter(10)); // 10MB limit
+app.use(requestSizeLimiter(10));
 
-// Cookie parsing middleware
 app.use(cookieParser());
 
-// i18n middleware
 app.use(middleware.handle(i18next));
 
-// User context middleware (after i18n to have access to t())
 app.use(userContext);
 
-// Audit middleware for tracking user actions
 app.use(auditLogger);
 
-// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API routes
 app.use('/', router);
 
+/**
+ * 404 handler for undefined routes
+ * @description Creates and forwards 404 errors for unmatched routes using ErrorHelper
+ */
 app.use((req, _res, next) => {
-  const err = new Error(`Route ${req.originalUrl} not found`) as {
-    message: string;
-    statusCode?: number;
-    status?: string;
-  };
-  err.statusCode = 404;
-  err.status = 'fail';
-  next(err);
+  // ✅ Use ErrorHelper for consistent 404 errors
+  const error = ErrorHelper.createNotFoundError(`Route ${req.originalUrl}`);
+  next(error);
 });
 
+/**
+ * Global error handler middleware
+ * @description Catches and processes all application errors
+ */
 app.use(errorHandler);
 
+/**
+ * Graceful shutdown handler for the Express server
+ * @description Handles server shutdown with proper connection cleanup and timeout management
+ * @param server - HTTP server instance to shutdown
+ * @param signal - Signal that triggered the shutdown (SIGTERM, SIGINT, etc.)
+ */
 const gracefulShutdown = async (server: Server, signal: string) => {
   logger.info(t('server.shutdown.start', { signal }));
 
@@ -112,13 +112,24 @@ const gracefulShutdown = async (server: Server, signal: string) => {
   }
 };
 
+/**
+ * Start the Express server with full configuration
+ * @description Initializes i18n, security, database connection, and cleanup services
+ * @returns Promise resolving to HTTP server instance
+ * @throws Will exit process with code 1 if startup fails
+ */
 const startServer = async () => {
   try {
-    // Initialize i18n first
     await initI18n();
 
-    // Connect to database
+    configureSecurity(app);
+
+    configureRequestLogging(app);
+
     await connectDB();
+
+    const cleanupService = CleanupService.getInstance();
+    cleanupService.startPeriodicCleanup(60);
 
     const server = app.listen(env.PORT, () => {
       logger.info(
@@ -149,8 +160,16 @@ const startServer = async () => {
   }
 };
 
+/**
+ * Start server if module is executed directly
+ * @description Allows server to be started via `node server.js` or imported as module
+ */
 if (require.main === module) {
   void startServer();
 }
 
+/**
+ * Export server startup function for testing and module usage
+ * @description Allows server to be started programmatically in tests or other modules
+ */
 export { startServer };

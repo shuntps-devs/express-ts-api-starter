@@ -1,19 +1,28 @@
+/**
+ * Response Helper - SUCCESS responses and utilities only
+ * All error handling is managed by ErrorHelper
+ * Following personal instructions: separate helpers by responsibility
+ */
+
 import { Response } from 'express';
 
 import { t } from '../i18n';
-import {
-  IApiErrorResponse,
-  IApiSuccessResponse,
-  IPaginatedResponse,
-  IValidationError,
-} from '../interfaces';
+import { IApiSuccessResponse, IPaginatedResponse } from '../interfaces';
 
-// Re-export types for compatibility
 export type ISuccessResponse<T = unknown> = IApiSuccessResponse<T>;
-export type IErrorResponse = IApiErrorResponse;
 
+/**
+ * Response Helper for SUCCESS responses and utilities only
+ * For error responses, use ErrorHelper.send* methods
+ */
 export class ResponseHelper {
-  // Success responses
+  /**
+   * Create success response object
+   * @param data - Response data
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   * @returns Formatted success response
+   */
   static success<T>(
     data: T,
     message?: string,
@@ -28,6 +37,13 @@ export class ResponseHelper {
     };
   }
 
+  /**
+   * Create success response for created resources
+   * @param data - Created resource data
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   * @returns Formatted success response
+   */
   static created<T>(
     data: T,
     message?: string,
@@ -40,6 +56,13 @@ export class ResponseHelper {
     );
   }
 
+  /**
+   * Create success response for updated resources
+   * @param data - Updated resource data
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   * @returns Formatted success response
+   */
   static updated<T>(
     data: T,
     message?: string,
@@ -52,6 +75,12 @@ export class ResponseHelper {
     );
   }
 
+  /**
+   * Create success response for deleted resources
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   * @returns Formatted success response
+   */
   static deleted(message?: string, requestId?: string): ISuccessResponse<null> {
     return this.success(
       null,
@@ -60,126 +89,16 @@ export class ResponseHelper {
     );
   }
 
-  // Error responses
-  static error(
-    message: string,
-    code: string | number = 'INTERNAL_SERVER_ERROR',
-    details?: unknown,
-    requestId?: string,
-    includeStack: boolean = false
-  ): IErrorResponse {
-    const error: IErrorResponse = {
-      success: false,
-      error: {
-        message,
-        code,
-        details,
-      },
-      timestamp: new Date().toISOString(),
-      requestId,
-    };
-
-    if (includeStack && details instanceof Error) {
-      error.error.stack = details.stack;
-    }
-
-    return error;
-  }
-
-  static badRequest(
-    message?: string,
-    details?: unknown,
-    requestId?: string
-  ): IErrorResponse {
-    return this.error(
-      message ?? t('errors.badRequest'),
-      'BAD_REQUEST',
-      details,
-      requestId
-    );
-  }
-
-  static unauthorized(message?: string, requestId?: string): IErrorResponse {
-    return this.error(
-      message ?? t('errors.unauthorized'),
-      'UNAUTHORIZED',
-      undefined,
-      requestId
-    );
-  }
-
-  static forbidden(message?: string, requestId?: string): IErrorResponse {
-    return this.error(
-      message ?? t('errors.forbidden'),
-      'FORBIDDEN',
-      undefined,
-      requestId
-    );
-  }
-
-  static notFound(message?: string, requestId?: string): IErrorResponse {
-    return this.error(
-      message ?? t('errors.resourceNotFound'),
-      'NOT_FOUND',
-      undefined,
-      requestId
-    );
-  }
-
-  static conflict(
-    message?: string,
-    details?: unknown,
-    requestId?: string
-  ): IErrorResponse {
-    return this.error(
-      message ?? t('errors.conflict'),
-      'CONFLICT',
-      details,
-      requestId
-    );
-  }
-
-  static validationError(
-    errors: IValidationError[],
-    message?: string,
-    requestId?: string
-  ): IErrorResponse {
-    return this.error(
-      message ?? t('errors.validationFailed'),
-      'VALIDATION_ERROR',
-      { errors },
-      requestId
-    );
-  }
-
-  static tooManyRequests(
-    message?: string,
-    retryAfter?: number,
-    requestId?: string
-  ): IErrorResponse {
-    return this.error(
-      message ?? t('errors.tooManyRequests'),
-      'TOO_MANY_REQUESTS',
-      { retryAfter },
-      requestId
-    );
-  }
-
-  static internalServerError(
-    message?: string,
-    requestId?: string,
-    includeStack: boolean = false
-  ): IErrorResponse {
-    return this.error(
-      message ?? t('errors.internalServerError'),
-      'INTERNAL_SERVER_ERROR',
-      undefined,
-      requestId,
-      includeStack
-    );
-  }
-
-  // Pagination response
+  /**
+   * Create paginated response
+   * @param data - Array of data items
+   * @param page - Current page number
+   * @param limit - Items per page
+   * @param total - Total number of items
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   * @returns Formatted paginated response
+   */
   static paginate<T>(
     data: T[],
     page: number,
@@ -207,7 +126,16 @@ export class ResponseHelper {
     };
   }
 
-  // Express response helpers
+  // EXPRESS HTTP SUCCESS RESPONSES
+
+  /**
+   * Send success response via Express
+   * @param res - Express response object
+   * @param data - Response data
+   * @param statusCode - HTTP status code (default: 200)
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   */
   static sendSuccess<T>(
     res: Response,
     data: T,
@@ -218,6 +146,13 @@ export class ResponseHelper {
     res.status(statusCode).json(this.success(data, message, requestId));
   }
 
+  /**
+   * Send created response via Express
+   * @param res - Express response object
+   * @param data - Created resource data
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   */
   static sendCreated<T>(
     res: Response,
     data: T,
@@ -227,96 +162,16 @@ export class ResponseHelper {
     res.status(201).json(this.created(data, message, requestId));
   }
 
-  static sendError(
-    res: Response,
-    message: string,
-    statusCode: number = 500,
-    code?: string | number,
-    details?: unknown,
-    requestId?: string
-  ): void {
-    res
-      .status(statusCode)
-      .json(this.error(message, code ?? statusCode, details, requestId));
-  }
-
-  static sendBadRequest(
-    res: Response,
-    message?: string,
-    details?: unknown,
-    requestId?: string
-  ): void {
-    res.status(400).json(this.badRequest(message, details, requestId));
-  }
-
-  static sendUnauthorized(
-    res: Response,
-    message?: string,
-    requestId?: string
-  ): void {
-    res.status(401).json(this.unauthorized(message, requestId));
-  }
-
-  static sendForbidden(
-    res: Response,
-    message?: string,
-    requestId?: string
-  ): void {
-    res.status(403).json(this.forbidden(message, requestId));
-  }
-
-  static sendNotFound(
-    res: Response,
-    message?: string,
-    requestId?: string
-  ): void {
-    res.status(404).json(this.notFound(message, requestId));
-  }
-
-  static sendConflict(
-    res: Response,
-    message?: string,
-    details?: unknown,
-    requestId?: string
-  ): void {
-    res.status(409).json(this.conflict(message, details, requestId));
-  }
-
-  static sendValidationError(
-    res: Response,
-    errors?: IValidationError[],
-    message?: string,
-    requestId?: string
-  ): void {
-    res
-      .status(422)
-      .json(this.validationError(errors ?? [], message, requestId));
-  }
-
-  static sendTooManyRequests(
-    res: Response,
-    message?: string,
-    retryAfter?: number,
-    requestId?: string
-  ): void {
-    const response = this.tooManyRequests(message, retryAfter, requestId);
-    if (retryAfter) {
-      res.set('Retry-After', retryAfter.toString());
-    }
-    res.status(429).json(response);
-  }
-
-  static sendInternalServerError(
-    res: Response,
-    message?: string,
-    requestId?: string,
-    includeStack: boolean = false
-  ): void {
-    res
-      .status(500)
-      .json(this.internalServerError(message, requestId, includeStack));
-  }
-
+  /**
+   * Send paginated response via Express
+   * @param res - Express response object
+   * @param data - Array of data items
+   * @param page - Current page number
+   * @param limit - Items per page
+   * @param total - Total number of items
+   * @param message - Success message
+   * @param requestId - Optional request identifier
+   */
   static sendPaginated<T>(
     res: Response,
     data: T[],
@@ -331,7 +186,13 @@ export class ResponseHelper {
       .json(this.paginate(data, page, limit, total, message, requestId));
   }
 
-  // Utility methods
+  // UTILITY METHODS
+
+  /**
+   * Extract request ID from Express request
+   * @param req - Express request-like object
+   * @returns Request ID if present
+   */
   static extractRequestId(req: {
     id?: string;
     headers?: Record<string, string | string[] | undefined>;
@@ -343,6 +204,11 @@ export class ResponseHelper {
     );
   }
 
+  /**
+   * Check if response is a success response
+   * @param response - Response object to check
+   * @returns True if success response
+   */
   static isSuccessResponse(response: unknown): response is ISuccessResponse {
     return (
       typeof response === 'object' &&
@@ -352,12 +218,17 @@ export class ResponseHelper {
     );
   }
 
-  static isErrorResponse(response: unknown): response is IErrorResponse {
+  /**
+   * Check if response is an error response
+   * @param response - Response object to check
+   * @returns True if error response
+   */
+  static isErrorResponse(response: unknown): boolean {
     return (
       typeof response === 'object' &&
       response !== null &&
       'success' in response &&
-      response.success === false
+      (response as { success: boolean }).success === false
     );
   }
 }

@@ -111,7 +111,7 @@ Welcome to the **Express TypeScript Starter** documentation! This guide will hel
 - [ ] **Environment Variables** - JWT secrets and configuration
 - [ ] **Development Server** - `npm run dev`
 - [ ] **Run Tests** - `npm test`
-- [ ] **Check API** - Visit `http://localhost:3000/health`
+- [ ] **Check API** - Visit `http://localhost:3000/api/health`
 
 ## 🤝 Contributing to Documentation
 

@@ -3,5 +3,6 @@
  * This allows clean imports: import { AuthController, UserController } from '../controllers'
  */
 
+export * from './admin.controller';
 export * from './auth.controller';
 export * from './user.controller';

@@ -5,7 +5,7 @@ import { t } from '../i18n';
 import { IPaginatedResponse, IUserResponse, UserRole } from '../interfaces';
 import { asyncHandler } from '../middleware';
 import { UserService } from '../services';
-import { ResponseHelper, UserHelper } from '../utils';
+import { ErrorHelper, ResponseHelper, UserHelper } from '../utils';
 
 /**
  * User management controller
@@ -38,8 +38,8 @@ export class UserController {
     const contextLogger = req.logger ?? logger;
 
     if (!req.user) {
-      ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
-      return;
+      // ✅ Use ErrorHelper for consistent auth errors
+      throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
     }
 
     const userResponse: IUserResponse = {
@@ -87,8 +87,8 @@ export class UserController {
         contextLogger.warn('Update profile failed - user not authenticated', {
           requestId,
         });
-        ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
-        return;
+        // ✅ Use ErrorHelper for consistent auth errors
+        throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
       }
 
       try {
@@ -102,8 +102,8 @@ export class UserController {
             userId: req.user._id,
             requestId,
           });
-          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-          return;
+          // ✅ Use ErrorHelper for consistent not found errors
+          throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
         const userResponse: IUserResponse = {
@@ -130,11 +130,16 @@ export class UserController {
           requestId
         );
       } catch (error) {
-        contextLogger.error('Profile update failed', {
-          userId: req.user._id,
+        // ✅ Use ErrorHelper for consistent error logging
+        ErrorHelper.logError(
           error,
+          {
+            operation: 'profile-update',
+            userId: req.user._id,
+          },
           requestId,
-        });
+          req
+        );
         throw error;
       }
     }
@@ -208,8 +213,8 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-          return;
+          // ✅ Use ErrorHelper for consistent not found errors
+          throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
         const userResponse: IUserResponse = {
@@ -275,8 +280,8 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-          return;
+          // ✅ Use ErrorHelper for consistent not found errors
+          throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
         const userResponse: IUserResponse = {
@@ -342,8 +347,8 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          ResponseHelper.sendNotFound(res, t('auth.userNotFound'), requestId);
-          return;
+          // ✅ Use ErrorHelper for consistent not found errors
+          throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
         contextLogger.info('User deleted by admin', {
@@ -441,7 +446,7 @@ export class UserController {
         targetUserId: userId,
       });
 
-      ResponseHelper.sendForbidden(
+      ErrorHelper.sendForbidden(
         res,
         'You can only access your own profile',
         requestId
@@ -481,7 +486,7 @@ export class UserController {
     const contextLogger = req.logger ?? logger;
 
     if (!UserHelper.isAdmin(req)) {
-      ResponseHelper.sendForbidden(res, 'Admin access required', requestId);
+      ErrorHelper.sendForbidden(res, 'Admin access required', requestId);
       return;
     }
 

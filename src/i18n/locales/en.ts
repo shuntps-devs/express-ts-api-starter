@@ -66,12 +66,14 @@ export const en = {
     credentials: {
       invalid: 'Invalid credentials',
     },
+    token: {
+      invalidOrExpired: 'Invalid or expired token',
+    },
     verification: {
       tokenInvalid: 'Invalid or expired email verification token',
       required:
         'Email verification required. Please verify your email before accessing this resource.',
-      requiredWithDays:
-        'Email verification required. Your account has been active for {{days}} days.',
+      requiredWithDays: 'Your account has been active for {{days}} days.',
     },
     password: {
       resetSent: 'If this email exists, a password reset link has been sent',
@@ -100,6 +102,12 @@ export const en = {
     resourceCreated: 'Resource created successfully',
     resourceUpdated: 'Resource updated successfully',
     resourceDeleted: 'Resource deleted successfully',
+    statisticsRetrieved: 'Statistics retrieved successfully',
+    cleanupCompleted: 'Cleanup completed successfully',
+    emailVerified: 'Email verified successfully',
+    verificationEmailSent: 'Verification email sent successfully',
+    verificationEmailSentIfExists:
+      'If the email exists, verification email has been sent',
   },
   errors: {
     badRequest: 'Bad Request',
@@ -175,6 +183,7 @@ export const en = {
     service: {
       sendSuccess: 'Email sent successfully',
       sendFailure: 'Failed to send email',
+      sendFailed: 'Failed to send verification email',
       serviceError: 'Email service error',
       sending: 'Sending email',
       sendingFailed: 'Email sending failed',

@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import { logger } from '../config';
 import { t } from '../i18n';
-import { ResponseHelper } from '../utils';
+import { ErrorHelper, ResponseHelper } from '../utils';
 
 /**
  * Middleware to enforce email verification requirement
@@ -33,7 +33,7 @@ export const requireEmailVerification = (
         requestId,
       }
     );
-    ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
+    ErrorHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
     return;
   }
 
@@ -44,11 +44,7 @@ export const requireEmailVerification = (
       requestId,
     });
 
-    ResponseHelper.sendForbidden(
-      res,
-      t('auth.verification.required'),
-      requestId
-    );
+    ErrorHelper.sendForbidden(res, t('auth.verification.required'), requestId);
     return;
   }
 
@@ -85,7 +81,7 @@ export const requireValidEmail = (
         requestId,
       }
     );
-    ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
+    ErrorHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
     return;
   }
 
@@ -96,7 +92,7 @@ export const requireValidEmail = (
       requestId,
     });
 
-    ResponseHelper.sendForbidden(res, t('auth.account.inactive'), requestId);
+    ErrorHelper.sendForbidden(res, t('auth.account.inactive'), requestId);
     return;
   }
 
@@ -117,7 +113,7 @@ export const conditionalEmailVerification = (gracePeriodDays: number = 7) => {
     const requestId = ResponseHelper.extractRequestId(req);
 
     if (!req.user) {
-      ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
+      ErrorHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
       return;
     }
 
@@ -147,7 +143,7 @@ export const conditionalEmailVerification = (gracePeriodDays: number = 7) => {
         }
       );
 
-      ResponseHelper.sendForbidden(
+      ErrorHelper.sendForbidden(
         res,
         t('auth.verification.requiredWithDays', {
           days: daysSinceRegistration,

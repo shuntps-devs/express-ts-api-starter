@@ -102,7 +102,7 @@ npm run dev
 
 ```bash
 # Test the health endpoint
-curl http://localhost:3000/health
+curl http://localhost:3000/api/health
 
 # Expected response:
 # {

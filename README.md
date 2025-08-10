@@ -25,6 +25,16 @@ npm run dev
 
 🎯 **Ready in 2 minutes!** The API will be running at `http://localhost:3000`
 
+## 🔌 API Endpoints
+
+The API provides the following endpoints:
+
+- **Base API Info**: `GET /api` - Service information and available endpoints
+- **Health Check**: `GET /api/health` - System status and monitoring
+- **Authentication**: `/api/auth/*` - Complete authentication system
+- **User Management**: `/api/users/*` - User profile and management
+- **Admin Panel**: `/api/admin/*` - Administrative operations
+
 ## 🏗️ What's Included
 
 ### 🔐 **Complete Authentication System**
@@ -126,6 +136,13 @@ express-typescript-starter/
 ```
 
 ## 🔌 API Endpoints
+
+### 🌍 **System & Monitoring**
+
+```bash
+GET    /api              # API information and endpoints
+GET    /api/health       # System health and uptime status
+```
 
 ### 🔐 Authentication (`/api/auth`)
 

@@ -4,8 +4,7 @@ import middleware from 'i18next-http-middleware';
 
 import { env } from '../config';
 
-import { en } from './locales/en';
-import { fr } from './locales/fr';
+import { en, fr } from './locales';
 
 /**
  * Translation resources configuration
@@ -60,6 +59,7 @@ export type TranslationKeys =
   | 'auth.account.locked'
   | 'auth.account.inactive'
   | 'auth.credentials.invalid'
+  | 'auth.token.invalidOrExpired'
   | 'auth.verification.tokenInvalid'
   | 'auth.verification.required'
   | 'auth.verification.requiredWithDays'
@@ -75,6 +75,11 @@ export type TranslationKeys =
   | 'success.resourceCreated'
   | 'success.resourceUpdated'
   | 'success.resourceDeleted'
+  | 'success.statisticsRetrieved'
+  | 'success.cleanupCompleted'
+  | 'success.emailVerified'
+  | 'success.verificationEmailSent'
+  | 'success.verificationEmailSentIfExists'
   | 'errors.badRequest'
   | 'errors.unauthorized'
   | 'errors.forbidden'
@@ -127,6 +132,7 @@ export type TranslationKeys =
   | 'email.passwordReset.support'
   | 'email.service.sendSuccess'
   | 'email.service.sendFailure'
+  | 'email.service.sendFailed'
   | 'email.service.serviceError'
   | 'email.service.sending'
   | 'email.service.sendingFailed';

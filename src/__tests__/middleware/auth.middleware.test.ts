@@ -8,7 +8,6 @@ import {
   requireRole,
 } from '../../middleware';
 import { SessionService, TokenService } from '../../services';
-import { ResponseHelper } from '../../utils';
 import { TestHelper } from '../helpers';
 
 // Mock dependencies
@@ -24,10 +23,44 @@ jest.mock('../../services', () => ({
 }));
 
 jest.mock('../../utils', () => ({
+  ErrorHelper: {
+    sendUnauthorized: jest.fn((res, message, requestId) => {
+      res.status(401).json({
+        success: false,
+        error: {
+          message: message ?? 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: new Date().toISOString(),
+        requestId,
+      });
+    }),
+    sendForbidden: jest.fn((res, message, requestId) => {
+      res.status(403).json({
+        success: false,
+        error: {
+          message: message ?? 'Forbidden',
+          code: 'FORBIDDEN',
+        },
+        timestamp: new Date().toISOString(),
+        requestId,
+      });
+    }),
+    sendInternalServerError: jest.fn((res, message, requestId) => {
+      res.status(500).json({
+        success: false,
+        error: {
+          message: message ?? 'Internal Server Error',
+          code: 'INTERNAL_SERVER_ERROR',
+        },
+        timestamp: new Date().toISOString(),
+        requestId,
+      });
+    }),
+    extractRequestId: jest.fn().mockReturnValue('test-request-id'),
+  },
   ResponseHelper: {
-    unauthorized: jest.fn(),
-    forbidden: jest.fn(),
-    internalServerError: jest.fn(),
+    sendSuccess: jest.fn(),
   },
 }));
 
@@ -57,20 +90,6 @@ describe('Auth Middleware', () => {
 
     // Reset all mocks
     jest.clearAllMocks();
-
-    // Default mock responses
-    (ResponseHelper.unauthorized as jest.Mock).mockReturnValue({
-      success: false,
-      message: 'Unauthorized',
-    });
-    (ResponseHelper.forbidden as jest.Mock).mockReturnValue({
-      success: false,
-      message: 'Forbidden',
-    });
-    (ResponseHelper.internalServerError as jest.Mock).mockReturnValue({
-      success: false,
-      message: 'Internal Server Error',
-    });
   });
 
   describe('authenticate middleware', () => {
@@ -138,7 +157,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Unauthorized',
+        error: {
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -162,7 +186,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Unauthorized',
+        error: {
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -182,7 +211,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Internal Server Error',
+        error: {
+          message: 'Internal Server Error',
+          code: 'INTERNAL_SERVER_ERROR',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -357,7 +391,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Unauthorized',
+        error: {
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -382,7 +421,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Unauthorized',
+        error: {
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -408,7 +452,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Internal Server Error',
+        error: {
+          message: 'Internal Server Error',
+          code: 'INTERNAL_SERVER_ERROR',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -469,7 +518,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Unauthorized',
+        error: {
+          message: 'Unauthorized',
+          code: 'UNAUTHORIZED',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -486,7 +540,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(403);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Forbidden',
+        error: {
+          message: 'Forbidden',
+          code: 'FORBIDDEN',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -503,7 +562,12 @@ describe('Auth Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(403);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Forbidden',
+        error: {
+          message: 'Forbidden',
+          code: 'FORBIDDEN',
+        },
+        timestamp: expect.any(String),
+        requestId: 'test-request-id',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });

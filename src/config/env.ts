@@ -1,8 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-import { logger } from './logger';
-
 dotenv.config();
 
 /**
@@ -44,17 +42,29 @@ const validateEnv = () => {
       IS_PRODUCTION: env.NODE_ENV === 'production',
       IS_DEV: env.NODE_ENV === 'development',
       IS_TEST: env.NODE_ENV === 'test',
+      APP_VERSION: process.env.npm_package_version ?? '0.1.0',
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
+      // For env.ts, we keep the original logic to avoid circular dependencies
+      // ErrorHelper.handleEnvValidationError would be used here if not for circular import
       const treeifiedError = z.treeifyError(error);
-      logger.error('Environment validation failed', treeifiedError);
+
+      // eslint-disable-next-line no-console
+      console.error('Environment validation failed:', {
+        context: 'environment-validation',
+        errors: treeifiedError,
+        environment: process.env.NODE_ENV,
+      });
 
       if (process.env.NODE_ENV === 'test') {
-        logger.warn('Continuing with test defaults due to validation failure');
+        // eslint-disable-next-line no-console
+        console.warn('Using test defaults due to validation failure');
         return createTestDefaults();
       }
 
+      // eslint-disable-next-line no-console
+      console.error('Environment validation failed - application cannot start');
       process.exit(1);
     }
     throw error;
@@ -81,6 +91,7 @@ const createTestDefaults = () => ({
   IS_PRODUCTION: false,
   IS_DEV: false,
   IS_TEST: true,
+  APP_VERSION: '0.1.0',
 });
 
 /**

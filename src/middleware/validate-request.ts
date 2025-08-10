@@ -11,7 +11,7 @@ import { ZodError, ZodType } from 'zod';
 import { logger } from '../config';
 import { t } from '../i18n';
 import { IValidationError } from '../interfaces';
-import { ResponseHelper } from '../utils';
+import { ErrorHelper } from '../utils';
 
 /**
  * Schema validation configuration interface
@@ -71,8 +71,8 @@ export const validateRequest = (schema: IValidateSchema) => {
           })
         );
 
-        const requestId = ResponseHelper.extractRequestId(req);
-        return ResponseHelper.sendValidationError(
+        const requestId = ErrorHelper.extractRequestId(req);
+        return ErrorHelper.sendValidationError(
           res,
           validationErrors,
           t('errors.validationFailed'),

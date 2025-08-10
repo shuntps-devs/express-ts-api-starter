@@ -9,7 +9,7 @@ import { logger } from '../config';
 import { t } from '../i18n';
 import { UserRole } from '../interfaces';
 import { SessionService, TokenService } from '../services';
-import { ResponseHelper } from '../utils';
+import { ErrorHelper } from '../utils';
 
 /**
  * Middleware to authenticate user using HTTP-only cookies
@@ -36,9 +36,11 @@ export const authenticate = async (
         ip: req.ip,
         userAgent: req.get('User-Agent'),
       });
-      res
-        .status(401)
-        .json(ResponseHelper.unauthorized(t('auth.authenticationRequired')));
+      ErrorHelper.sendUnauthorized(
+        res,
+        t('auth.authenticationRequired'),
+        ErrorHelper.extractRequestId(req)
+      );
       return;
     }
 
@@ -82,16 +84,22 @@ export const authenticate = async (
       userAgent: req.get('User-Agent'),
     });
 
-    res.status(401).json(ResponseHelper.unauthorized(t('auth.sessionExpired')));
+    ErrorHelper.sendUnauthorized(
+      res,
+      t('auth.sessionExpired'),
+      ErrorHelper.extractRequestId(req)
+    );
   } catch (error) {
     contextLogger.error('Authentication error', {
       error: error instanceof Error ? error.message : 'Unknown error',
       ip: req.ip,
       userAgent: req.get('User-Agent'),
     });
-    res
-      .status(500)
-      .json(ResponseHelper.internalServerError(t('auth.authenticationError')));
+    ErrorHelper.sendInternalServerError(
+      res,
+      t('auth.authenticationError'),
+      ErrorHelper.extractRequestId(req)
+    );
   }
 };
 
@@ -180,9 +188,11 @@ export const authenticateHeader = async (
         ip: req.ip,
         userAgent: req.get('User-Agent'),
       });
-      res
-        .status(401)
-        .json(ResponseHelper.unauthorized(t('auth.accessTokenRequired')));
+      ErrorHelper.sendUnauthorized(
+        res,
+        t('auth.accessTokenRequired'),
+        ErrorHelper.extractRequestId(req)
+      );
       return;
     }
 
@@ -193,9 +203,11 @@ export const authenticateHeader = async (
         ip: req.ip,
         userAgent: req.get('User-Agent'),
       });
-      res
-        .status(401)
-        .json(ResponseHelper.unauthorized(t('auth.invalidOrExpiredToken')));
+      ErrorHelper.sendUnauthorized(
+        res,
+        t('auth.invalidOrExpiredToken'),
+        ErrorHelper.extractRequestId(req)
+      );
       return;
     }
 
@@ -211,9 +223,11 @@ export const authenticateHeader = async (
       ip: req.ip,
       userAgent: req.get('User-Agent'),
     });
-    res
-      .status(500)
-      .json(ResponseHelper.internalServerError(t('auth.authenticationError')));
+    ErrorHelper.sendInternalServerError(
+      res,
+      t('auth.authenticationError'),
+      ErrorHelper.extractRequestId(req)
+    );
   }
 };
 
@@ -239,9 +253,11 @@ export const requireRole = (roles: UserRole[]) => {
         requiredRoles: roles,
         ip: req.ip,
       });
-      res
-        .status(401)
-        .json(ResponseHelper.unauthorized(t('auth.authenticationRequired')));
+      ErrorHelper.sendUnauthorized(
+        res,
+        t('auth.authenticationRequired'),
+        ErrorHelper.extractRequestId(req)
+      );
       return;
     }
 
@@ -256,9 +272,11 @@ export const requireRole = (roles: UserRole[]) => {
         userRoles,
         requiredRoles: roles,
       });
-      res
-        .status(403)
-        .json(ResponseHelper.forbidden(t('auth.insufficientPermissions')));
+      ErrorHelper.sendForbidden(
+        res,
+        t('auth.insufficientPermissions'),
+        ErrorHelper.extractRequestId(req)
+      );
       return;
     }
 

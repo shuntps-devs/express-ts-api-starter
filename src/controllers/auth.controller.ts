@@ -6,7 +6,7 @@ import { ICreateUserDto, ILoginDto, IUserResponse } from '../interfaces';
 import { asyncHandler } from '../middleware';
 import { ISession } from '../models';
 import { SessionService, UserService, VerificationService } from '../services';
-import { EmailHelper, ResponseHelper } from '../utils';
+import { EmailHelper, ErrorHelper, ResponseHelper } from '../utils';
 
 /**
  * Authentication controller
@@ -65,7 +65,7 @@ export class AuthController {
         requestId,
       });
 
-      return ResponseHelper.sendConflict(
+      return ErrorHelper.sendConflict(
         res,
         existingUser.email === userData.email
           ? t('auth.email.alreadyExists')
@@ -75,24 +75,32 @@ export class AuthController {
       );
     }
 
-    const user = await this.userService.createUser(userData);
+    const user = await this.userService.createUser(userData, contextLogger);
 
     try {
-      await this.verificationService.sendVerificationEmail(user);
+      await this.verificationService.sendVerificationEmail(
+        user,
+        'en',
+        contextLogger
+      );
       contextLogger.info('Verification email sent', {
         userId: user._id,
         email: user.email,
         requestId,
       });
     } catch (emailError) {
-      contextLogger.error('Failed to send verification email', {
-        userId: user._id,
-        email: user.email,
-        error: emailError,
+      // ✅ Use ErrorHelper for consistent error logging
+      ErrorHelper.logError(
+        emailError,
+        {
+          operation: 'verification-email-send',
+          userId: user._id,
+          email: user.email,
+        },
         requestId,
-      });
+        req
+      );
     }
-
     const userResponse: IUserResponse = {
       id: String(user._id),
       username: user.username,
@@ -150,7 +158,7 @@ export class AuthController {
       const identifier = loginData.identifier ?? loginData.email;
       if (!identifier) {
         contextLogger.warn('Login failed - missing identifier', { requestId });
-        return ResponseHelper.sendBadRequest(
+        return ErrorHelper.sendBadRequest(
           res,
           t('validation.identifier.required'),
           undefined,
@@ -165,13 +173,12 @@ export class AuthController {
           identifier,
           requestId,
         });
-        return ResponseHelper.sendUnauthorized(
-          res,
+        // ✅ Use ErrorHelper for consistent auth errors
+        throw ErrorHelper.createAuthError(
           t('auth.credentials.invalid'),
           requestId
         );
       }
-
       if (user.isLocked) {
         const lockTimeRemaining = user.lockUntil
           ? Math.ceil((user.lockUntil.getTime() - Date.now()) / (1000 * 60))
@@ -183,7 +190,7 @@ export class AuthController {
           requestId,
         });
 
-        return ResponseHelper.sendTooManyRequests(
+        return ErrorHelper.sendTooManyRequests(
           res,
           t('auth.account.locked'),
           lockTimeRemaining * 60,
@@ -200,13 +207,12 @@ export class AuthController {
         });
 
         await user.incLoginAttempts();
-        return ResponseHelper.sendUnauthorized(
-          res,
+        // ✅ Use ErrorHelper for consistent auth errors
+        throw ErrorHelper.createAuthError(
           t('auth.credentials.invalid'),
           requestId
         );
       }
-
       if (user.loginAttempts > 0) {
         await user.resetLoginAttempts();
       }
@@ -265,10 +271,9 @@ export class AuthController {
     const requestId = ResponseHelper.extractRequestId(req);
 
     if (!req.user) {
-      ResponseHelper.sendUnauthorized(res, t('auth.userNotFound'), requestId);
-      return;
+      // ✅ Use ErrorHelper for consistent auth errors
+      throw ErrorHelper.createAuthError(t('auth.userNotFound'), requestId);
     }
-
     const userResponse: IUserResponse = {
       id: String(req.user._id),
       username: req.user.username,
@@ -350,7 +355,7 @@ export class AuthController {
       const contextLogger = req.logger ?? logger;
 
       if (!req.user) {
-        return ResponseHelper.sendUnauthorized(
+        return ErrorHelper.sendUnauthorized(
           res,
           t('auth.userNotFound'),
           requestId
@@ -394,7 +399,7 @@ export class AuthController {
       const { refreshToken } = SessionService.extractTokensFromCookies(req);
 
       if (!refreshToken) {
-        return ResponseHelper.sendUnauthorized(
+        return ErrorHelper.sendUnauthorized(
           res,
           t('auth.refreshTokenRequired'),
           requestId
@@ -408,7 +413,7 @@ export class AuthController {
       );
 
       if (!result) {
-        return ResponseHelper.sendUnauthorized(
+        return ErrorHelper.sendUnauthorized(
           res,
           t('auth.invalidRefreshToken'),
           requestId
@@ -477,24 +482,35 @@ export class AuthController {
 
           ResponseHelper.sendSuccess(
             res,
-            { message: 'Email verified successfully' },
+            { message: t('success.emailVerified') },
             200,
-            'Email verified successfully',
+            t('success.emailVerified'),
             requestId
           );
         } else {
           throw new Error(result.message);
         }
       } catch (error) {
-        contextLogger.error('Email verification failed', {
-          token,
+        // ✅ Use ErrorHelper for consistent error logging and handling
+        ErrorHelper.logError(
           error,
+          {
+            operation: 'email-verification',
+            token: `${token.substring(0, 8)}...`,
+          },
           requestId,
-        });
+          req
+        );
 
-        const errorMessage =
-          error instanceof Error ? error.message : 'Invalid or expired token';
-        ResponseHelper.sendBadRequest(res, errorMessage, undefined, requestId);
+        const errorMessage = ErrorHelper.extractMessage(error);
+        throw ErrorHelper.createOperationalError(
+          errorMessage === t('error.internalServer')
+            ? t('auth.token.invalidOrExpired')
+            : errorMessage,
+          400,
+          'EMAIL_VERIFICATION_FAILED',
+          true
+        );
       }
     }
   );
@@ -523,9 +539,9 @@ export class AuthController {
       contextLogger.info('Resend verification attempt', { email, requestId });
 
       if (!EmailHelper.isValidEmail(email)) {
-        return ResponseHelper.sendBadRequest(
+        return ErrorHelper.sendBadRequest(
           res,
-          'Invalid email format',
+          t('validation.email.invalid'),
           undefined,
           requestId
         );
@@ -542,18 +558,18 @@ export class AuthController {
           return ResponseHelper.sendSuccess(
             res,
             {
-              message: 'If the email exists, verification email has been sent',
+              message: t('success.verificationEmailSentIfExists'),
             },
             200,
-            'Verification email sent if user exists',
+            t('success.verificationEmailSentIfExists'),
             requestId
           );
         }
 
         if (user.isEmailVerified) {
-          return ResponseHelper.sendBadRequest(
+          return ErrorHelper.sendBadRequest(
             res,
-            'Email already verified',
+            t('auth.email.alreadyVerified'),
             undefined,
             requestId
           );
@@ -569,23 +585,28 @@ export class AuthController {
 
         ResponseHelper.sendSuccess(
           res,
-          { message: 'Verification email sent' },
+          { message: t('success.verificationEmailSent') },
           200,
-          'Verification email sent successfully',
+          t('success.verificationEmailSent'),
           requestId
         );
       } catch (error) {
-        contextLogger.error('Failed to resend verification email', {
-          email,
+        // ✅ Use ErrorHelper for consistent error logging and handling
+        ErrorHelper.logError(
           error,
+          {
+            operation: 'resend-verification',
+            email,
+          },
           requestId,
-        });
+          req
+        );
 
-        ResponseHelper.sendError(
-          res,
-          'Failed to send verification email',
+        throw ErrorHelper.createOperationalError(
+          t('email.service.sendFailed'),
           500,
-          requestId
+          'EMAIL_SEND_FAILED',
+          false // Don't expose internal email service errors
         );
       }
     }
@@ -623,7 +644,7 @@ export class AuthController {
       const contextLogger = req.logger ?? logger;
 
       if (!req.user) {
-        return ResponseHelper.sendUnauthorized(
+        return ErrorHelper.sendUnauthorized(
           res,
           t('auth.userNotFound'),
           requestId

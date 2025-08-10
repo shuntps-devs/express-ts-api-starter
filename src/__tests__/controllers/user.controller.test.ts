@@ -163,6 +163,10 @@ describe('UserController', () => {
       userController.deleteUserById
     );
 
+    // Add error handling middleware
+    const { errorHandler } = jest.requireMock('../../middleware');
+    app.use(errorHandler);
+
     // Reset mocks and default user
     jest.clearAllMocks();
     mockAuth.setUser(mockAuthenticatedUser);
@@ -186,6 +190,8 @@ describe('UserController', () => {
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
+      expect(response.body.error).toBeDefined();
+      expect(response.body.error.message).toBeDefined();
 
       // Reset to default user
       mockAuth.setUser(mockAuthenticatedUser);
@@ -269,6 +275,7 @@ describe('UserController', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
+      expect(response.body.error).toBeDefined();
 
       // Reset to normal user
       mockAuth.setUser(mockAuthenticatedUser);
@@ -328,6 +335,7 @@ describe('UserController', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
+      expect(response.body.error).toBeDefined();
 
       // Reset to normal user
       mockAuth.setUser(mockAuthenticatedUser);
