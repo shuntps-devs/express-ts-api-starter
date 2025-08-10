@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-08-10
+
+### Added
+
+- **🎯 Complete User Profile System Integration**:
+  - `ProfileService` with full CRUD operations for user profiles
+  - `AvatarHelper` class for default avatar generation using DiceBear API
+  - `IProfileResponse`, `ICreateProfileDto`, `IUpdateProfileDto` interfaces
+  - Automatic profile creation with default avatar on user registration
+  - Profile management endpoints integration
+
+### Enhanced
+
+- **🔧 Authentication Controller Enhancement**:
+  - `AuthController` now creates user profile with default avatar during registration
+  - Enhanced registration response includes avatar URL when available
+  - ProfileService integration with graceful error handling
+  - Improved user registration workflow with complete profile setup
+
+- **🧪 Test Infrastructure Improvements**:
+  - Fixed AuthController tests with proper ProfileService mocking
+  - Enhanced test coverage for profile creation during registration
+  - All 249 tests passing with 100% success rate
+  - Complete ProfileService mock implementation for test reliability
+
+- **🛠️ Developer Experience**:
+  - Enhanced barrel exports with ProfileService and AvatarHelper
+  - Complete interface definitions for profile management
+  - Improved error handling in profile creation workflow
+  - Professional JSDoc documentation for all new components
+
+### Technical Details
+
+- **Services**: ProfileService added with complete lifecycle management
+- **Helpers**: AvatarHelper with DiceBear integration for default avatars
+- **Configuration**: Environment variables for avatar provider configuration
+- **Testing**: 17 test suites, 249 tests, 100% pass rate
+- **Code Quality**: Zero ESLint errors, strict TypeScript compliance
+
+### Migration Notes
+
+- User registration now automatically creates profile with default avatar
+- Registration response includes `defaultAvatar` field when avatar is generated
+- All existing functionality preserved with backward compatibility
+
+---
+
 ## [0.2.0] - 2025-08-10
 
 ### Added

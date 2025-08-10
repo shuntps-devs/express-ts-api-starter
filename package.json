@@ -1,6 +1,6 @@
 {
   "name": "express-typescript-starter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "🚀 Production-ready Express.js API boilerplate built with TypeScript, MongoDB, Jest testing, GitHub Actions CI/CD, and Docker. Enterprise-grade security and architecture.",
   "main": "dist/server.js",
   "repository": {
@@ -66,7 +66,8 @@
     "version:minor": "npm version minor && npm run push:tags",
     "version:major": "npm version major && npm run push:tags",
     "push:tags": "git push && git push --tags",
-    "release:ready": "npm run ci && npm run build"
+    "release:ready": "npm run ci && npm run build",
+    "release:prepare": "node scripts/prepare-release.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

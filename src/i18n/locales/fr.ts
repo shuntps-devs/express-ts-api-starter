@@ -195,6 +195,19 @@ export const fr = {
       sendingFailed: "Échec de l'envoi de l'email",
     },
   },
+  profile: {
+    alreadyExists: 'Le profil existe déjà',
+    creationFailed: 'Échec de la création du profil',
+    updateFailed: 'Échec de la mise à jour du profil',
+    deletionFailed: 'Échec de la suppression du profil',
+    avatarUpdateFailed: "Échec de la mise à jour de l'avatar du profil",
+    avatarRemovalFailed: "Échec de la suppression de l'avatar du profil",
+    notFound: 'Profil non trouvé',
+    retrieved: 'Profil récupéré avec succès',
+    created: 'Profil créé avec succès',
+    updated: 'Profil mis à jour avec succès',
+    deleted: 'Profil supprimé avec succès',
+  },
   avatar: {
     directoryCreationFailed: 'Échec de la création du répertoire avatar',
     invalidFormat:

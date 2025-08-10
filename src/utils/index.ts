@@ -1,3 +1,4 @@
+export * from './avatar.helper';
 export * from './date.helper';
 export * from './email.helper';
 export * from './error.helper';

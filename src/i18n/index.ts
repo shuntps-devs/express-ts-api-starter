@@ -145,7 +145,18 @@ export type TranslationKeys =
   | 'avatar.uploaded'
   | 'avatar.removed'
   | 'avatar.retrieved'
-  | 'avatar.uploadLimits';
+  | 'avatar.uploadLimits'
+  | 'profile.alreadyExists'
+  | 'profile.creationFailed'
+  | 'profile.updateFailed'
+  | 'profile.deletionFailed'
+  | 'profile.avatarUpdateFailed'
+  | 'profile.avatarRemovalFailed'
+  | 'profile.notFound'
+  | 'profile.retrieved'
+  | 'profile.created'
+  | 'profile.updated'
+  | 'profile.deleted';
 
 /**
  * Initialize internationalization with i18next configuration

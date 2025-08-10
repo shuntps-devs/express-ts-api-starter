@@ -15,7 +15,8 @@ import { ErrorHelper } from '../utils';
 
 /**
  * User Service
- * Handles all user-related business logic operations
+ * @description Handles all user-related business logic operations
+ * @class UserService
  */
 export class UserService {
   /**
@@ -51,7 +52,6 @@ export class UserService {
         conflict,
       });
 
-      // ✅ Use ErrorHelper for consistent operational errors
       throw ErrorHelper.createOperationalError(
         conflict === 'email'
           ? t('auth.email.alreadyExists')
@@ -71,6 +71,7 @@ export class UserService {
       });
 
       await user.save();
+
       requestLogger.info('User created successfully', {
         userId: user._id,
         email: email.toLowerCase(),
@@ -79,7 +80,6 @@ export class UserService {
 
       return user;
     } catch (error) {
-      // ✅ Use ErrorHelper for consistent error logging and handling
       ErrorHelper.logError(
         error,
         {
@@ -91,7 +91,6 @@ export class UserService {
         undefined
       );
 
-      // Re-throw for upstream handling
       throw error;
     }
   }

@@ -3,6 +3,8 @@ import path from 'path';
 
 import winston from 'winston';
 
+import { env } from './env';
+
 /**
  * Log directory path for storing log files
  */
@@ -28,7 +30,7 @@ const logFormat = winston.format.combine(
 /**
  * Clean existing logs in development mode for fresh start
  */
-if (process.env.NODE_ENV === 'development') {
+if (env.IS_DEV) {
   const files = fs.readdirSync(logDir);
   files.forEach((file) => {
     fs.unlinkSync(path.join(logDir, file));
@@ -51,7 +53,7 @@ const levels = {
  * @returns Log level string - 'debug' for development, 'warn' for production
  */
 const level = () => {
-  return process.env.NODE_ENV === 'development' ? 'debug' : 'warn';
+  return env.IS_DEV ? 'debug' : 'warn';
 };
 
 /**
@@ -77,7 +79,7 @@ const allTransports: winston.transport[] = [...fileTransports];
 /**
  * Add console transport for non-production environments
  */
-if (process.env.NODE_ENV !== 'production') {
+if (!env.IS_PRODUCTION) {
   allTransports.push(
     new winston.transports.Console({
       format: winston.format.combine(

@@ -60,6 +60,64 @@ node scripts/deploy.js health
 - 📦 Deployment automation
 - ⚡ Environment-specific deployments
 
+### `test-avatar.js`
+
+**Purpose**: Test script for avatar generation functionality
+
+**Usage**:
+
+```bash
+node scripts/test-avatar.js
+```
+
+**Features**:
+
+- 🧪 Tests default avatar generation
+- 🎲 Shows different avatar seeds
+- 🔗 Generates testable avatar URLs
+- 👤 Multiple test identifiers
+
+### `compliance-reminder.js`
+
+**Purpose**: Comprehensive compliance checker displaying all quality standards and rules for AI-assisted development
+
+**Usage**:
+
+```bash
+node scripts/compliance-reminder.js
+```
+
+**Features**:
+
+- 🚨 Complete quality standards from personal.instructions.md
+- 🔴 ABSOLUTE RULES (critical - no exceptions)
+- 🟡 MANDATORY PATTERNS (architecture requirements)
+- 🏗️ ARCHITECTURE RULES (Clean Architecture structure)
+- ✅ VALIDATION RULES (data integrity with Zod)
+- 🔒 SECURITY REQUIREMENTS (protection measures)
+- 📘 TYPESCRIPT REQUIREMENTS (type safety)
+- 🌐 INTERNATIONALIZATION (global ready)
+- 🧪 TESTING REQUIREMENTS (quality assurance)
+- 📝 NAMING CONVENTIONS (consistency standards)
+
+**Enhanced Version 2.0**:
+
+- ✅ 22 compliance rules with examples
+- 📊 Project status: 100% COMPLIANT
+- 🎯 Magic phrases for AI assistance
+- 📋 Validation commands reference
+- 📈 Real-time project statistics
+- 🎨 Organized categorical display
+- � Correct vs Wrong examples for each rule
+
+**Perfect for**:
+
+- Pre-development rule reminder
+- AI code generation guidance
+- Team onboarding and training
+- Quality gate enforcement
+- Compliance auditing reference
+
 ## 🔧 Script Development
 
 ### Adding New Scripts

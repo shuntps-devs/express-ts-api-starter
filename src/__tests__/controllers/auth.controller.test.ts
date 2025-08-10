@@ -49,6 +49,17 @@ jest.mock('../../services', () => {
     sendPasswordResetCode: jest.fn(),
     deleteVerificationCode: jest.fn(),
     cleanupExpiredCodes: jest.fn(),
+    sendVerificationEmail: jest.fn(),
+  };
+
+  const mockProfileService = {
+    createProfile: jest.fn(),
+    findProfileByUserId: jest.fn(),
+    updateProfile: jest.fn(),
+    deleteProfile: jest.fn(),
+    getOrCreateProfile: jest.fn(),
+    updateProfileAvatar: jest.fn(),
+    removeProfileAvatar: jest.fn(),
   };
 
   const mockAvatarService = {
@@ -63,6 +74,7 @@ jest.mock('../../services', () => {
     VerificationService: jest
       .fn()
       .mockImplementation(() => mockVerificationService),
+    ProfileService: jest.fn().mockImplementation(() => mockProfileService),
     AvatarService: jest.fn().mockImplementation(() => mockAvatarService),
     SessionService: {
       createSession: jest.fn(),

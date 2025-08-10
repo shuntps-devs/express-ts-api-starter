@@ -27,6 +27,9 @@ const envSchema = z.object({
   EMAIL_SUPPORT: z.email().default('support@yourdomain.com'),
   FRONTEND_URL: z.url().default('http://localhost:3000'),
   APP_NAME: z.string().default('Express TypeScript Starter'),
+  DEFAULT_AVATAR_PROVIDER: z.string().default('dicebear'),
+  DEFAULT_AVATAR_STYLE: z.string().default('avataaars'),
+  DEFAULT_AVATAR_BASE_URL: z.url().default('https://api.dicebear.com/7.x'),
 });
 
 /**
@@ -50,14 +53,17 @@ const validateEnv = () => {
       // ErrorHelper.handleEnvValidationError would be used here if not for circular import
       const treeifiedError = z.treeifyError(error);
 
+      // Parse NODE_ENV from process.env for error reporting since env is not yet available
+      const nodeEnv = process.env.NODE_ENV ?? 'development';
+
       // eslint-disable-next-line no-console
       console.error('Environment validation failed:', {
         context: 'environment-validation',
         errors: treeifiedError,
-        environment: process.env.NODE_ENV,
+        environment: nodeEnv,
       });
 
-      if (process.env.NODE_ENV === 'test') {
+      if (nodeEnv === 'test') {
         // eslint-disable-next-line no-console
         console.warn('Using test defaults due to validation failure');
         return createTestDefaults();
@@ -88,6 +94,9 @@ const createTestDefaults = () => ({
   EMAIL_SUPPORT: 'test-support@example.com',
   FRONTEND_URL: 'http://localhost:3000',
   APP_NAME: 'Test App',
+  DEFAULT_AVATAR_PROVIDER: 'dicebear',
+  DEFAULT_AVATAR_STYLE: 'avataaars',
+  DEFAULT_AVATAR_BASE_URL: 'https://api.dicebear.com/7.x',
   IS_PRODUCTION: false,
   IS_DEV: false,
   IS_TEST: true,

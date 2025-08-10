@@ -7,6 +7,9 @@
 export * from './email.interface';
 export * from './user.interface';
 
+// Profile interfaces
+export * from './profile.interface';
+
 // Authentication interfaces
 export * from './auth.interface';
 

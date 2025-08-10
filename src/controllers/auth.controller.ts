@@ -2,10 +2,15 @@ import { Request, Response } from 'express';
 
 import { logger } from '../config';
 import { t } from '../i18n';
-import { ICreateUserDto, ILoginDto, IUserResponse } from '../interfaces';
+import { ICreateUserDto, ILoginDto, IUser, IUserResponse } from '../interfaces';
 import { asyncHandler } from '../middleware';
 import { ISession } from '../models';
-import { SessionService, UserService, VerificationService } from '../services';
+import {
+  ProfileService,
+  SessionService,
+  UserService,
+  VerificationService,
+} from '../services';
 import { EmailHelper, ErrorHelper, ResponseHelper } from '../utils';
 
 /**
@@ -77,6 +82,32 @@ export class AuthController {
 
     const user = await this.userService.createUser(userData, contextLogger);
 
+    /**
+     * Create user profile with default avatar
+     */
+    const profileService = new ProfileService();
+    try {
+      await profileService.createProfile(
+        String(user._id),
+        { username: userData.username },
+        contextLogger
+      );
+
+      contextLogger.info('User profile with default avatar created', {
+        userId: user._id,
+        requestId,
+      });
+    } catch (profileError) {
+      contextLogger.warn('User created but profile creation failed', {
+        userId: user._id,
+        error:
+          profileError instanceof Error
+            ? profileError.message
+            : 'Unknown error',
+        requestId,
+      });
+    }
+
     try {
       await this.verificationService.sendVerificationEmail(
         user,
@@ -89,7 +120,6 @@ export class AuthController {
         requestId,
       });
     } catch (emailError) {
-      // ✅ Use ErrorHelper for consistent error logging
       ErrorHelper.logError(
         emailError,
         {
@@ -113,16 +143,43 @@ export class AuthController {
       updatedAt: user.updatedAt,
     };
 
+    let avatarUrl = null;
+    try {
+      const profile = await profileService.findProfileByUserId(
+        String(user._id)
+      );
+      if (profile?.avatar?.url) {
+        avatarUrl = profile.avatar.url;
+      }
+    } catch (profileError) {
+      contextLogger.warn(
+        'Could not fetch profile for user registration response',
+        {
+          userId: user._id,
+          error:
+            profileError instanceof Error
+              ? profileError.message
+              : 'Unknown error',
+        }
+      );
+    }
+
     contextLogger.info('User registered successfully', {
       userId: user._id,
       email: user.email,
+      hasDefaultAvatar: !!avatarUrl,
       requestId,
     });
 
+    const responseData = {
+      user: userResponse,
+      ...(avatarUrl && { defaultAvatar: avatarUrl }),
+    };
+
     ResponseHelper.sendCreated(
       res,
-      userResponse,
-      `${t('success.userCreated')} Verification email sent.`,
+      responseData,
+      `${t('success.userCreated')} ${avatarUrl ? 'Default avatar generated.' : ''} Verification email sent.`,
       requestId
     );
   });
@@ -173,7 +230,6 @@ export class AuthController {
           identifier,
           requestId,
         });
-        // ✅ Use ErrorHelper for consistent auth errors
         throw ErrorHelper.createAuthError(
           t('auth.credentials.invalid'),
           requestId
@@ -207,7 +263,6 @@ export class AuthController {
         });
 
         await user.incLoginAttempts();
-        // ✅ Use ErrorHelper for consistent auth errors
         throw ErrorHelper.createAuthError(
           t('auth.credentials.invalid'),
           requestId
@@ -221,7 +276,7 @@ export class AuthController {
       await user.save();
 
       const session = await SessionService.createSession(
-        user as unknown as import('../interfaces/user.interface').IUser,
+        user as unknown as IUser,
         req,
         res
       );
@@ -450,7 +505,6 @@ export class AuthController {
           throw new Error(result.message);
         }
       } catch (error) {
-        // ✅ Use ErrorHelper for consistent error logging and handling
         ErrorHelper.logError(
           error,
           {
@@ -550,7 +604,6 @@ export class AuthController {
           requestId
         );
       } catch (error) {
-        // ✅ Use ErrorHelper for consistent error logging and handling
         ErrorHelper.logError(
           error,
           {
@@ -565,7 +618,7 @@ export class AuthController {
           t('email.service.sendFailed'),
           500,
           'EMAIL_SEND_FAILED',
-          false // Don't expose internal email service errors
+          false
         );
       }
     }
