@@ -44,15 +44,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: backend
 
       - name: Run linting
         run: npm run lint:check
+        working-directory: backend
 
       - name: Run type checking
         run: npm run type-check
+        working-directory: backend
 
       - name: Run tests
         run: npm run test:ci
+        working-directory: backend
         env:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/express-ts-test
@@ -60,18 +64,21 @@ jobs:
 
       - name: Run code quality validation
         run: npm run validate
+        working-directory: backend
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./coverage/lcov.info
+          file: backend/coverage/lcov.info
           fail_ci_if_error: false
 
       - name: Build application
         run: npm run build
+        working-directory: backend
 
       - name: Run security audit
         run: npm audit --audit-level high
+        working-directory: backend
         continue-on-error: true
 
   docker-build:
@@ -89,7 +96,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t express-ts-app:test .
+          docker build -t express-ts-app:test -f backend/Dockerfile backend
 
       - name: Test Docker image
         run: |
@@ -113,12 +120,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: backend
 
       - name: Deploy to Staging
         run: |
           echo "🚀 Deploying to staging environment..."
           npm run deploy:staging
-          # Add your staging deployment commands here
+        working-directory: backend
+        # Add your staging deployment commands here
 
   deploy-production:
     name: Deploy to Production
@@ -138,12 +147,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: backend
 
       - name: Deploy to Production
         run: |
           echo "🚀 Deploying to production environment..."
           npm run deploy:prod
-          # Add your production deployment commands here
+        working-directory: backend
+        # Add your production deployment commands here
 
   security-scan:
     name: Security Scan
@@ -161,9 +172,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: backend
 
       - name: Run npm security audit
         run: npm audit --audit-level moderate
+        working-directory: backend
         continue-on-error: true
 
   notification:
