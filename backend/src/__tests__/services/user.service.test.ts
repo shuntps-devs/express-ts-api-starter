@@ -3,7 +3,6 @@ import { User } from '../../models';
 import { UserService } from '../../services';
 import { TestHelper } from '../helpers';
 
-
 jest.mock('../../models', () => ({
   User: {
     findById: jest.fn(),
@@ -19,7 +18,6 @@ jest.mock('../../models', () => ({
   },
 }));
 
-
 jest.mock('../../config/logger', () => ({
   logger: {
     info: jest.fn(),
@@ -27,7 +25,6 @@ jest.mock('../../config/logger', () => ({
     error: jest.fn(),
   },
 }));
-
 
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
@@ -45,11 +42,11 @@ describe('UserService', () => {
   let mockUserModel: any;
 
   beforeAll(() => {
-    console.log('🧪 Starting UserService test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ UserService test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {

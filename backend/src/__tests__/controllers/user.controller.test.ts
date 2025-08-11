@@ -6,7 +6,6 @@ import { IUser, UserRole } from '../../interfaces';
 import { configureRequestLogging, configureSecurity } from '../../middleware';
 import { TestHelper } from '../helpers';
 
-
 jest.mock('../../services', () => ({
   UserService: jest.fn().mockImplementation(() => ({
     findUserById: jest.fn(),
@@ -25,9 +24,7 @@ jest.mock('../../services', () => ({
   },
 }));
 
-
 let mockUserService: any;
-
 
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
@@ -47,7 +44,6 @@ jest.mock('../../i18n', () => ({
   }),
 }));
 
-
 jest.mock('../../config/logger', () => ({
   logger: {
     info: jest.fn(),
@@ -55,7 +51,6 @@ jest.mock('../../config/logger', () => ({
     error: jest.fn(),
   },
 }));
-
 
 const mockAuthenticatedUser: IUser = TestHelper.generateMockUser({
   _id: 'user123',
@@ -72,7 +67,6 @@ const mockAuthenticatedAdmin: IUser = TestHelper.generateMockUser({
   role: UserRole.ADMIN,
   lastLogin: new Date(),
 }) as unknown as IUser;
-
 
 const mockAuth = {
   currentUser: mockAuthenticatedUser,
@@ -98,7 +92,6 @@ jest.mock('../../middleware', () => ({
       _res: express.Response,
       next: express.NextFunction
     ) => {
-
       next();
     },
 }));
@@ -108,29 +101,25 @@ describe('UserController', () => {
   let userController: UserController;
 
   beforeAll(() => {
-    console.log('🧪 Starting UserController test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ UserController test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {
     app = express();
     app.use(express.json());
 
-
     configureSecurity(app);
     configureRequestLogging(app);
 
     userController = new UserController();
 
-
     mockUserService = (userController as any).userService;
 
-
     const { authenticate, requireRole } = jest.requireMock('../../middleware');
-
 
     app.get(
       '/',
@@ -157,10 +146,8 @@ describe('UserController', () => {
       userController.deleteUserById
     );
 
-
     const { errorHandler } = jest.requireMock('../../middleware');
     app.use(errorHandler);
-
 
     jest.clearAllMocks();
     mockAuth.setUser(mockAuthenticatedUser);
@@ -168,7 +155,6 @@ describe('UserController', () => {
 
   describe('GET / (Admin: Get all users)', () => {
     it('should return all users for administrators', async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       const users = [
@@ -190,14 +176,12 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.getAllUsers).toHaveBeenCalled();
 
-
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('GET /:userId (Admin: Get user by ID)', () => {
     it('should return a specific user', async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.findUserById.mockResolvedValue(mockAuthenticatedUser);
@@ -208,12 +192,10 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.findUserById).toHaveBeenCalledWith('user123');
 
-
       mockAuth.setUser(mockAuthenticatedUser);
     });
 
     it("should return 404 if user doesn't exist", async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.findUserById.mockResolvedValue(null);
@@ -224,14 +206,12 @@ describe('UserController', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBeDefined();
 
-
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('PATCH /:userId (Admin: Update user)', () => {
     it('should update a specific user', async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       const updatedUser = {
@@ -250,14 +230,12 @@ describe('UserController', () => {
         username: 'updatedUser',
       });
 
-
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('DELETE /:userId (Admin: Delete user)', () => {
     it('should delete a user', async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.deleteUser.mockResolvedValue(true);
@@ -268,12 +246,10 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.deleteUser).toHaveBeenCalledWith('user123');
 
-
       mockAuth.setUser(mockAuthenticatedUser);
     });
 
     it("should return 404 if user doesn't exist", async () => {
-
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.deleteUser.mockResolvedValue(false);
@@ -283,7 +259,6 @@ describe('UserController', () => {
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBeDefined();
-
 
       mockAuth.setUser(mockAuthenticatedUser);
     });

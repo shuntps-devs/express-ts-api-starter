@@ -6,16 +6,13 @@ import { IUser } from '../../interfaces';
 import { ITokenPayload, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
-
 jest.mock('jsonwebtoken');
-
 
 jest.mock('crypto', () => ({
   randomBytes: jest.fn(() => ({
     toString: jest.fn(() => 'mock-session-id'),
   })),
 }));
-
 
 jest.mock('../../config/env', () => ({
   env: {
@@ -30,11 +27,11 @@ describe('TokenService', () => {
   const mockRefreshToken = 'mock-refresh-token';
 
   beforeAll(() => {
-    console.log('🧪 Starting TokenService test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ TokenService test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {
@@ -100,11 +97,9 @@ describe('TokenService', () => {
       const result = TokenService.generateTokenPair(mockUser, mockSessionId);
       const afterTime = Date.now();
 
-
       const accessTokenExpiry = result.accessTokenExpiresAt.getTime();
       expect(accessTokenExpiry).toBeGreaterThan(beforeTime + 14 * 60 * 1000);
       expect(accessTokenExpiry).toBeLessThan(afterTime + 16 * 60 * 1000);
-
 
       const refreshTokenExpiry = result.refreshTokenExpiresAt.getTime();
       expect(refreshTokenExpiry).toBeGreaterThan(

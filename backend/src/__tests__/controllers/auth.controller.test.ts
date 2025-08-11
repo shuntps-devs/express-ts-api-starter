@@ -12,7 +12,6 @@ import {
 import { loginSchema, registerSchema } from '../../schemas/auth';
 import { SessionService } from '../../services';
 
-
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -25,7 +24,6 @@ jest.mock('../../i18n', () => ({
     return translations[key] || key;
   }),
 }));
-
 
 jest.mock('../../services', () => {
   const mockUserService = {
@@ -108,26 +106,23 @@ describe('AuthController', () => {
   };
 
   beforeAll(() => {
-    console.log('🧪 Starting AuthController test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ AuthController test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {
     app = express();
     app.use(express.json());
 
-
     configureSecurity(app);
     configureRequestLogging(app);
 
     authController = new AuthController();
 
-
     mockUserService = (authController as any).userService;
-
 
     app.post(
       '/register',
@@ -144,9 +139,7 @@ describe('AuthController', () => {
     app.post('/refresh', authController.refreshToken);
     app.get('/sessions', authController.getSessions);
 
-
     app.use(errorHandler);
-
 
     jest.clearAllMocks();
   });

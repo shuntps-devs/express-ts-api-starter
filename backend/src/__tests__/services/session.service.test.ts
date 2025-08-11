@@ -6,7 +6,6 @@ import { ISession, Session } from '../../models';
 import { ITokenPair, SessionService, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
-
 jest.mock('../../models', () => ({
   Session: {
     create: jest.fn(),
@@ -18,7 +17,6 @@ jest.mock('../../models', () => ({
   },
 }));
 
-
 jest.mock('../../services/token.service', () => ({
   TokenService: {
     generateSessionId: jest.fn(() => 'mock-session-id'),
@@ -28,7 +26,6 @@ jest.mock('../../services/token.service', () => ({
     getRefreshTokenMaxAge: jest.fn(() => 7 * 24 * 60 * 60 * 1000),
   },
 }));
-
 
 jest.mock('../../config/env', () => ({
   env: {
@@ -45,11 +42,11 @@ describe('SessionService', () => {
   let mockContextLogger: any;
 
   beforeAll(() => {
-    console.log('🧪 Starting SessionService test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ SessionService test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {
@@ -486,7 +483,6 @@ describe('SessionService', () => {
     });
 
     it('should handle missing IP addresses', async () => {
-
       const cleanMockRequest = {
         headers: {},
         connection: {},
@@ -513,7 +509,6 @@ describe('SessionService', () => {
     });
 
     it('should parse different user agent formats', () => {
-
       const testCases = [
         {
           userAgent:
@@ -541,15 +536,12 @@ describe('SessionService', () => {
       ];
 
       testCases.forEach(({ userAgent, expected }) => {
-
         const deviceInfo = (SessionService as any).parseUserAgent(userAgent);
         expect(deviceInfo).toEqual(expected);
       });
     });
 
     it('should handle production environment cookie settings', () => {
-
-
       expect(true).toBe(true);
     });
   });

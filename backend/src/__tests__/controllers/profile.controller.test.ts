@@ -11,7 +11,6 @@ import {
 import { AvatarService } from '../../services';
 import { TestHelper } from '../helpers';
 
-
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -24,7 +23,6 @@ jest.mock('../../i18n', () => ({
     return translations[key] || key;
   }),
 }));
-
 
 jest.mock('../../services', () => {
   const mockUserService = {
@@ -46,11 +44,9 @@ jest.mock('../../services', () => {
   };
 });
 
-
 jest.mock('../../middleware', () => ({
   ...jest.requireActual('../../middleware'),
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-
     if (req.headers.authorization === 'Bearer valid-token') {
       req.user = TestHelper.generateMockUser({
         _id: 'user123',
@@ -81,7 +77,6 @@ describe('ProfileController', () => {
   let mockUserService: any;
   let mockAvatarService: any;
 
-
   const mockProfile = {
     _id: 'profile123',
     userId: 'user123',
@@ -98,7 +93,6 @@ describe('ProfileController', () => {
     updatedAt: new Date(),
   };
 
-
   const testUser = TestHelper.generateMockUser({
     _id: 'user123',
     username: 'testuser',
@@ -110,27 +104,24 @@ describe('ProfileController', () => {
   });
 
   beforeAll(() => {
-    console.log('🧪 Starting ProfileController test suite...');
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
-    console.log('✅ ProfileController test suite completed');
+    jest.restoreAllMocks();
   });
 
   beforeEach(() => {
     app = express();
     app.use(express.json());
 
-
     configureSecurity(app);
     configureRequestLogging(app);
 
     profileController = new ProfileController();
 
-
     mockUserService = (profileController as any).userService;
     mockAvatarService = AvatarService;
-
 
     const {
       authenticate,
@@ -158,9 +149,7 @@ describe('ProfileController', () => {
     app.delete('/avatar', authenticate, profileController.removeAvatar);
     app.get('/avatar/config', profileController.getAvatarConfig);
 
-
     app.use(errorHandler);
-
 
     jest.clearAllMocks();
   });

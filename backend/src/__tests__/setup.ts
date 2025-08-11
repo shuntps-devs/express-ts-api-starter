@@ -41,7 +41,6 @@ beforeAll(() => {
   /**
    * Any global setup can go here
    */
-  process.stdout.write('🧪 Starting test suite...\n');
 });
 
 afterAll(async () => {
@@ -51,7 +50,6 @@ afterAll(async () => {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.close();
   }
-  process.stdout.write('✅ Test suite completed\n');
 });
 
 /**

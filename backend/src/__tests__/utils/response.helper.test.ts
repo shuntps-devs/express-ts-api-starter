@@ -19,8 +19,6 @@ jest.mock('../../i18n', () => ({
 }));
 
 describe('ResponseHelper - Success Operations', () => {
-  console.log('🧪 Starting ResponseHelper Success Operations test suite...');
-
   describe('success response creation', () => {
     it('should create basic success response', () => {
       const data = { id: 1, name: 'Test User' };
