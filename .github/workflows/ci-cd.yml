@@ -123,10 +123,10 @@ jobs:
         working-directory: backend
 
       - name: Deploy to Staging
+        working-directory: backend
         run: |
           echo "🚀 Deploying to staging environment..."
           npm run deploy:staging
-        working-directory: backend
         # Add your staging deployment commands here
 
   deploy-production:
@@ -150,10 +150,10 @@ jobs:
         working-directory: backend
 
       - name: Deploy to Production
+        working-directory: backend
         run: |
           echo "🚀 Deploying to production environment..."
           npm run deploy:prod
-        working-directory: backend
         # Add your production deployment commands here
 
   security-scan:
