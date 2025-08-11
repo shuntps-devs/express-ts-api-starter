@@ -6,6 +6,9 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/release/shuntps-devs/express-ts-api-starter.svg)](https://github.com/shuntps-devs/express-ts-api-starter/releases)
+[![GitHub issues](https://img.shields.io/github/issues/shuntps-devs/express-ts-api-starter.svg)](https://github.com/shuntps-devs/express-ts-api-starter/issues)
+[![GitHub stars](https://img.shields.io/github/stars/shuntps-devs/express-ts-api-starter.svg)](https://github.com/shuntps-devs/express-ts-api-starter/stargazers)
 
 ## ⚡ Quick Start
 
