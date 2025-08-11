@@ -1,14 +1,12 @@
 # Multi-stage build for Node.js TypeScript application
 
-# Multi-stage build for Node.js TypeScript application
-
 # Build stage
 FROM node:20-alpine AS builder
 
-WORKDIR /app/backend
+WORKDIR /app
 
 # Copy package files
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install dependencies (skip scripts like husky prepare)
 RUN npm ci --only=production --ignore-scripts && npm cache clean --force
@@ -17,14 +15,14 @@ RUN npm ci --only=production --ignore-scripts && npm cache clean --force
 # Development stage
 FROM node:20-alpine AS development
 
-WORKDIR /app/backend
+WORKDIR /app
 
 # Install development dependencies
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci
 
 # Copy backend source code
-COPY backend/. .
+COPY . .
 
 # Expose port
 EXPOSE 3000
@@ -36,17 +34,17 @@ CMD ["npm", "run", "dev"]
 # Production build stage
 FROM node:20-alpine AS production-build
 
-WORKDIR /app/backend
+WORKDIR /app
 
 # Copy package files
-COPY backend/package*.json ./
-COPY backend/tsconfig.json ./
+COPY package*.json ./
+COPY tsconfig.json ./
 
 # Install all dependencies
 RUN npm ci
 
 # Copy source code
-COPY backend/src/ ./src/
+COPY src/ ./src/
 
 # Build the application
 RUN npm run build
@@ -56,22 +54,22 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 # Create app directory
-WORKDIR /app/backend
+WORKDIR /app
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
 # Copy package files
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install only production dependencies (skip scripts like husky prepare)
 RUN npm ci --only=production --ignore-scripts && \
     npm cache clean --force && \
-    chown -R nodejs:nodejs /app/backend
+    chown -R nodejs:nodejs /app
 
 # Copy built application from build stage
-COPY --from=production-build --chown=nodejs:nodejs /app/backend/dist ./dist
+COPY --from=production-build --chown=nodejs:nodejs /app/dist ./dist
 
 # Switch to non-root user
 USER nodejs

@@ -97,7 +97,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t express-ts-app:test -f Dockerfile .
+          docker build -t express-ts-app:test -f backend/Dockerfile backend
 
       - name: Test Docker image
         run: |
