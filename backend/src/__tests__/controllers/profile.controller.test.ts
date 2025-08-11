@@ -11,7 +11,7 @@ import {
 import { AvatarService } from '../../services';
 import { TestHelper } from '../helpers';
 
-// Mock i18n
+
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -25,7 +25,7 @@ jest.mock('../../i18n', () => ({
   }),
 }));
 
-// Mock services first
+
 jest.mock('../../services', () => {
   const mockUserService = {
     getUserById: jest.fn(),
@@ -42,15 +42,15 @@ jest.mock('../../services', () => {
 
   return {
     UserService: jest.fn().mockImplementation(() => mockUserService),
-    AvatarService: mockAvatarService, // Static service object
+    AvatarService: mockAvatarService,
   };
 });
 
-// Mock middleware
+
 jest.mock('../../middleware', () => ({
   ...jest.requireActual('../../middleware'),
   authenticate: jest.fn((req: any, _res: any, next: any) => {
-    // Only add user if authorization header is present and valid
+
     if (req.headers.authorization === 'Bearer valid-token') {
       req.user = TestHelper.generateMockUser({
         _id: 'user123',
@@ -81,7 +81,7 @@ describe('ProfileController', () => {
   let mockUserService: any;
   let mockAvatarService: any;
 
-  // Use TestHelper for consistent test data
+
   const mockProfile = {
     _id: 'profile123',
     userId: 'user123',
@@ -98,7 +98,7 @@ describe('ProfileController', () => {
     updatedAt: new Date(),
   };
 
-  // Generate mock user using TestHelper
+
   const testUser = TestHelper.generateMockUser({
     _id: 'user123',
     username: 'testuser',
@@ -121,17 +121,17 @@ describe('ProfileController', () => {
     app = express();
     app.use(express.json());
 
-    // Apply security middleware
+
     configureSecurity(app);
     configureRequestLogging(app);
 
     profileController = new ProfileController();
 
-    // Get the mocks from the controller instance and module
+
     mockUserService = (profileController as any).userService;
     mockAvatarService = AvatarService;
 
-    // Setup routes like in profile.routes.ts
+
     const {
       authenticate,
       validateRequest,
@@ -158,10 +158,10 @@ describe('ProfileController', () => {
     app.delete('/avatar', authenticate, profileController.removeAvatar);
     app.get('/avatar/config', profileController.getAvatarConfig);
 
-    // Apply error handling middleware
+
     app.use(errorHandler);
 
-    // Reset all mocks
+
     jest.clearAllMocks();
   });
 
@@ -317,7 +317,7 @@ describe('ProfileController', () => {
   describe('GET /avatar/config', () => {
     it('should return avatar upload configuration', async () => {
       const config = {
-        maxFileSize: 5242880, // 5MB
+        maxFileSize: 5242880,
         allowedMimeTypes: ['image/jpeg', 'image/png'],
         allowedExtensions: ['.jpg', '.jpeg', '.png'],
         dimensions: { width: 512, height: 512 },

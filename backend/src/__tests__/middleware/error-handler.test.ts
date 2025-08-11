@@ -5,7 +5,6 @@ import { t } from '../../i18n';
 import { errorHandler } from '../../middleware';
 import { TestHelper } from '../helpers';
 
-// Mock dependencies
 jest.mock('../../config', () => ({
   logger: {
     error: jest.fn(),
@@ -26,8 +25,6 @@ interface IError extends Error {
 }
 
 describe('Error Handler Middleware', () => {
-  console.log('🧪 Starting Error Handler Middleware test suite...');
-
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockNext: NextFunction;
@@ -38,22 +35,17 @@ describe('Error Handler Middleware', () => {
     mockRes = context.res;
     mockNext = context.next;
 
-    // Clear all mocks
     jest.clearAllMocks();
 
-    // Setup default mock returns
     (t as jest.Mock).mockReturnValue('Internal server error');
   });
 
   describe('errorHandler middleware', () => {
     it('should handle basic error with default values', () => {
-      // Arrange
       const error: IError = new Error('Test error message');
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
         message: 'Test error message',
@@ -75,15 +67,12 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should preserve custom status code and status', () => {
-      // Arrange
       const error: IError = new Error('Validation failed');
       error.statusCode = 400;
       error.status = 'fail';
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 400,
         message: 'Validation failed',
@@ -105,16 +94,13 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should show operational error messages in production', () => {
-      // Arrange
       (env as any).NODE_ENV = 'production';
       const error: IError = new Error('User not found');
       error.statusCode = 404;
       error.isOperational = true;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: {
@@ -128,16 +114,13 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should hide non-operational error messages in production', () => {
-      // Arrange
       (env as any).NODE_ENV = 'production';
       const error: IError = new Error('Database connection failed');
       error.statusCode = 500;
       error.isOperational = false;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(t).toHaveBeenCalledWith('error.internalServer');
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
@@ -152,16 +135,13 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should provide full error details in development mode', () => {
-      // Arrange
       (env as any).NODE_ENV = 'development';
       const error: IError = new Error('Development error');
       error.statusCode = 422;
       error.status = 'fail';
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: {
@@ -178,18 +158,14 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should log error details regardless of environment', () => {
-      // Arrange
       const error: IError = new Error('Logging test error');
       error.statusCode = 403;
       error.isOperational = true;
 
-      // Test in production
       (env as any).NODE_ENV = 'production';
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 403,
         message: 'Logging test error',
@@ -200,15 +176,12 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should handle errors without statusCode', () => {
-      // Arrange
       const error: IError = new Error('Error without status');
-      // Explicitly ensure no statusCode
+
       delete error.statusCode;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
@@ -220,16 +193,13 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should handle errors without status property', () => {
-      // Arrange
       const error: IError = new Error('Error without status string');
       error.statusCode = 401;
-      // Explicitly ensure no status
+
       delete error.status;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: {
@@ -243,15 +213,12 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should handle null or undefined error messages', () => {
-      // Arrange
       const error: IError = new Error();
       error.message = '';
       error.statusCode = 400;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 400,
         message: '',
@@ -262,16 +229,13 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should handle errors with isOperational flag in development', () => {
-      // Arrange
       (env as any).NODE_ENV = 'development';
       const error: IError = new Error('Operational error in dev');
       error.statusCode = 400;
       error.isOperational = true;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: {
@@ -288,7 +252,6 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should use translated error message for non-operational errors', () => {
-      // Arrange
       (env as any).NODE_ENV = 'production';
       (t as jest.Mock).mockReturnValue('Erreur serveur interne');
 
@@ -296,10 +259,8 @@ describe('Error Handler Middleware', () => {
       error.statusCode = 500;
       error.isOperational = false;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(t).toHaveBeenCalledWith('error.internalServer');
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
@@ -323,16 +284,13 @@ describe('Error Handler Middleware', () => {
       ];
 
       testCases.forEach(({ statusCode, status }) => {
-        // Arrange
         jest.clearAllMocks();
         const error: IError = new Error(`Error ${statusCode}`);
         error.statusCode = statusCode;
         error.status = status;
 
-        // Act
         errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-        // Assert
         expect(mockRes.status).toHaveBeenCalledWith(statusCode);
         expect(logger.error).toHaveBeenCalledWith('Error occurred', {
           statusCode,
@@ -345,14 +303,11 @@ describe('Error Handler Middleware', () => {
     });
 
     it('should handle errors with stack trace', () => {
-      // Arrange
       const error: IError = new Error('Error with stack');
       const originalStack = error.stack;
 
-      // Act
       errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
         statusCode: 500,
         message: 'Error with stack',
@@ -364,6 +319,6 @@ describe('Error Handler Middleware', () => {
   });
 
   afterAll(() => {
-    console.log('✅ Error Handler Middleware test suite completed');
+    jest.restoreAllMocks();
   });
 });

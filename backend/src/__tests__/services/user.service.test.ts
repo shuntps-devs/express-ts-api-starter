@@ -3,7 +3,7 @@ import { User } from '../../models';
 import { UserService } from '../../services';
 import { TestHelper } from '../helpers';
 
-// Mock the User model
+
 jest.mock('../../models', () => ({
   User: {
     findById: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('../../models', () => ({
   },
 }));
 
-// Mock logger
+
 jest.mock('../../config/logger', () => ({
   logger: {
     info: jest.fn(),
@@ -28,7 +28,7 @@ jest.mock('../../config/logger', () => ({
   },
 }));
 
-// Mock i18n
+
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -391,7 +391,7 @@ describe('UserService', () => {
   describe('resetPassword', () => {
     it('should reset password successfully', async () => {
       mockUserModel.passwordResetToken = 'valid-reset-token';
-      mockUserModel.passwordResetExpires = new Date(Date.now() + 3600000); // 1 hour from now
+      mockUserModel.passwordResetExpires = new Date(Date.now() + 3600000);
       mockUserModel.save.mockResolvedValue(mockUserModel);
       (User.findOne as jest.Mock).mockResolvedValue(mockUserModel);
 

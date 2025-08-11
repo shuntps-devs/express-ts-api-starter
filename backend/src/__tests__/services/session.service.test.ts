@@ -6,7 +6,7 @@ import { ISession, Session } from '../../models';
 import { ITokenPair, SessionService, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
-// Mock the Session model
+
 jest.mock('../../models', () => ({
   Session: {
     create: jest.fn(),
@@ -18,7 +18,7 @@ jest.mock('../../models', () => ({
   },
 }));
 
-// Mock TokenService
+
 jest.mock('../../services/token.service', () => ({
   TokenService: {
     generateSessionId: jest.fn(() => 'mock-session-id'),
@@ -29,7 +29,7 @@ jest.mock('../../services/token.service', () => ({
   },
 }));
 
-// Mock environment
+
 jest.mock('../../config/env', () => ({
   env: {
     NODE_ENV: 'test',
@@ -68,7 +68,7 @@ describe('SessionService', () => {
 
     mockSession = {
       _id: 'session123',
-      userId: 'user123' as any, // Cast to avoid ObjectId type issue in tests
+      userId: 'user123' as any,
       accessToken: 'mock-access-token',
       refreshToken: 'mock-refresh-token',
       isActive: true,
@@ -154,7 +154,7 @@ describe('SessionService', () => {
         mockTokenPair.accessToken,
         expect.objectContaining({
           httpOnly: true,
-          secure: false, // test environment
+          secure: false,
           sameSite: 'strict',
           maxAge: 15 * 60 * 1000,
         })
@@ -486,11 +486,11 @@ describe('SessionService', () => {
     });
 
     it('should handle missing IP addresses', async () => {
-      // Create a mock request that will cause all IP extraction methods to fail
+
       const cleanMockRequest = {
-        headers: {}, // No x-forwarded-for header
-        connection: {}, // No remoteAddress property
-        socket: {}, // No remoteAddress property
+        headers: {},
+        connection: {},
+        socket: {},
         cookies: {},
         get: jest.fn((header: string) => {
           if (header === 'User-Agent') return 'Test Browser';
@@ -513,7 +513,7 @@ describe('SessionService', () => {
     });
 
     it('should parse different user agent formats', () => {
-      // These test cases should match what the actual regex patterns in the service can parse
+
       const testCases = [
         {
           userAgent:
@@ -541,15 +541,15 @@ describe('SessionService', () => {
       ];
 
       testCases.forEach(({ userAgent, expected }) => {
-        // Access private method via any casting for testing
+
         const deviceInfo = (SessionService as any).parseUserAgent(userAgent);
         expect(deviceInfo).toEqual(expected);
       });
     });
 
     it('should handle production environment cookie settings', () => {
-      // Skip this test for now as it requires complex environment mocking
-      // TODO: Implement proper environment testing when needed
+
+
       expect(true).toBe(true);
     });
   });

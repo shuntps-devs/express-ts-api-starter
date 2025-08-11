@@ -40,7 +40,7 @@ describe('Security Middleware', () => {
     it('should create proper mock response for security testing', () => {
       const mockRes = TestHelper.createMockResponse();
 
-      // Simulate setting security headers
+
       mockRes.set?.('X-Frame-Options', 'SAMEORIGIN');
       mockRes.set?.('X-Content-Type-Options', 'nosniff');
 
@@ -57,7 +57,7 @@ describe('Security Middleware', () => {
   describe('Helmet Security Headers', () => {
     it('should set X-Frame-Options header', async () => {
       const response = await request(app).get('/test');
-      // Default helmet configuration sets SAMEORIGIN, not DENY
+
       expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
     });
 
@@ -113,7 +113,7 @@ describe('Security Middleware', () => {
 
     it('should include rate limit headers', async () => {
       const response = await request(app).get('/test');
-      // Check for the actual header names used by express-rate-limit
+
       expect(response.headers).toHaveProperty('ratelimit-limit');
       expect(response.headers).toHaveProperty('ratelimit-remaining');
     });
@@ -125,7 +125,7 @@ describe('Security Middleware', () => {
         .get('/test')
         .set('Accept-Encoding', 'gzip');
 
-      // Response should be compressed if it's large enough
+
       expect(response.status).toBe(200);
     });
 

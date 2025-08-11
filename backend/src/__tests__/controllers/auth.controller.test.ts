@@ -12,7 +12,7 @@ import {
 import { loginSchema, registerSchema } from '../../schemas/auth';
 import { SessionService } from '../../services';
 
-// Mock i18n
+
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -26,7 +26,7 @@ jest.mock('../../i18n', () => ({
   }),
 }));
 
-// Mock services first
+
 jest.mock('../../services', () => {
   const mockUserService = {
     getUserByEmail: jest.fn(),
@@ -119,16 +119,16 @@ describe('AuthController', () => {
     app = express();
     app.use(express.json());
 
-    // Apply security middleware
+
     configureSecurity(app);
     configureRequestLogging(app);
 
     authController = new AuthController();
 
-    // Get the mocks from the mocked services
+
     mockUserService = (authController as any).userService;
 
-    // Setup routes with validation
+
     app.post(
       '/register',
       validateRequest({ body: registerSchema }),
@@ -144,10 +144,10 @@ describe('AuthController', () => {
     app.post('/refresh', authController.refreshToken);
     app.get('/sessions', authController.getSessions);
 
-    // Add error handling middleware
+
     app.use(errorHandler);
 
-    // Clear mocks
+
     jest.clearAllMocks();
   });
 
@@ -252,7 +252,7 @@ describe('AuthController', () => {
       const lockedUser = {
         ...mockUser,
         isLocked: true,
-        lockUntil: new Date(Date.now() + 30 * 60 * 1000), // 30 min
+        lockUntil: new Date(Date.now() + 30 * 60 * 1000),
       };
       mockUserService.findUserByIdentifier.mockResolvedValue(lockedUser);
 

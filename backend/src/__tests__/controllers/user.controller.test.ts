@@ -6,7 +6,7 @@ import { IUser, UserRole } from '../../interfaces';
 import { configureRequestLogging, configureSecurity } from '../../middleware';
 import { TestHelper } from '../helpers';
 
-// Mock the services first with their implementations
+
 jest.mock('../../services', () => ({
   UserService: jest.fn().mockImplementation(() => ({
     findUserById: jest.fn(),
@@ -25,10 +25,10 @@ jest.mock('../../services', () => ({
   },
 }));
 
-// Variables to access mocks
+
 let mockUserService: any;
 
-// Mock i18n
+
 jest.mock('../../i18n', () => ({
   t: jest.fn((key: string) => {
     const translations: Record<string, string> = {
@@ -47,7 +47,7 @@ jest.mock('../../i18n', () => ({
   }),
 }));
 
-// Mock logger
+
 jest.mock('../../config/logger', () => ({
   logger: {
     info: jest.fn(),
@@ -56,7 +56,7 @@ jest.mock('../../config/logger', () => ({
   },
 }));
 
-// Mock authentication middleware
+
 const mockAuthenticatedUser: IUser = TestHelper.generateMockUser({
   _id: 'user123',
   username: 'testuser',
@@ -73,7 +73,7 @@ const mockAuthenticatedAdmin: IUser = TestHelper.generateMockUser({
   lastLogin: new Date(),
 }) as unknown as IUser;
 
-// Mock authentication middleware with flexible user management
+
 const mockAuth = {
   currentUser: mockAuthenticatedUser,
   setUser: (user: IUser) => {
@@ -98,7 +98,7 @@ jest.mock('../../middleware', () => ({
       _res: express.Response,
       next: express.NextFunction
     ) => {
-      // For tests, we always allow access
+
       next();
     },
 }));
@@ -119,19 +119,19 @@ describe('UserController', () => {
     app = express();
     app.use(express.json());
 
-    // Apply security middleware
+
     configureSecurity(app);
     configureRequestLogging(app);
 
     userController = new UserController();
 
-    // Get the mocks
+
     mockUserService = (userController as any).userService;
 
-    // Setup routes according to real API routes
+
     const { authenticate, requireRole } = jest.requireMock('../../middleware');
 
-    // Admin only routes
+
     app.get(
       '/',
       authenticate,
@@ -157,18 +157,18 @@ describe('UserController', () => {
       userController.deleteUserById
     );
 
-    // Add error handling middleware
+
     const { errorHandler } = jest.requireMock('../../middleware');
     app.use(errorHandler);
 
-    // Reset mocks and default user
+
     jest.clearAllMocks();
     mockAuth.setUser(mockAuthenticatedUser);
   });
 
   describe('GET / (Admin: Get all users)', () => {
     it('should return all users for administrators', async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       const users = [
@@ -190,14 +190,14 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.getAllUsers).toHaveBeenCalled();
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('GET /:userId (Admin: Get user by ID)', () => {
     it('should return a specific user', async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.findUserById.mockResolvedValue(mockAuthenticatedUser);
@@ -208,12 +208,12 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.findUserById).toHaveBeenCalledWith('user123');
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
 
     it("should return 404 if user doesn't exist", async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.findUserById.mockResolvedValue(null);
@@ -224,14 +224,14 @@ describe('UserController', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBeDefined();
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('PATCH /:userId (Admin: Update user)', () => {
     it('should update a specific user', async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       const updatedUser = {
@@ -250,14 +250,14 @@ describe('UserController', () => {
         username: 'updatedUser',
       });
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });
 
   describe('DELETE /:userId (Admin: Delete user)', () => {
     it('should delete a user', async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.deleteUser.mockResolvedValue(true);
@@ -268,12 +268,12 @@ describe('UserController', () => {
       expect(response.body.success).toBe(true);
       expect(mockUserService.deleteUser).toHaveBeenCalledWith('user123');
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
 
     it("should return 404 if user doesn't exist", async () => {
-      // Switch to admin user
+
       mockAuth.setUser(mockAuthenticatedAdmin);
 
       mockUserService.deleteUser.mockResolvedValue(false);
@@ -284,7 +284,7 @@ describe('UserController', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBeDefined();
 
-      // Reset to normal user
+
       mockAuth.setUser(mockAuthenticatedUser);
     });
   });

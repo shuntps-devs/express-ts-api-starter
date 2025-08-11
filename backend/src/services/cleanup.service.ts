@@ -36,7 +36,7 @@ export class CleanupService {
    * @example
    * ```typescript
    * const cleanupService = CleanupService.getInstance();
-   * cleanupService.startPeriodicCleanup(30); // Run every 30 minutes
+   * cleanupService.startPeriodicCleanup(30);
    * ```
    */
   public startPeriodicCleanup(

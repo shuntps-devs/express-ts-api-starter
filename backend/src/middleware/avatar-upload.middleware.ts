@@ -27,7 +27,7 @@ export interface IAvatarUploadRequest extends Request {
  * Avatar upload configuration
  */
 const AVATAR_UPLOAD_CONFIG = {
-  maxFileSize: 5 * 1024 * 1024, // 5MB
+  maxFileSize: 5 * 1024 * 1024,
   allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
   imageProcessing: {
     width: 400,
@@ -49,7 +49,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const contextLogger = (req as Request).logger ?? logger;
 
-    // Check file type
+
     if (!AVATAR_UPLOAD_CONFIG.allowedMimeTypes.includes(file.mimetype)) {
       contextLogger.warn('Avatar upload rejected - invalid file type', {
         userId: (req as Request).user?._id,
@@ -66,7 +66,7 @@ const upload = multer({
       );
     }
 
-    // Check filename extension as additional validation
+
     const extension = path.extname(file.originalname).toLowerCase();
     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 
@@ -131,7 +131,7 @@ export const processAvatarImage = asyncHandler(
         targetDimensions: AVATAR_UPLOAD_CONFIG.imageProcessing,
       });
 
-      // Process image with Sharp
+
       const processedBuffer = await sharp(buffer)
         .resize(
           AVATAR_UPLOAD_CONFIG.imageProcessing.width,
@@ -144,11 +144,11 @@ export const processAvatarImage = asyncHandler(
         .jpeg({ quality: AVATAR_UPLOAD_CONFIG.imageProcessing.quality })
         .toBuffer();
 
-      // Generate processed filename with .jpg extension
+
       const baseName = path.parse(originalname).name;
       const processedFilename = `${baseName}.jpg`;
 
-      // Add processed file data to request
+
       req.fileBuffer = {
         buffer: processedBuffer,
         originalName: processedFilename,
@@ -195,7 +195,7 @@ export const validateAvatarUpload = (
 ): void => {
   const contextLogger = req.logger ?? logger;
 
-  // Check authentication
+
   if (!req.user?._id) {
     contextLogger.warn(
       'Avatar upload validation failed - user not authenticated'
@@ -204,7 +204,7 @@ export const validateAvatarUpload = (
     return ErrorHelper.sendUnauthorized(res, t('auth.authenticationRequired'));
   }
 
-  // Check processed file buffer exists
+
   if (!req.fileBuffer) {
     contextLogger.warn('Avatar upload validation failed - no processed file', {
       userId: req.user._id,
@@ -218,7 +218,7 @@ export const validateAvatarUpload = (
     );
   }
 
-  // Validate processed file size (double-check after processing)
+
   if (!AvatarService.isValidSize(req.fileBuffer.size)) {
     contextLogger.warn(
       'Avatar upload validation failed - processed file too large',
@@ -272,7 +272,7 @@ export const handleAvatarUploadError = (
     error: error.message,
   });
 
-  // Handle specific multer errors
+
   if (error instanceof multer.MulterError) {
     switch (error.code) {
       case 'LIMIT_FILE_SIZE':
@@ -309,7 +309,7 @@ export const handleAvatarUploadError = (
     }
   }
 
-  // Handle operational errors from our validation
+
   if (ErrorHelper.isOperational(error)) {
     const operationalError = error as Error & { statusCode?: number };
     return ErrorHelper.sendError(
@@ -319,7 +319,7 @@ export const handleAvatarUploadError = (
     );
   }
 
-  // Handle unexpected errors
+
   contextLogger.error('Unexpected avatar upload error', {
     userId: req.user?._id,
     error: error.message ?? 'Unknown error',

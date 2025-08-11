@@ -65,7 +65,7 @@ app.use('/', router);
  * @description Creates and forwards 404 errors for unmatched routes using ErrorHelper
  */
 app.use((req, _res, next) => {
-  // ✅ Use ErrorHelper for consistent 404 errors
+
   const error = ErrorHelper.createNotFoundError(`Route ${req.originalUrl}`);
   next(error);
 });
@@ -139,7 +139,7 @@ const startServer = async () => {
 
     await connectDB();
 
-    // Initialize avatar upload directory
+
     await AvatarService.initializeUploadDirectory();
 
     const cleanupService = CleanupService.getInstance();

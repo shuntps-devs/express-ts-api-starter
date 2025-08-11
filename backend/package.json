@@ -1,6 +1,6 @@
 {
   "name": "express-ts-api-starter",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "🚀 Production-ready Express.js API boilerplate with TypeScript, MongoDB, JWT auth, avatar uploads, comprehensive testing suite (249 tests), Docker support, and automated CI/CD. Enterprise-grade security included. ⚡ Ready in 2 minutes!",
   "main": "dist/server.js",
   "repository": {

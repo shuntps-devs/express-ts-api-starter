@@ -135,7 +135,7 @@ export class EmailHelper {
       'guerrillamail.com',
       'mailinator.com',
       'throwaway.email',
-      // Add more as needed
+
     ];
 
     const domain = EmailHelper.extractDomain(email).toLowerCase();
@@ -190,17 +190,17 @@ export class EmailHelper {
     user: IUser,
     action: 'login' | 'sensitive-operation' | 'profile-update'
   ): boolean {
-    // Email must be verified for sensitive operations
+
     if (action === 'sensitive-operation') {
       return !user.isEmailVerified;
     }
 
-    // For profile updates, email verification recommended
+
     if (action === 'profile-update') {
       return !user.isEmailVerified;
     }
 
-    // For login, verification optional (depends on business logic)
+
     return false;
   }
 }

@@ -126,7 +126,7 @@ export class ResponseHelper {
     };
   }
 
-  // EXPRESS HTTP SUCCESS RESPONSES
+
 
   /**
    * Send success response via Express
@@ -186,7 +186,7 @@ export class ResponseHelper {
       .json(this.paginate(data, page, limit, total, message, requestId));
   }
 
-  // UTILITY METHODS
+
 
   /**
    * Extract request ID from Express request

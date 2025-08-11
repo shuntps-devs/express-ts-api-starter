@@ -49,14 +49,14 @@ const validateEnv = () => {
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // For env.ts, we keep the original logic to avoid circular dependencies
-      // ErrorHelper.handleEnvValidationError would be used here if not for circular import
+
+
       const treeifiedError = z.treeifyError(error);
 
-      // Parse NODE_ENV from process.env for error reporting since env is not yet available
+
       const nodeEnv = process.env.NODE_ENV ?? 'development';
 
-      // eslint-disable-next-line no-console
+
       console.error('Environment validation failed:', {
         context: 'environment-validation',
         errors: treeifiedError,
@@ -64,12 +64,12 @@ const validateEnv = () => {
       });
 
       if (nodeEnv === 'test') {
-        // eslint-disable-next-line no-console
+
         console.warn('Using test defaults due to validation failure');
         return createTestDefaults();
       }
 
-      // eslint-disable-next-line no-console
+
       console.error('Environment validation failed - application cannot start');
       process.exit(1);
     }

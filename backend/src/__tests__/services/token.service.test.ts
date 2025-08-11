@@ -6,17 +6,17 @@ import { IUser } from '../../interfaces';
 import { ITokenPayload, TokenService } from '../../services';
 import { TestHelper } from '../helpers';
 
-// Mock jwt
+
 jest.mock('jsonwebtoken');
 
-// Mock crypto
+
 jest.mock('crypto', () => ({
   randomBytes: jest.fn(() => ({
     toString: jest.fn(() => 'mock-session-id'),
   })),
 }));
 
-// Mock environment variables
+
 jest.mock('../../config/env', () => ({
   env: {
     JWT_SECRET: 'test-jwt-secret',
@@ -100,12 +100,12 @@ describe('TokenService', () => {
       const result = TokenService.generateTokenPair(mockUser, mockSessionId);
       const afterTime = Date.now();
 
-      // Access token should expire in ~15 minutes
+
       const accessTokenExpiry = result.accessTokenExpiresAt.getTime();
       expect(accessTokenExpiry).toBeGreaterThan(beforeTime + 14 * 60 * 1000);
       expect(accessTokenExpiry).toBeLessThan(afterTime + 16 * 60 * 1000);
 
-      // Refresh token should expire in ~7 days
+
       const refreshTokenExpiry = result.refreshTokenExpiresAt.getTime();
       expect(refreshTokenExpiry).toBeGreaterThan(
         beforeTime + 6 * 24 * 60 * 60 * 1000
@@ -214,14 +214,14 @@ describe('TokenService', () => {
 
   describe('isTokenExpired', () => {
     it('should return true for expired date', () => {
-      const expiredDate = new Date(Date.now() - 60000); // 1 minute ago
+      const expiredDate = new Date(Date.now() - 60000);
       const result = TokenService.isTokenExpired(expiredDate);
 
       expect(result).toBe(true);
     });
 
     it('should return false for future date', () => {
-      const futureDate = new Date(Date.now() + 60000); // 1 minute from now
+      const futureDate = new Date(Date.now() + 60000);
       const result = TokenService.isTokenExpired(futureDate);
 
       expect(result).toBe(false);
@@ -229,7 +229,7 @@ describe('TokenService', () => {
 
     it('should return true for current date', () => {
       const currentDate = new Date();
-      // Add a small delay to ensure current time has passed
+
       const result = TokenService.isTokenExpired(currentDate);
 
       expect(result).toBe(true);
@@ -240,7 +240,7 @@ describe('TokenService', () => {
     it('should return correct max age in milliseconds', () => {
       const result = TokenService.getAccessTokenMaxAge();
 
-      expect(result).toBe(15 * 60 * 1000); // 15 minutes in ms
+      expect(result).toBe(15 * 60 * 1000);
     });
   });
 
@@ -248,7 +248,7 @@ describe('TokenService', () => {
     it('should return correct max age in milliseconds', () => {
       const result = TokenService.getRefreshTokenMaxAge();
 
-      expect(result).toBe(7 * 24 * 60 * 60 * 1000); // 7 days in ms
+      expect(result).toBe(7 * 24 * 60 * 60 * 1000);
     });
   });
 

@@ -109,15 +109,11 @@ export class TestHelper {
    */
   static async clearDatabase() {
     try {
-      // Clear all test collections
       await User.deleteMany({});
-      // Add other model clearings as needed:
-      // await Profile.deleteMany({});
-      // await Session.deleteMany({});
-    } catch (error) {
-      // Use logger instead of console.warn
-      // eslint-disable-next-line no-console
-      console.warn('Database cleanup failed:', error);
+
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -159,8 +155,8 @@ export class TestHelper {
     },
     invalidUser: {
       email: 'invalid-email',
-      username: 'ab', // too short
-      password: '123', // too weak
+      username: 'ab',
+      password: '123',
     },
     loginData: {
       identifier: 'test@example.com',

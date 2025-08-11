@@ -93,7 +93,7 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          // ✅ Use ErrorHelper for consistent not found errors
+
           throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
@@ -160,7 +160,7 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          // ✅ Use ErrorHelper for consistent not found errors
+
           throw ErrorHelper.createNotFoundError('User', requestId);
         }
 
@@ -227,7 +227,7 @@ export class UserController {
             targetUserId: userId,
             requestId,
           });
-          // ✅ Use ErrorHelper for consistent not found errors
+
           throw ErrorHelper.createNotFoundError('User', requestId);
         }
 

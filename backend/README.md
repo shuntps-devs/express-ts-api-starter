@@ -1,20 +1,11 @@
-# 🚀 Express TypeScript Starter
+# 🔧 Backend - Express TypeScript API
 
-> **Production-ready Express.js API** with TypeScript, MongoDB, JWT authentication, comprehensive testing, and automated CI/CD pipeline.
+> **Production-ready Express.js API** with TypeScript, MongoDB, JWT authentication, comprehensive testing, and enterprise-grade security.
 
-[![CI/CD Pipeline](https://github.com/shuntps-devs/express-ts-api-starter/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/shuntps-devs/express-ts-api-starter/actions)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-## ⚡ Quick Start
+## 🚀 Quick Start
 
 ```bash
-npm install
-# Clone and setup
-git clone https://github.com/shuntps-devs/express-ts-api-starter.git
-cd express-ts-api-starter
-npm install
+# Install dependencies
 npm install
 
 # Environment configuration
@@ -25,119 +16,13 @@ cp .env.example .env
 npm run dev
 ```
 
-🎯 **Ready in 2 minutes!** The API will be running at `http://localhost:3000`
+🎯 **API will be running at** `http://localhost:3000`
 
-## 🔌 API Endpoints
+## 📋 Prerequisites
 
-The API provides the following endpoints:
-
-- **Base API Info**: `GET /api` - Service information and available endpoints
-- **Health Check**: `GET /api/health` - System status and monitoring
-- **Authentication**: `/api/auth/*` - Complete authentication system
-- **Profile Management**: `/api/profile/*` - User profile and avatar management
-- **User Management**: `/api/users/*` - User administration and management
-- **Admin Panel**: `/api/admin/*` - Administrative operations
-
-## 🏗️ What's Included
-
-### 🔐 **Complete Authentication System**
-
-- **User Registration & Login** - Full user management with validation
-- **JWT Cookie-based Auth** - Secure access & refresh tokens in HTTP-only cookies
-- **Session Management** - Track user sessions across devices
-- **Account Security** - Login attempts limiting, account locking
-- **Password Hashing** - bcryptjs with secure salting
-
-### 🛡️ **Enterprise Security**
-
-- **Helmet.js** - Security headers and CSP
-- **CORS Configuration** - Environment-specific origins
-- **Rate Limiting** - 100 requests per 15 minutes per IP
-- **Input Validation** - Zod schema validation for all endpoints
-- **Security Audits** - Automated dependency scanning in CI/CD
-
-### 🗄️ **Database & Models**
-
-- **MongoDB Integration** - Mongoose ODM with TypeScript
-- **User Model** - Complete user schema with methods
-- **Session Model** - JWT session tracking and management
-- **Profile Model** - Extended user profile data
-- **Database Indexing** - Optimized queries with proper indexes
-
-### 🧪 **Comprehensive Testing Infrastructure**
-
-- **Jest Test Suite** - 249 comprehensive tests across 17 test suites
-- **100% Test Success Rate** - Professional test reliability (17/17 suites passing)
-- **Controllers Testing** - Complete API endpoint coverage (Auth, User, Profile, Admin)
-- **Services Testing** - Full business logic validation (User, Session, Token, Avatar, Email, Cleanup)
-- **Middleware Testing** - Complete middleware layer coverage (8 middleware components)
-- **TestHelper Utilities** - Professional test data generation and mocking system
-- **Integration Tests** - Full API endpoint testing with supertest
-- **Unit Tests** - Individual function and method validation
-- **CI/CD Ready** - Automated testing pipeline in GitHub Actions
-- **Test Architecture**: Controllers (4 suites), Services (6 suites), Middleware (7 suites), Utils (1 suite)
-
-### 🚀 **Production Ready**
-
-- **Docker Support** - Multi-stage builds for development and production
-- **GitHub Actions CI/CD** - Automated testing, building, and deployment
-- **TypeScript** - Full type safety with strict configuration
-- **ESLint & Prettier** - Code quality and formatting
-- **Winston Logging** - Structured logging with different levels
-- **Environment Management** - Separate configs for dev/staging/production
-
-### 🌍 **Additional Features**
-
-- **i18n Support** - Multi-language support (EN/FR ready)
-- **Performance Monitoring** - Request timing and metrics
-- **Audit Logging** - Track user actions and system events
-- **Health Checks** - System status and uptime monitoring
-- **API Versioning** - Built-in API version management
-
-## 📁 Project Structure
-
-```
-express-typescript-starter/
-├── 📁 src/
-│   ├── 📁 controllers/          # Route handlers & business logic
-│   │   ├── auth.controller.ts   # Authentication endpoints
-│   │   └── user.controller.ts   # User management endpoints
-│   ├── 📁 services/             # Business logic layer
-│   │   ├── user.service.ts      # User operations
-│   │   ├── session.service.ts   # Session & JWT management
-│   │   └── token.service.ts     # Token generation & validation
-│   ├── 📁 models/              # Database schemas
-│   │   ├── user.model.ts       # User schema & methods
-│   │   ├── session.model.ts    # Session tracking
-│   │   └── profile.model.ts    # Extended user profiles
-│   ├── 📁 middleware/          # Express middleware
-│   │   ├── auth.middleware.ts  # JWT authentication
-│   │   ├── security.middleware.ts # Security headers & CORS
-│   │   ├── audit.middleware.ts # Action logging
-│   │   └── error-handler.ts    # Global error handling
-│   ├── 📁 routes/              # API route definitions
-│   ├── 📁 schemas/             # Validation schemas (Zod)
-│   ├── 📁 utils/               # Helper functions
-│   ├── 📁 config/              # App configuration
-│   ├── 📁 i18n/                # Internationalization
-│   ├── 📁 types/               # TypeScript declarations
-│   └── 📁 __tests__/           # Comprehensive test suites (249 tests across 17 suites)
-│       ├── controllers/        # API endpoint tests (Auth & User)
-│       ├── services/          # Business logic tests (Session, Token, User)
-│       ├── middleware/        # Complete middleware testing (7 suites)
-│       ├── utils/             # Utility function tests
-│       └── helpers/           # TestHelper utilities & mocking
-├── 📁 docs/                    # Comprehensive documentation
-│   ├── API.md                 # Complete API reference with examples
-│   ├── DEVELOPMENT.md         # Development workflow & conventions
-│   ├── DEPLOYMENT.md          # Production deployment guide
-│   └── SETUP.md               # Quick setup instructions
-├── 📁 scripts/                 # Automation & deployment scripts
-├── 📁 .github/                 # CI/CD workflows
-├── 🐳 docker-compose.yml       # Development environment
-├── 🐳 Dockerfile              # Production container
-└── 📄 package.json            # Dependencies & scripts
-```
+- **Node.js** 18+ and npm
+- **MongoDB** 4.4+ (local or Atlas)
+- **Git** for version control
 
 ## 🔌 API Endpoints
 
@@ -148,7 +33,7 @@ GET    /api              # API information and endpoints
 GET    /api/health       # System health and uptime status
 ```
 
-### 🔐 Authentication (`/api/auth`)
+### 🔐 **Authentication** (`/api/auth`)
 
 ```http
 POST   /api/auth/register      # Create new user account
@@ -160,7 +45,16 @@ GET    /api/auth/profile       # Get current user profile
 GET    /api/auth/sessions      # Get active sessions
 ```
 
-### 👥 Users (`/api/users`)
+### 👤 **Profile Management** (`/api/profile`)
+
+```http
+GET    /api/profile            # Get user profile
+PUT    /api/profile            # Update profile
+POST   /api/profile/avatar     # Upload avatar
+DELETE /api/profile/avatar     # Delete avatar
+```
+
+### 👥 **Users** (`/api/users`)
 
 ```http
 GET    /api/users/:id          # Get user by ID
@@ -168,32 +62,79 @@ PUT    /api/users/:id          # Update user profile
 DELETE /api/users/:id          # Delete user account
 ```
 
-### 🏥 System
+### 🔧 **Admin** (`/api/admin`)
 
 ```http
-GET    /health                 # Health check & system status
-GET    /                       # API information & endpoints
+GET    /api/admin/sessions     # Get all active sessions
+DELETE /api/admin/sessions/:id # Terminate session
+POST   /api/admin/cleanup      # Run cleanup tasks
 ```
 
-## 🚀 Development
+## 🏗️ Architecture & Features
 
-### Prerequisites
+### 🔐 **Authentication & Security**
 
-- **Node.js** 18+ and npm
-- **MongoDB** 4.4+ (local or Atlas)
-- **Git** for version control
+- **JWT Cookie-based Auth** - Secure access & refresh tokens in HTTP-only cookies
+- **Session Management** - Track user sessions across devices
+- **Account Security** - Login attempts limiting, account locking
+- **Password Hashing** - bcryptjs with secure salting
+- **Helmet.js** - Security headers and CSP
+- **CORS Configuration** - Environment-specific origins
+- **Rate Limiting** - 100 requests per 15 minutes per IP
+- **Input Validation** - Zod schema validation for all endpoints
 
-### Environment Setup
+### 🗄️ **Database & Models**
 
-```bash
-# Install dependencies
-npm install
+- **MongoDB Integration** - Mongoose ODM with TypeScript
+- **User Model** - Complete user schema with methods
+- **Session Model** - JWT session tracking and management
+- **Profile Model** - Extended user profile data
+- **Database Indexing** - Optimized queries with proper indexes
 
-# Copy environment template
-cp .env.example .env
+### 🧪 **Testing Infrastructure**
+
+- **Jest Test Suite** - 249 comprehensive tests across 17 test suites
+- **100% Test Success Rate** - Professional test reliability (17/17 suites passing)
+- **Controllers Testing** - Complete API endpoint coverage
+- **Services Testing** - Full business logic validation
+- **Middleware Testing** - Complete middleware layer coverage
+- **TestHelper Utilities** - Professional test data generation and mocking system
+- **Integration Tests** - Full API endpoint testing with supertest
+
+### 🌍 **Additional Features**
+
+- **i18n Support** - Multi-language support (EN/FR ready)
+- **Performance Monitoring** - Request timing and metrics
+- **Audit Logging** - Track user actions and system events
+- **Health Checks** - System status and uptime monitoring
+- **Winston Logging** - Structured logging with different levels
+
+## 📁 Project Structure
+
+```
+backend/
+├── 📁 src/
+│   ├── 📁 controllers/          # Route handlers & business logic
+│   ├── 📁 services/             # Business logic layer
+│   ├── 📁 models/              # Database schemas
+│   ├── 📁 middleware/          # Express middleware
+│   ├── 📁 routes/              # API route definitions
+│   ├── 📁 schemas/             # Validation schemas (Zod)
+│   ├── 📁 utils/               # Helper functions
+│   ├── 📁 config/              # App configuration
+│   ├── 📁 i18n/                # Internationalization
+│   ├── 📁 types/               # TypeScript declarations
+│   └── 📁 __tests__/           # Comprehensive test suites
+├── 📁 docs/                    # API documentation
+├── 📁 scripts/                 # Automation & deployment scripts
+├── 🐳 docker-compose.yml       # Development environment
+├── 🐳 Dockerfile              # Production container
+└── 📄 package.json            # Dependencies & scripts
 ```
 
-**Configure your `.env` file:**
+## ⚙️ Environment Configuration
+
+Create a `.env` file from `.env.example`:
 
 ```env
 # Server
@@ -212,7 +153,7 @@ DEFAULT_LANGUAGE=en
 LOG_LEVEL=info
 ```
 
-### Available Scripts
+## 🛠️ Available Scripts
 
 ```bash
 # Development
@@ -247,8 +188,6 @@ npm run ci               # Complete CI pipeline
 
 ## 🧪 Testing
 
-Comprehensive testing suite with **Jest**, **Supertest**, and professional testing patterns:
-
 ```bash
 # Run all tests (249 tests across 17 suites)
 npm test
@@ -267,51 +206,13 @@ Test Suites: 17 passed, 17 total
 Tests:       249 passed, 249 total
 Success Rate: 100% (17/17 suites passing)
 Coverage:    54.9% overall (focused on critical business logic)
-├── Controllers (4 suites) - Auth, User, Profile, Admin API testing (55.17% coverage)
-├── Services (6 suites) - User, Session, Token, Avatar, Email, Cleanup (59.44% coverage)
-├── Middleware (7 suites) - Complete middleware layer coverage (65.24% coverage)
-└── Utils (1 suite) - Response helper and utility testing (48.36% coverage)
+├── Controllers (4 suites) - Auth, User, Profile, Admin API testing
+├── Services (6 suites) - User, Session, Token, Avatar, Email, Cleanup
+├── Middleware (7 suites) - Complete middleware layer coverage
+└── Utils (1 suite) - Response helper and utility testing
 ```
 
-### 🎯 **Test Architecture**
-
-**Test Suites Breakdown:**
-
-- **Controllers** (4 suites) - Authentication, User, Profile & Admin API testing
-- **Services** (6 suites) - User, Session, Token, Avatar, Email, and Cleanup services
-- **Middleware** (7 suites) - Complete middleware layer coverage
-- **Utils** (1 suite) - Response helper and utility testing
-
-**Coverage Areas:**
-
-- ✅ JWT Authentication flow (cookies, refresh, validation)
-- ✅ User management operations (CRUD, profiles, sessions)
-- ✅ Profile management (avatar upload, profile updates)
-- ✅ Admin operations (session management, cleanup tasks)
-- ✅ Middleware functionality (auth, security, audit, validation)
-- ✅ Service layer business logic (comprehensive service testing)
-- ✅ Error handling and edge cases
-- ✅ Database operations and model methods
-- ✅ API endpoint integration testing
-
-### 🛠️ **TestHelper System**
-
-Professional testing utilities for consistent test patterns:
-
-```typescript
-import { TestHelper } from '../helpers';
-
-// Generate mock Express objects
-const { req, res, next } = TestHelper.createMockContext();
-
-// Create test users with custom properties
-const testUser = TestHelper.generateMockUser({ role: 'admin' });
-
-// Clean database state between tests
-await TestHelper.clearDatabase();
-```
-
-## � Docker Deployment
+## 🐳 Docker Deployment
 
 ### Development Environment
 
@@ -319,7 +220,7 @@ await TestHelper.clearDatabase();
 # Start MongoDB + API with hot reload
 npm run docker:dev
 
-# Or manually
+# Or manually with docker-compose
 docker-compose up --build
 ```
 
@@ -331,104 +232,27 @@ npm run docker:build
 
 # Run production container
 npm run docker:run
-
-# Or with docker-compose
-docker-compose -f docker-compose.prod.yml up
 ```
 
-## 🔧 Configuration
+## 📚 Documentation
 
-### Security Configuration
-
-- **CORS**: Environment-specific allowed origins
-- **Rate Limiting**: Configurable per environment
-- **Helmet**: CSP and security headers
-- **JWT**: Separate secrets for access and refresh tokens
-
-### Database Configuration
-
-- **Connection**: MongoDB with Mongoose ODM
-- **Validation**: Zod schemas for request validation
-- **Indexing**: Optimized database queries
-- **Sessions**: JWT-based session management
-
-### Logging Configuration
-
-- **Winston**: Structured logging with levels
-- **Audit Trail**: User action tracking
-- **Performance**: Request timing monitoring
-- **Error Tracking**: Comprehensive error logging
-
-## � Deployment
-
-### GitHub Actions CI/CD
-
-Automated pipeline with:
-
-- ✅ **Code Quality** - ESLint, Prettier, TypeScript
-- ✅ **Testing** - Full test suite with coverage
-- ✅ **Security** - Dependency auditing
-- ✅ **Building** - TypeScript compilation & Docker
-- ✅ **Deployment** - Staging and production environments
-
-### Manual Deployment
-
-```bash
-# Build for production
-npm run build
-
-# Run validation pipeline
-npm run ci
-
-# Deploy to staging
-npm run deploy:staging
-
-# Deploy to production
-npm run deploy:prod
-```
-
-## � Documentation
-
+- **[API Documentation](./docs/API.md)** - Complete endpoint reference with examples
 - **[Setup Guide](./docs/SETUP.md)** - Detailed installation and configuration
-- **[API Documentation](./docs/API.md)** - Complete endpoint reference
-- **[Avatar API](./docs/AVATAR_API.md)** - Avatar upload system documentation
-- **[Technical Summaries](./docs/summaries/)** - Implementation summaries and decisions
 - **[Development Guide](./docs/DEVELOPMENT.md)** - Development workflow and conventions
 - **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Avatar API](./docs/AVATAR_API.md)** - Avatar upload system documentation
+- **[Technical Summaries](./docs/summaries/)** - Implementation summaries and decisions
 
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'feat: add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Standards
+## 🤝 Development Standards
 
 - **TypeScript** strict mode enabled
 - **ESLint** with zero warnings policy
 - **Prettier** for consistent formatting
 - **Tests required** for new features
 - **Conventional Commits** for clear history
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## 🎯 Roadmap
-
-- [ ] **Email Verification** - Complete user registration flow
-- [ ] **Password Reset** - Forgot password functionality
-- [ ] **OAuth Integration** - Google, GitHub, Discord login
-- [ ] **API Rate Limiting per User** - User-specific rate limits
-- [ ] **Redis Caching** - Performance optimization
-- [ ] **Swagger Documentation** - Auto-generated API docs
-- [ ] **Monitoring & Metrics** - Prometheus integration
-- [ ] **File Upload** - Profile images and attachments
+- **Barrel Exports** - Clean import structure
+- **JSDoc Comments** - Complete API documentation
 
 ---
 
-**Built with ❤️ by [shuntps](https://github.com/shuntps)**
-
-_Ready to build your next great API? Start with this production-ready foundation!_
+**Part of the Express TypeScript Starter project**

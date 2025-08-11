@@ -12,7 +12,7 @@ import { env, logger } from '../config';
 import { t } from '../i18n';
 import { IApiErrorResponse, IValidationError } from '../interfaces';
 
-// Types for unified error handling
+
 export interface IOperationalError extends Error {
   statusCode: number;
   code: string;
@@ -318,12 +318,12 @@ export class ErrorHelper {
       requestId,
     };
 
-    // ✅ Use contextual logger if available, fallback to global logger
+
     const contextLogger = req?.logger ?? logger;
 
     if (res) {
       contextLogger.error('Validation error occurred', errorContext);
-      // ✅ Use unified ErrorHelper for validation errors
+
       ErrorHelper.sendValidationError(
         res,
         validationErrors,
@@ -573,10 +573,10 @@ export class ErrorHelper {
    * @param req - Optional Express request object for contextual logging
    * @example
    * ```typescript
-   * // In a route handler with contextual logging
+   *
    * ErrorHelper.logError(error, { operation: 'user-creation' }, requestId, req);
    *
-   * // Outside of request context (startup, etc.)
+   *
    * ErrorHelper.logError(error, { operation: 'app-initialization' });
    * ```
    */
@@ -594,7 +594,7 @@ export class ErrorHelper {
       ...context,
     };
 
-    // ✅ Use contextual logger if available, fallback to global logger
+
     const contextLogger = req?.logger ?? logger;
     contextLogger.error('Error occurred', errorInfo);
   }

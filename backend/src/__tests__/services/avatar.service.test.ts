@@ -312,14 +312,14 @@ describe('AvatarService', () => {
       /**
        * Create buffer larger than MAX_FILE_SIZE (5MB)
        */
-      const largeBuffer = Buffer.alloc(6 * 1024 * 1024); // 6MB
+      const largeBuffer = Buffer.alloc(6 * 1024 * 1024);
 
       /**
        * Test size validation without depending on complex mocks
        * 6MB exceeds MAX_FILE_SIZE limit
        */
       expect(AvatarService.isValidSize(largeBuffer.length)).toBe(false);
-      expect(AvatarService.isValidSize(1024)).toBe(true); // 1KB OK
+      expect(AvatarService.isValidSize(1024)).toBe(true);
 
       /**
        * Test with real call - expect error to be logged

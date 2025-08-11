@@ -50,7 +50,7 @@ export const errorHandler = (
       userId: req.user?._id,
     },
     requestId,
-    req // ✅ Pass request for contextual logging
+    req
   );
 
   if (env.NODE_ENV === 'development') {

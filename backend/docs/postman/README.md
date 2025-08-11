@@ -1,174 +1,143 @@
-# Postman Configuration - MISE À JOUR v1.1.0
+# Postman Configuration - UPDATE v1.1.0
 
-Cette configuration Postman mise à jour permet de tester l'ensemble de votre API Express TypeScript avec le nouveau ProfileController.
+This updated Postman configuration allows comprehensive testing of your Express TypeScript API with the new ProfileController.
 
-## ✅ Dernières modifications (v1.1.0)
+## ✅ Latest Changes (v1.1.0)
 
-- **🔄 Architecture mise à jour** : Séparation des endpoints profil et utilisateurs
-- **📝 Nouveaux endpoints Profile** : `/api/profile/*` pour la gestion de profil utilisateur
-- **👑 Endpoints Admin** : `/api/users/*` réservés à la gestion administrative
-- **📷 Gestion Avatar** : Upload/suppression/configuration d'avatars
-- **🧪 Tests améliorés** : Validation complète des réponses et performance
+- **🔄 Updated Architecture** - Separation of profile and user endpoints
+- **📝 New Profile Endpoints** - `/api/profile/*` for user profile management
+- **👑 Admin Endpoints** - `/api/users/*` reserved for administrative operations
+- **📷 Avatar Management** - Upload/deletion/configuration of avatars
+- **🧪 Enhanced Testing** - Complete response validation and performance metrics
 
-## Contenu
+## Contents
 
-- `Express-TypeScript-API.postman_collection.json` - Collection mise à jour avec ProfileController
-- `Development.postman_environment.json` - Variables d'environnement pour le développement local
-- `Production.postman_environment.json` - Variables d'environnement pour la production
-- `Express-TypeScript-API.postman_collection.backup.json` - Sauvegarde de l'ancienne version
+- `Express-TypeScript-API.postman_collection.json` - Updated collection with ProfileController
+- `Development.postman_environment.json` - Environment variables for local development
+- `Production.postman_environment.json` - Environment variables for production
+- `Express-TypeScript-API.postman_collection.backup.json` - Backup of previous version
 
-## Import dans Postman
+## Import into Postman
 
-1. Ouvrez Postman
-2. Cliquez sur "Import" en haut à gauche
-3. Glissez-déposez les 3 fichiers principaux ou utilisez "Upload Files"
-4. La collection et les environnements seront importés automatiquement
+1. Open Postman
+2. Click "Import" in the top left
+3. Drag and drop the 3 main files or use "Upload Files"
+4. The collection and environments will be imported automatically
 
 ## Configuration
 
-### Variables d'environnement Development
+### Development Environment Variables
 
-- `baseUrl`: http://localhost:3000 (modifiez si votre serveur utilise un autre port)
+- `baseUrl`: http://localhost:3000 (modify if your server uses another port)
 - `testEmail`: test@example.com
 - `testPassword`: SecurePassword123!
 - `adminEmail`: admin@example.com
 - `adminPassword`: AdminPassword123!
 
-### Variables d'environnement Production
+### Production Environment Variables
 
-- `baseUrl`: https://your-api-domain.com (remplacez par votre domaine)
-- Mêmes variables que Development avec des valeurs de production
+- `baseUrl`: https://your-api-domain.com (replace with your domain)
+- Same variables as Development with production values
 
-## 🆕 Nouvelle Architecture des Endpoints
+## 🆕 New Endpoint Architecture
 
 ### 👤 Profile Management (`/api/profile/`)
 
-**Endpoints utilisateurs authentifiés pour la gestion de leur propre profil :**
+**Authenticated user endpoints for managing their own profile:**
 
-- `GET /api/profile` - Récupérer son profil utilisateur
-- `PATCH /api/profile` - Modifier son profil
-- `POST /api/profile/avatar` - Upload d'avatar (multipart/form-data)
-- `DELETE /api/profile/avatar` - Supprimer son avatar
-- `GET /api/profile/avatar/config` - Configuration upload d'avatar (public)
+- `GET /api/profile` - Get user profile
+- `PATCH /api/profile` - Update profile
+- `POST /api/profile/avatar` - Upload avatar (multipart/form-data)
+- `DELETE /api/profile/avatar` - Remove avatar
+- `GET /api/profile/avatar/config` - Avatar upload configuration (public)
 
-### 👑 User Management Admin (`/api/users/`)
+### 👑 Admin User Management (`/api/users/`)
 
-**Endpoints administrateurs pour la gestion des utilisateurs :**
+**Administrator endpoints for user management:**
 
-- `GET /api/users` - Liste paginée des utilisateurs (admin seulement)
-- `GET /api/users/:id` - Détails utilisateur par ID (admin seulement)
-- `PATCH /api/users/:id` - Modifier utilisateur par ID (admin seulement)
-- `DELETE /api/users/:id` - Supprimer utilisateur par ID (admin seulement)
+- `GET /api/users` - Paginated user list (admin only)
+- `GET /api/users/:id` - User details by ID (admin only)
+- `PATCH /api/users/:id` - Update user by ID (admin only)
+- `DELETE /api/users/:id` - Delete user by ID (admin only)
 
-## Utilisation
+## Usage
 
-### 1. Workflow d'authentification
+### 1. Authentication Workflow
 
-1. **Register User** - Créer un nouveau compte utilisateur
-2. **Login User** - Se connecter (stocke automatiquement les tokens)
-3. **Refresh Token** - Renouveler les tokens automatiquement
+1. **Register User** - Create a new user account
+2. **Login User** - Login (automatically stores tokens)
+3. **Refresh Token** - Renew tokens automatically
 
-### 2. Gestion de profil utilisateur (Nouveau ✨)
+### 2. User Profile Management (New ✨)
 
-1. **Get User Profile** - Récupérer son profil complet
-2. **Update Profile** - Modifier firstName, lastName, bio, location, etc.
-3. **Upload Avatar** - Upload d'image (JPG, PNG, WEBP - max 5MB)
-4. **Remove Avatar** - Supprimer son avatar
-5. **Get Avatar Config** - Voir les limites et formats supportés
+1. **Get User Profile** - Retrieve complete profile
+2. **Update Profile** - Modify firstName, lastName, bio, location, etc.
+3. **Upload Avatar** - Image upload (JPG, PNG, WEBP - max 5MB)
+4. **Remove Avatar** - Delete avatar
+5. **Get Avatar Config** - View limits and supported formats
 
-### 3. Administration des utilisateurs
+### 3. User Administration
 
-**Réservé aux admins** :
+1. **Get All Users** - List all users (admin only)
+2. **Get User by ID** - Retrieve specific user (admin only)
+3. **Update User** - Modify user data (admin only)
+4. **Delete User** - Remove user account (admin only)
 
-- **Get All Users** - Liste paginée avec filtres
-- **Get User By ID** - Profil détaillé d'un utilisateur
-- **Update User By ID** - Modifier role, statut, etc.
-- **Delete User By ID** - Suppression d'utilisateur
+### 4. Enhanced Automatic Testing
 
-### 4. Tests automatiques améliorés
+Each request includes automatic validation tests:
 
-Chaque requête inclut des tests automatiques qui vérifient :
+- Response time verification
+- Status code validation
+- Response structure verification
+- Authentication token management
+- Error handling validation
 
-- ✅ Code de statut HTTP correct
-- ✅ Structure de réponse complète
-- ✅ Données profil requises
-- ✅ Temps de réponse < seuils définis
-- ✅ Gestion automatique des tokens JWT
-- ✅ Validation des données d'avatar
+## 🧪 Recommended Testing Workflows
 
-## 📋 Endpoints disponibles
+### Complete User Sequence
 
-### Authentication (`/api/auth/`)
+1. **Health Check** - Verify API is functioning
+2. **Register User** - Create account with initial profile
+3. **Login User** - Login (automatic tokens)
+4. **Get User Profile** - Verify profile and authentication
+5. **Update Profile** - Modify personal information
+6. **Get Avatar Config** - View upload constraints
+7. **Upload Avatar** - Upload profile image
+8. **Get User Profile** - Verify avatar in profile
+9. **Remove Avatar** - Delete avatar
+10. **Logout** - Clean logout
 
-- `POST /register` - Inscription avec profil initial
-- `POST /login` - Connexion avec tokens automatiques
-- `POST /refresh` - Renouvellement automatique des tokens
-- `POST /logout` - Déconnexion avec nettoyage des cookies
+### Administration Testing
 
-### Profile Management (`/api/profile/`) ✨ NOUVEAU
+1. **Login as Admin** - Admin authentication
+2. **Get All Users** - List all users
+3. **Create Test User** - Create user via admin
+4. **Update User** - Modify user data
+5. **Delete Test User** - Remove test user
+6. **Admin Logout** - Clean admin logout
 
-- `GET /` - Mon profil utilisateur complet
-- `PATCH /` - Modifier mon profil (firstName, lastName, bio, location, socialLinks, etc.)
-- `POST /avatar` - Upload d'avatar avec validation (multipart/form-data)
-- `DELETE /avatar` - Supprimer mon avatar et fichiers
-- `GET /avatar/config` - Configuration d'upload (formats, taille max, etc.)
+## 🔧 Technical Features
 
-### User Management Admin (`/api/users/`)
+### Automatic Variables
 
-- `GET /` - Liste paginée des utilisateurs (admin)
-- `GET /:id` - Utilisateur par ID (admin)
-- `PATCH /:id` - Modifier utilisateur (admin)
-- `DELETE /:id` - Supprimer utilisateur (admin)
+- `userId` - User ID automatically extracted at login
+- `accessToken` - JWT token automatically managed
+- `refreshToken` - Refresh token automatically managed
 
-### Health & Status
+### Performance Testing
 
-- `GET /api/health` - Vérification de santé avec uptime
-- `GET /api` - Informations API et endpoints disponibles
+- Profile endpoints: < 1000ms
+- Update operations: < 2000ms
+- Avatar upload: < 5000ms
+- Admin operations: < 1500ms
 
-## 🧪 Workflow de Tests Recommandés
-
-### Sequence complète utilisateur
-
-1. **Health Check** - Vérifier que l'API fonctionne
-2. **Register User** - Créer un compte avec profil initial
-3. **Login User** - Se connecter (tokens automatiques)
-4. **Get User Profile** - Vérifier profil et authentification
-5. **Update Profile** - Modifier informations personnelles
-6. **Get Avatar Config** - Voir les contraintes d'upload
-7. **Upload Avatar** - Téléverser une image de profil
-8. **Get User Profile** - Vérifier avatar dans le profil
-9. **Remove Avatar** - Supprimer l'avatar
-10. **Logout** - Se déconnecter proprement
-
-### Tests d'administration
-
-**Nécessite un compte admin** :
-
-1. **Login** avec credentials admin
-2. **Get All Users** - Liste avec pagination
-3. **Get User by ID** - Profil détaillé d'un utilisateur
-4. **Update User by ID** - Changer role/statut
-5. **Delete User by ID** - Supprimer utilisateur de test
-
-## 🔧 Nouveautés techniques
-
-### Variables automatiques
-
-- `userId` - ID utilisateur extrait automatiquement au login
-- `accessToken` - Token JWT automatiquement géré
-- `refreshToken` - Token de renouvellement automatique
-
-### Tests de performance
-
-- Profile endpoints : < 1000ms
-- Update operations : < 2000ms
-- Avatar upload : < 5000ms
-- Admin operations : < 1500ms
-
-### Validation robuste
+### Robust Validation
 
 ```javascript
-// Exemple de test automatique pour profile
+/**
+ * Example automatic test for profile endpoint
+ */
 pm.test('Response has profile data', () => {
   const jsonData = pm.response.json();
   pm.expect(jsonData).to.have.property('data');
@@ -178,47 +147,39 @@ pm.test('Response has profile data', () => {
 });
 ```
 
-## 🛡️ Sécurité et Bonnes Pratiques
+## 🔄 Migration from Previous Version
 
-- **Tokens automatiques** : Gestion JWT transparente avec cookies HTTP-only
-- **Rôles utilisateur** : Séparation claire endpoints utilisateur/admin
-- **Upload sécurisé** : Validation format/taille pour avatars
-- **Variables sensibles** : Marquées comme secrets en production
-- **Environnements isolés** : Dev/staging/prod séparés
+### Modified Endpoints
 
-## 🔄 Migration depuis l'ancienne version
+- **Profile Management**: Now uses `/api/profile/*` instead of `/api/users/profile`
+- **Admin Operations**: Now uses `/api/users/*` (admin only)
+- **Avatar Upload**: New dedicated endpoints in ProfileController
 
-### Endpoints modifiés
+### Structural Changes
 
-| Ancien endpoint                | Nouveau endpoint                 | Notes                       |
-| ------------------------------ | -------------------------------- | --------------------------- |
-| `GET /api/users/profile`       | `GET /api/profile`               | Profil utilisateur connecté |
-| `PATCH /api/users/profile`     | `PATCH /api/profile`             | Modification profil         |
-| `POST /api/users/avatar`       | `POST /api/profile/avatar`       | Upload avatar               |
-| `DELETE /api/users/avatar`     | `DELETE /api/profile/avatar`     | Suppression avatar          |
-| `GET /api/users/avatar/config` | `GET /api/profile/avatar/config` | Config upload               |
-
-### Changements de structure
-
-- **Profil utilisateur** : Maintenant dans `/api/profile`
-- **Gestion admin** : Maintenant dans `/api/users` (admin seulement)
-- **Tests améliorés** : Validation plus stricte des réponses
-- **Performance** : Seuils de temps de réponse définis
+- **User Profile**: Now in `/api/profile`
+- **Admin Management**: Now in `/api/users` (admin only)
+- **Enhanced Tests**: Stricter response validation
+- **Performance**: Response time thresholds defined
 
 ## Troubleshooting
 
-### Erreur 404 sur anciens endpoints
+### 404 Error on Old Endpoints
 
-➡️ **Solution** : Utilisez les nouveaux endpoints `/api/profile/*`
+➡️ **Solution**: Use new endpoints `/api/profile/*`
 
-### Erreur 403 sur endpoints admin
+### 403 Error on Admin Endpoints
 
-➡️ **Solution** : Vérifiez que l'utilisateur a le rôle ADMIN
+➡️ **Solution**: Verify user has ADMIN role
 
-### Upload avatar échoue
+### Avatar Upload Fails
 
-➡️ **Solution** : Vérifiez format (JPG/PNG/WEBP) et taille (< 5MB)
+➡️ **Solution**: Check format (JPG/PNG/WEBP) and size (< 5MB)
 
-### Tests automatiques échouent
+### Automatic Tests Fail
 
-➡️ **Solution** : Importez la nouvelle collection v1.1.0
+➡️ **Solution**: Import new collection v1.1.0
+
+---
+
+**Ready for comprehensive API testing with professional validation and performance metrics!** 🚀

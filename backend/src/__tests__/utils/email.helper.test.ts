@@ -69,7 +69,7 @@ describe('EmailHelper', () => {
 
   describe('formatExpirationTime', () => {
     beforeAll(() => {
-      // Mock Date constructor to return a fixed time
+
       jest.useFakeTimers();
       jest.setSystemTime(new Date('2024-01-01T12:00:00Z'));
     });
@@ -95,7 +95,7 @@ describe('EmailHelper', () => {
       const baseTime = new Date('2024-01-01T12:00:00Z');
       const in1Minute = new Date(baseTime.getTime() + 1 * 60 * 1000);
       const in1Hour = new Date(baseTime.getTime() + 1 * 60 * 60 * 1000);
-      const in1Day = new Date(baseTime.getTime() + 25 * 60 * 60 * 1000); // 25 hours to ensure > 24h
+      const in1Day = new Date(baseTime.getTime() + 25 * 60 * 60 * 1000);
 
       expect(EmailHelper.formatExpirationTime(in1Minute, 'fr')).toBe(
         '1 minute'

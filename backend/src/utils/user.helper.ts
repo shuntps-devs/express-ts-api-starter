@@ -82,10 +82,10 @@ export class UserHelper {
    * Check if current user can access another user's data
    */
   static canAccessUser(req: Request, targetUserId: string): boolean {
-    // Admin can access any user
+
     if (this.isAdmin(req)) return true;
 
-    // Users can only access their own data
+
     return req.user?._id === targetUserId;
   }
 

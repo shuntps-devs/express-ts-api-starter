@@ -27,7 +27,7 @@ export interface IAvatarUploadResult {
  */
 export class AvatarService {
   private static readonly UPLOAD_DIR = 'uploads/avatars';
-  private static readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  private static readonly MAX_FILE_SIZE = 5 * 1024 * 1024;
   private static readonly ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 
   /**
@@ -110,14 +110,14 @@ export class AvatarService {
     const userAvatarPath = this.getUserAvatarPath(userId);
 
     try {
-      // Check if directory exists
+
       await fs.access(userAvatarPath);
 
-      // Get all files in user's avatar directory
+
       const files = await fs.readdir(userAvatarPath);
       let deletedFiles = 0;
 
-      // Delete all files
+
       for (const file of files) {
         const filePath = path.join(userAvatarPath, file);
         await fs.unlink(filePath);
@@ -136,7 +136,7 @@ export class AvatarService {
       return false;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        // Directory doesn't exist, nothing to delete
+
         requestLogger.debug('No existing avatar directory to delete', {
           userId,
           directory: userAvatarPath,
@@ -170,7 +170,7 @@ export class AvatarService {
     const requestLogger = contextLogger ?? logger;
 
     try {
-      // Validate file format
+
       if (!this.isValidFormat(originalName)) {
         throw ErrorHelper.createOperationalError(
           t('avatar.invalidFormat'),
@@ -179,7 +179,7 @@ export class AvatarService {
         );
       }
 
-      // Validate file size
+
       if (!this.isValidSize(buffer.length)) {
         throw ErrorHelper.createOperationalError(
           t('avatar.fileTooLarge'),
@@ -188,23 +188,23 @@ export class AvatarService {
         );
       }
 
-      // Generate unique filename with timestamp
+
       const timestamp = DateHelper.timestamp();
       const extension = path.extname(originalName).toLowerCase();
       const filename = `avatar-${timestamp}${extension}`;
       const userAvatarPath = this.getUserAvatarPath(userId);
       const filePath = path.join(userAvatarPath, filename);
 
-      // Create user directory if it doesn't exist
+
       await fs.mkdir(userAvatarPath, { recursive: true });
 
-      // Delete existing avatar(s)
+
       const previousAvatarDeleted = await this.deleteExistingAvatar(
         userId,
         requestLogger
       );
 
-      // Save new avatar file
+
       await fs.writeFile(filePath, buffer);
 
       const uploadedAt = DateHelper.now();
@@ -236,12 +236,12 @@ export class AvatarService {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
 
-      // Re-throw operational errors as-is
+
       if (ErrorHelper.isOperational(error)) {
         throw error;
       }
 
-      // Wrap other errors as internal server errors
+
       throw ErrorHelper.createOperationalError(
         t('avatar.uploadFailed'),
         500,
@@ -316,13 +316,13 @@ export class AvatarService {
     const requestLogger = contextLogger ?? logger;
 
     try {
-      // Delete avatar files from filesystem
+
       const filesDeleted = await this.deleteExistingAvatar(
         userId,
         requestLogger
       );
 
-      // Update profile to remove avatar data
+
       const profile = await Profile.findByUserId(userId);
 
       if (!profile) {

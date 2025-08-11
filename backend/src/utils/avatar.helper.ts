@@ -24,7 +24,7 @@ export class AvatarHelper {
    * @returns Avatar generation result with URL and metadata
    * @example
    * const avatar = AvatarHelper.generateDefaultAvatar('john@example.com');
-   * // Returns: { url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=abc123', ... }
+   *
    */
   public static generateDefaultAvatar(
     identifier: string,
@@ -47,20 +47,20 @@ export class AvatarHelper {
       '34d399',
     ];
 
-    // Generate a deterministic seed from the identifier
+
     const seed = crypto
       .createHash('md5')
       .update(identifier.toLowerCase())
       .digest('hex')
       .substring(0, 8);
 
-    // Build avatar URL with parameters
+
     const baseUrl = `${env.DEFAULT_AVATAR_BASE_URL}/${style}/svg`;
     const urlParams = new URLSearchParams({
       seed,
       size: size.toString(),
       backgroundColor: backgroundColor.join(','),
-      // Common DiceBear parameters for better avatars
+
       radius: '50',
       scale: '100',
     });
@@ -82,7 +82,7 @@ export class AvatarHelper {
    * @returns Array of avatar generation results
    * @example
    * const avatars = AvatarHelper.generateAvatarOptions('john@example.com', 3);
-   * // Returns array of 3 different avatar options
+   *
    */
   public static generateAvatarOptions(
     identifier: string,
@@ -92,7 +92,7 @@ export class AvatarHelper {
     const options: IDefaultAvatarResult[] = [];
 
     for (let i = 0; i < Math.min(count, styles.length); i++) {
-      // Create variation by appending index to identifier for different seeds
+
       const variation = `${identifier}-${i}`;
       options.push(this.generateDefaultAvatar(variation, { style: styles[i] }));
     }
@@ -126,12 +126,12 @@ export class AvatarHelper {
         'gravatar.com',
       ];
 
-      // Check if it's a known avatar service
+
       const isDomainValid = validDomains.some((domain) =>
         parsedUrl.hostname.includes(domain)
       );
 
-      // Check file extension for direct image URLs
+
       const hasValidExtension = validExtensions.some((ext) =>
         parsedUrl.pathname.toLowerCase().includes(ext)
       );
@@ -148,7 +148,7 @@ export class AvatarHelper {
    * @param maxLength - Maximum number of initials (default: 2)
    * @returns Initials string in uppercase
    * @example
-   * const initials = AvatarHelper.extractInitials('John Doe Smith'); // 'JD'
+   * const initials = AvatarHelper.extractInitials('John Doe Smith');
    */
   public static extractInitials(name: string, maxLength: number = 2): string {
     if (!name || typeof name !== 'string') return 'U';
@@ -160,7 +160,7 @@ export class AvatarHelper {
 
     if (words.length === 0) return 'U';
 
-    // Take first letter of each word up to maxLength
+
     const initials = words
       .slice(0, maxLength)
       .map((word) => word[0].toUpperCase())

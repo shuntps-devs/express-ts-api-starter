@@ -122,6 +122,13 @@ module.exports = tseslint.config(
     },
   },
   {
+    files: ['**/config/**/*.ts', '**/types/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+    },
+  },
+  {
     ignores: [
       'dist/**',
       'node_modules/**',

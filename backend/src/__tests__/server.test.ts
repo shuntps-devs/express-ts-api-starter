@@ -5,12 +5,12 @@ import { configureRequestLogging, configureSecurity } from '../middleware';
 
 import { TestHelper } from './helpers';
 
-// Mock the database connection to avoid actual MongoDB connection
+
 jest.mock('../config/database', () => ({
   connectDB: jest.fn().mockResolvedValue(undefined),
 }));
 
-// Mock logger
+
 jest.mock('../config/logger', () => ({
   logger: {
     info: jest.fn(),
@@ -24,12 +24,12 @@ describe('Express Server', () => {
   let app: express.Application;
 
   beforeEach(() => {
-    // Create a fresh app instance for each test
+
     app = express();
     configureSecurity(app);
     configureRequestLogging(app);
 
-    // Setup basic routes
+
     app.get('/', (_req, res) => {
       res.send('Hello Express + TypeScript!');
     });
@@ -63,11 +63,11 @@ describe('Express Server', () => {
     it('should create mock response for server endpoints', () => {
       const mockRes = TestHelper.createMockResponse();
 
-      // Simulate home route response
+
       mockRes.send?.('Hello Express + TypeScript!');
       expect(mockRes.send).toHaveBeenCalledWith('Hello Express + TypeScript!');
 
-      // Simulate health route response
+
       const healthData = {
         status: 'OK',
         service: 'Express TypeScript API',
@@ -112,7 +112,7 @@ describe('Express Server', () => {
     it('should validate route responses with TestHelper', () => {
       const mockRes = TestHelper.createMockResponse();
 
-      // Test health endpoint response structure
+
       const healthResponse = {
         status: 'OK',
         timestamp: new Date().toISOString(),
@@ -148,7 +148,7 @@ describe('Express Server', () => {
     it('should validate security headers with TestHelper mocks', () => {
       const mockRes = TestHelper.createMockResponse();
 
-      // Simulate security middleware setting headers
+
       mockRes.set?.('x-frame-options', 'SAMEORIGIN');
       mockRes.set?.('x-content-type-options', 'nosniff');
       mockRes.set?.('referrer-policy', 'no-referrer');
@@ -174,7 +174,7 @@ describe('Express Server', () => {
     it('should validate error response with TestHelper', () => {
       const mockRes = TestHelper.createMockResponse();
 
-      // Simulate 404 error response
+
       mockRes.status?.(404);
       mockRes.json?.({ error: 'Not Found', message: 'Route not found' });
 

@@ -7,7 +7,6 @@ import { validateRequest } from '../../middleware';
 import { ErrorHelper } from '../../utils';
 import { TestHelper } from '../helpers';
 
-// Mock dependencies
 jest.mock('../../config', () => ({
   logger: {
     warn: jest.fn(),
@@ -26,8 +25,6 @@ jest.mock('../../utils', () => ({
 }));
 
 describe('Validate Request Middleware', () => {
-  console.log('🧪 Starting Validate Request Middleware test suite...');
-
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockNext: NextFunction;
@@ -38,22 +35,18 @@ describe('Validate Request Middleware', () => {
     mockRes = context.res;
     mockNext = context.next;
 
-    // Setup default request properties
     mockReq.params = {};
     mockReq.query = {};
     mockReq.body = {};
 
-    // Clear all mocks
     jest.clearAllMocks();
 
-    // Setup default mock returns
     (t as jest.Mock).mockReturnValue('Validation failed');
     (ErrorHelper.extractRequestId as jest.Mock).mockReturnValue('req-123');
   });
 
   describe('validateRequest middleware', () => {
     it('should pass validation with valid data for all schemas', async () => {
-      // Arrange
       const schema = {
         params: z.object({
           id: z.string().uuid(),
@@ -74,16 +67,13 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema as any);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
-      expect(mockNext).toHaveBeenCalledWith(); // Called with no arguments (success)
+      expect(mockNext).toHaveBeenCalledWith();
       expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only body when only body schema is provided', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           username: z.string().min(3),
@@ -95,16 +85,13 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockNext).toHaveBeenCalledWith();
       expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only params when only params schema is provided', async () => {
-      // Arrange
       const schema = {
         params: z.object({
           userId: z.string().regex(/^[0-9]+$/),
@@ -115,16 +102,13 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockNext).toHaveBeenCalledWith();
       expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should validate only query when only query schema is provided', async () => {
-      // Arrange
       const schema = {
         query: z.object({
           search: z.string().optional(),
@@ -136,16 +120,13 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockNext).toHaveBeenCalledWith();
       expect(ErrorHelper.sendValidationError).not.toHaveBeenCalled();
     });
 
     it('should handle params validation errors', async () => {
-      // Arrange
       const schema = {
         params: z.object({
           id: z.string().uuid('Invalid UUID format'),
@@ -156,10 +137,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.warn).toHaveBeenCalledWith(
         'Validation error:',
         expect.any(Array)
@@ -179,7 +158,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should handle query validation errors', async () => {
-      // Arrange
       const schema = {
         query: z.object({
           page: z.string().min(1, 'Page is required'),
@@ -190,10 +168,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema as any);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.warn).toHaveBeenCalled();
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
@@ -210,7 +186,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should handle body validation errors', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -220,17 +195,15 @@ describe('Validate Request Middleware', () => {
       };
 
       mockReq.body = {
-        name: 'A', // Too short
-        email: 'invalid-email', // Invalid format
-        age: 16, // Too young
+        name: 'A',
+        email: 'invalid-email',
+        age: 16,
       };
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(logger.warn).toHaveBeenCalled();
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
@@ -255,7 +228,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should handle multiple validation errors across different schemas', async () => {
-      // Arrange
       const schema = {
         params: z.object({
           id: z.string().uuid(),
@@ -270,10 +242,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema as any);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert - Should validate params first and fail there
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
@@ -287,7 +257,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should handle nested object validation errors', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           user: z.object({
@@ -310,10 +279,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
@@ -332,7 +299,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should handle array validation errors', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           tags: z
@@ -342,15 +308,13 @@ describe('Validate Request Middleware', () => {
       };
 
       mockReq.body = {
-        tags: ['', 'valid-tag', ''], // Empty strings are invalid
+        tags: ['', 'valid-tag', ''],
       };
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
@@ -367,7 +331,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should transform valid data correctly', async () => {
-      // Arrange
       const schema = {
         query: z.object({
           page: z.string(),
@@ -383,24 +346,20 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema as any);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockReq.query).toEqual({ page: '5', active: 'true' });
       expect(mockReq.body).toEqual({ email: 'test@example.com' });
       expect(mockNext).toHaveBeenCalledWith();
     });
 
     it('should handle non-Zod errors by passing them to next', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           name: z.string(),
         }),
       };
 
-      // Mock parseAsync to throw a non-Zod error
       jest
         .spyOn(schema.body, 'parseAsync')
         .mockRejectedValue(new Error('Unexpected error'));
@@ -409,10 +368,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -423,21 +380,18 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should include error values in validation errors when available', async () => {
-      // Arrange
       const schema = {
         body: z.object({
           status: z.enum(['active', 'inactive']),
         }),
       };
 
-      mockReq.body = { status: 'pending' }; // Invalid enum value
+      mockReq.body = { status: 'pending' };
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert - The error may not include 'received' property for enum values
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
         expect.arrayContaining([
@@ -452,7 +406,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should use correct translation key for validation errors', async () => {
-      // Arrange
       (t as jest.Mock).mockReturnValue('La validation a échoué');
 
       const schema = {
@@ -465,10 +418,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(t).toHaveBeenCalledWith('errors.validationFailed');
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
@@ -479,7 +430,6 @@ describe('Validate Request Middleware', () => {
     });
 
     it('should extract and pass request ID correctly', async () => {
-      // Arrange
       (ErrorHelper.extractRequestId as jest.Mock).mockReturnValue(
         'custom-req-id'
       );
@@ -494,10 +444,8 @@ describe('Validate Request Middleware', () => {
 
       const middleware = validateRequest(schema);
 
-      // Act
       await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      // Assert
       expect(ErrorHelper.extractRequestId).toHaveBeenCalledWith(mockReq);
       expect(ErrorHelper.sendValidationError).toHaveBeenCalledWith(
         mockRes,
@@ -509,6 +457,6 @@ describe('Validate Request Middleware', () => {
   });
 
   afterAll(() => {
-    console.log('✅ Validate Request Middleware test suite completed');
+    jest.restoreAllMocks();
   });
 });
